@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The 12 mistakes — how to actually prompt Claude</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Public+Sans:ital,wght@0,400;0,600;1,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   LESSON 13 — THE 12 MISTAKES
+   Drawn as a leak chart: four stages between your intent and
+   your output, each losing quality in a different way.
+   Two claims in the source needed correcting; both are marked.
+   ============================================================ */
+:root{
+  --paper:#E9E6DB; --paper-hi:#F4F2EA; --ink:#16203C; --ink-soft:#4A5470; --rule:#C9C4B4;
+  --g1:#1358A8; --g1i:#0D4079;   /* how you prompt   */
+  --g2:#7B4BB0; --g2i:#573079;   /* the output       */
+  --g3:#C9761A; --g3i:#8A4A06;   /* your setup       */
+  --g4:#0E8A63; --g4i:#0A6047;   /* mindset          */
+  --warn:#DE4438; --warni:#A22119; --marker:#FFD84A;
+  --display:"Bricolage Grotesque","Trebuchet MS",system-ui,sans-serif;
+  --body:"Public Sans",-apple-system,"Segoe UI",Roboto,sans-serif;
+  --mono:"Space Mono",ui-monospace,"Courier New",monospace;
+}
+*,*::before,*::after{ box-sizing:border-box; }
+html{ scroll-behavior:smooth; }
+body{ margin:0; background:var(--paper); color:var(--ink); font-family:var(--body); font-size:1rem; line-height:1.6; -webkit-font-smoothing:antialiased; }
+body::after{ content:""; position:fixed; inset:0; pointer-events:none; z-index:99;
+  background-image:radial-gradient(var(--ink) .5px, transparent .5px); background-size:4px 4px; opacity:.055; }
+.wrap{ max-width:1120px; margin:0 auto; padding:0 1.5rem; }
+h1,h2,h3{ font-family:var(--display); font-weight:800; line-height:1.04; margin:0; letter-spacing:-.02em; }
+h1{ font-size:clamp(2.4rem,8vw,5rem); text-transform:uppercase; }
+h2{ font-size:clamp(1.4rem,3.6vw,2.2rem); }
+p{ margin:0 0 1rem; } p:last-child{ margin-bottom:0; }
+a{ color:inherit; }
+:focus-visible{ outline:3px solid var(--g1); outline-offset:3px; border-radius:3px; }
+.tag{ font-family:var(--mono); font-size:.66rem; font-weight:700; text-transform:uppercase; letter-spacing:.16em; }
+
+.routebar{ position:sticky; top:0; z-index:50; background:var(--paper); border-bottom:2px solid var(--ink); }
+.routebar .wrap{ display:flex; align-items:center; gap:1rem; flex-wrap:wrap; padding:.6rem 1.5rem; }
+.routebar .brand{ font-family:var(--display); font-weight:800; text-transform:uppercase; margin-right:auto; }
+.routebar .brand small{ font-family:var(--mono); font-weight:700; font-size:.6rem; letter-spacing:.16em; color:var(--ink-soft); display:block; }
+.routebar nav{ display:flex; gap:.35rem; flex-wrap:wrap; }
+.pill{ font-family:var(--mono); font-size:.63rem; font-weight:700; text-transform:uppercase; letter-spacing:.1em;
+  text-decoration:none; color:#fff; padding:.32rem .58rem; border-radius:999px; transition:transform .18s ease; }
+.pill:hover{ transform:translateY(-2px); }
+
+.hero{ padding:3.5rem 0 1.5rem; }
+.hero .eyebrow{ color:var(--ink-soft); display:block; margin-bottom:1rem; }
+.hero h1{ margin-bottom:1.2rem; }
+.hero .deck{ font-size:1.1rem; color:var(--ink-soft); max-width:56ch; }
+.hero .deck strong{ color:var(--ink); font-weight:600; }
+
+.leakfig{ display:none; margin:2rem 0 1rem; }
+.leakfig svg{ width:100%; height:auto; display:block; }
+.leakchips{ display:grid; grid-template-columns:1fr 1fr; gap:.5rem; margin:1.5rem 0; }
+.lc{ border:2px solid; background:var(--paper-hi); padding:.6rem .75rem; }
+.lc b{ display:block; font-family:var(--display); font-weight:800; font-size:.9rem; text-transform:uppercase; }
+.lc span{ font-family:var(--mono); font-size:.55rem; text-transform:uppercase; letter-spacing:.08em; color:var(--ink-soft); }
+.lc.k1{ border-color:var(--g1); } .lc.k1 b{ color:var(--g1i); }
+.lc.k2{ border-color:var(--g2); } .lc.k2 b{ color:var(--g2i); }
+.lc.k3{ border-color:var(--g3); } .lc.k3 b{ color:var(--g3i); }
+.lc.k4{ border-color:var(--g4); } .lc.k4 b{ color:var(--g4i); }
+
+.sect{ padding:3.5rem 0 1rem; border-top:1px solid var(--rule); scroll-margin-top:4.4rem; }
+.shead{ display:flex; align-items:baseline; gap:1rem; flex-wrap:wrap; margin-bottom:.4rem; }
+.snum{ font-family:var(--mono); font-weight:700; font-size:.7rem; text-transform:uppercase; letter-spacing:.14em; color:#fff; padding:.28rem .55rem; border-radius:3px; }
+.slede{ color:var(--ink-soft); max-width:60ch; margin-bottom:2rem; font-size:1.01rem; }
+#s1 .snum{ background:var(--g1i); } #s1 h2{ color:var(--g1i); }
+#s2 .snum{ background:var(--g2i); } #s2 h2{ color:var(--g2i); }
+#s3 .snum{ background:var(--g3i); } #s3 h2{ color:var(--g3i); }
+#s4 .snum{ background:var(--g4i); } #s4 h2{ color:var(--g4i); }
+
+.mistakes{ display:grid; grid-template-columns:1fr; gap:1rem; }
+.mk{ background:var(--paper-hi); border:1px solid var(--rule); border-left:7px solid; padding:1.4rem; }
+.mk .mn{ font-family:var(--mono); font-size:.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.12em; }
+.mk h3{ font-size:1.08rem; font-weight:800; margin:.3rem 0 .5rem; letter-spacing:-.01em; }
+.mk p{ font-size:.93rem; color:var(--ink-soft); }
+.mk .fix{ margin-top:.8rem; border-top:1px dashed var(--rule); padding-top:.7rem; font-size:.93rem; }
+.mk .fix b{ font-family:var(--mono); font-size:.56rem; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:var(--ink); display:block; margin-bottom:.3rem; }
+#s1 .mk{ border-left-color:var(--g1); } #s1 .mn,#s1 h3{ color:var(--g1i); }
+#s2 .mk{ border-left-color:var(--g2); } #s2 .mn,#s2 h3{ color:var(--g2i); }
+#s3 .mk{ border-left-color:var(--g3); } #s3 .mn,#s3 h3{ color:var(--g3i); }
+#s4 .mk{ border-left-color:var(--g4); } #s4 .mn,#s4 h3{ color:var(--g4i); }
+
+.ba{ display:grid; grid-template-columns:1fr; gap:.6rem; margin-top:.9rem; }
+.ba > div{ border:1px solid var(--rule); background:var(--paper); padding:.75rem .85rem; }
+.ba .bl{ font-family:var(--mono); font-size:.55rem; font-weight:700; text-transform:uppercase; letter-spacing:.12em; display:block; margin-bottom:.3rem; }
+.ba .before{ border-left:4px solid var(--ink-soft); } .ba .before .bl{ color:var(--ink-soft); }
+.ba .after{ border-left:4px solid var(--g4); } .ba .after .bl{ color:var(--g4i); }
+.ba q{ quotes:none; font-size:.9rem; font-style:italic; white-space:pre-wrap; }
+
+.correction{ border:2px solid var(--warn); background:var(--paper-hi); padding:1.4rem; margin-top:1rem; }
+.correction .ct{ font-family:var(--mono); font-size:.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.12em; color:var(--warni); display:block; margin-bottom:.5rem; }
+.correction h3{ font-size:1.08rem; margin-bottom:.6rem; }
+.correction p{ font-size:.93rem; }
+.correction ul{ margin:.6rem 0 0; padding-left:1.1rem; }
+.correction li{ font-size:.92rem; color:var(--ink-soft); margin-bottom:.4rem; }
+.correction li strong{ color:var(--ink); font-weight:600; }
+
+.keep{ background:var(--ink); color:#C6CDDE; padding:.9rem 1rem; font-size:.95rem; font-style:italic; margin-top:1rem; }
+.keep b{ font-style:normal; color:var(--marker); font-weight:600; }
+.xl{ display:inline-block; margin-top:.7rem; font-family:var(--mono); font-size:.58rem; font-weight:700;
+  text-transform:uppercase; letter-spacing:.1em; background:var(--marker); color:var(--ink); padding:.25rem .5rem; text-decoration:none; }
+
+footer{ border-top:1px solid var(--rule); margin-top:3.5rem; padding:1.5rem 0 3.5rem; }
+footer p{ font-family:var(--mono); font-size:.64rem; text-transform:uppercase; letter-spacing:.1em; color:var(--ink-soft); }
+
+@media (min-width:700px){ .mistakes{ grid-template-columns:1fr 1fr; } .ba{ grid-template-columns:1fr 1.4fr; } .leakchips{ grid-template-columns:repeat(4,1fr); } }
+@media (min-width:960px){ .leakfig{ display:block; } .leakchips{ display:none; } }
+@media (prefers-reduced-motion:reduce){ html{ scroll-behavior:auto; } *{ transition:none !important; } }
+@media print{ .routebar,.leakfig{ display:none; } body::after{ display:none; } .mk,.correction{ break-inside:avoid; } }
+</style>
+</head>
+<body>
+
+<div class="routebar">
+  <div class="wrap">
+    <span class="brand">The 12 mistakes<small>Lesson 13</small></span>
+    <nav aria-label="Sections">
+      <a class="pill" style="background:#16203C" href="index.html">Home</a>
+      <a class="pill" style="background:#0A6047" href="prompt-library.html">Vol 1</a>
+      <a class="pill" style="background:#0A6047" href="power-prompts.html">Vol 2</a>
+      <a class="pill" style="background:#0D4079" href="#s1">How you prompt</a>
+      <a class="pill" style="background:#573079" href="#s2">The output</a>
+      <a class="pill" style="background:#8A4A06" href="#s3">Your setup</a>
+      <a class="pill" style="background:#0A6047" href="#s4">Mindset</a>
+    </nav>
+  </div>
+</div>
+
+<header class="hero">
+  <div class="wrap">
+    <span class="tag eyebrow">Lesson 13 · Prompting habits · read in ~7 minutes</span>
+    <h1>Where the<br>quality leaks</h1>
+    <p class="deck">Claude isn't the problem. <strong>The gap between an average result and a great one is everything that happens around the model</strong> — before you hit send, after the first reply lands, and in the setup you never did. Twelve leaks, four places they spring.</p>
+
+    <figure class="leakfig">
+      <svg viewBox="0 0 900 190" role="img" aria-label="Four stages between your intent and your output, each losing quality.">
+        <defs><marker id="a" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse" markerUnits="userSpaceOnUse"><path d="M0 0 L10 5 L0 10 z" fill="#16203C"/></marker></defs>
+        <rect x="14" y="62" width="128" height="56" rx="5" fill="#16203C"/>
+        <text x="78" y="86" text-anchor="middle" fill="#FFD84A" font-family="Space Mono, monospace" font-size="9" font-weight="700" letter-spacing="1.2">WHAT YOU</text>
+        <text x="78" y="103" text-anchor="middle" fill="#E9E6DB" font-family="Bricolage Grotesque, sans-serif" font-size="16" font-weight="800">MEANT</text>
+
+        <g stroke="#16203C" stroke-width="2.5" fill="none">
+          <path d="M146 90 H176" marker-end="url(#a)"/><path d="M334 90 H364" marker-end="url(#a)"/>
+          <path d="M522 90 H552" marker-end="url(#a)"/><path d="M710 90 H740" marker-end="url(#a)"/>
+        </g>
+        <g fill="#F4F2EA" stroke-width="3">
+          <rect x="180" y="62" width="150" height="56" rx="5" stroke="#1358A8"/>
+          <rect x="368" y="62" width="150" height="56" rx="5" stroke="#7B4BB0"/>
+          <rect x="556" y="62" width="150" height="56" rx="5" stroke="#C9761A"/>
+        </g>
+        <rect x="744" y="62" width="142" height="56" rx="5" fill="#F4F2EA" stroke="#0E8A63" stroke-width="3"/>
+        <g text-anchor="middle" font-family="Bricolage Grotesque, sans-serif" font-size="14" font-weight="800">
+          <text x="255" y="88" fill="#0D4079">HOW YOU PROMPT</text>
+          <text x="443" y="88" fill="#573079">THE FIRST REPLY</text>
+          <text x="631" y="88" fill="#8A4A06">YOUR SETUP</text>
+          <text x="815" y="88" fill="#0A6047">YOUR MINDSET</text>
+        </g>
+        <g text-anchor="middle" font-family="Space Mono, monospace" font-size="9" fill="#4A5470" letter-spacing="0.8">
+          <text x="255" y="106">MISTAKES 1–4</text><text x="443" y="106">MISTAKES 5–7</text>
+          <text x="631" y="106">MISTAKES 8–10</text><text x="815" y="106">MISTAKES 11–12</text>
+        </g>
+        <g stroke="#DE4438" stroke-width="2.5" fill="none" stroke-dasharray="4 4">
+          <path d="M255 122 V150"/><path d="M443 122 V150"/><path d="M631 122 V150"/><path d="M815 122 V150"/>
+        </g>
+        <g text-anchor="middle" font-family="Space Mono, monospace" font-size="9" font-weight="700" fill="#A22119" letter-spacing="1">
+          <text x="255" y="166">LEAK</text><text x="443" y="166">LEAK</text><text x="631" y="166">LEAK</text><text x="815" y="166">LEAK</text>
+        </g>
+        <text x="14" y="30" fill="#4A5470" font-family="Space Mono, monospace" font-size="10" font-weight="700" letter-spacing="1.5">FOUR PLACES QUALITY ESCAPES BETWEEN YOUR INTENT AND YOUR RESULT</text>
+      </svg>
+    </figure>
+
+    <div class="leakchips" aria-hidden="true">
+      <div class="lc k1"><b>How you prompt</b><span>mistakes 1–4</span></div>
+      <div class="lc k2"><b>The first reply</b><span>mistakes 5–7</span></div>
+      <div class="lc k3"><b>Your setup</b><span>mistakes 8–10</span></div>
+      <div class="lc k4"><b>Your mindset</b><span>mistakes 11–12</span></div>
+    </div>
+  </div>
+</header>
+
+<main>
+
+<!-- ══════ 1 · HOW YOU PROMPT ══════ -->
+<section class="sect" id="s1">
+  <div class="wrap">
+    <div class="shead"><span class="snum">Leak 01</span><h2>How you prompt</h2></div>
+    <p class="slede">The fix is never a longer prompt. It's a <strong>more complete</strong> one.</p>
+
+    <div class="mistakes">
+      <div class="mk">
+        <span class="mn">Mistake 01</span>
+        <h3>Too vague — no context, no goal, no audience</h3>
+        <p>A prompt that makes sense to you can mean almost nothing to Claude. It fills the blanks, and it fills them with the most generic version of what you asked for.</p>
+        <div class="ba">
+          <div class="before"><span class="bl">Without context</span><q>Write a LinkedIn post about our new product launch.</q></div>
+          <div class="after"><span class="bl">With context</span><q>I'm the marketing lead at a B2B SaaS company. We're launching a project management tool aimed at remote engineering teams. Write a LinkedIn post announcing the launch — professional but not corporate, aimed at CTOs and engineering managers. The goal is waitlist sign-ups.</q></div>
+        </div>
+        <p class="fix"><b>The fix</b>Three things before anything else: who you are and what you're working on, what you want to achieve, and who the output is for.</p>
+      </div>
+
+      <div class="mk">
+        <span class="mn">Mistake 02</span>
+        <h3>Asking three things in one prompt</h3>
+        <p>Claude doesn't prioritise. Ask for three things and it splits attention evenly and does all three at 60%. You get a post with no hook, a summary with no numbers, and an email that could be from anyone.</p>
+        <p class="fix"><b>The fix</b>One prompt, one task. Finish it, then start the next. Claude in a focused conversation is a different tool from Claude pulled three ways.</p>
+      </div>
+
+      <div class="mk">
+        <span class="mn">Mistake 03</span>
+        <h3>No role before the task</h3>
+        <p>Without a role, Claude picks the most average version of what you asked for. Adding "you are a senior copywriter with ten years of B2B experience" shifts five things at once: tone, vocabulary, what it assumes you already know, how far it pushes past the obvious, and how it structures the output.</p>
+        <p class="fix"><b>The fix</b>One line at the top. It doesn't constrain Claude — it gives it a starting point that isn't the middle of everything.</p>
+      </div>
+
+      <div class="mk">
+        <span class="mn">Mistake 04</span>
+        <h3>Not saying what format you want</h3>
+        <p>Claude will always give you something. Left to choose, it picks whatever is most average — usually a wall of text with headers, nested bullets and a conclusion you didn't ask for. Reformatting it costs you the time you saved.</p>
+        <div class="ba">
+          <div class="before"><span class="bl">Without format</span><q>Write me a competitive analysis of Notion vs Linear.</q></div>
+          <div class="after"><span class="bl">With format</span><q>Write me a competitive analysis of Notion vs Linear. Give it to me as a simple table — rows for each criterion, two columns. No intro, no conclusion, just the table.</q></div>
+        </div>
+        <p class="fix"><b>The fix</b>One extra sentence, before it starts.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════ 2 · THE FIRST REPLY ══════ -->
+<section class="sect" id="s2">
+  <div class="wrap">
+    <div class="shead"><span class="snum">Leak 02</span><h2>What you do with the first reply</h2></div>
+    <p class="slede">This is where most of the quality is actually lost — and it costs nothing to fix.</p>
+
+    <div class="mistakes">
+      <div class="mk">
+        <span class="mn">Mistake 05</span>
+        <h3>Accepting the first draft</h3>
+        <p>The first response is Claude's best guess at what "good" looks like for your request. Sometimes the guess is right. Usually there's a sharper version one message away.</p>
+        <p class="fix"><b>The fix</b>One follow-up beats an hour of prompt engineering. Send it back — every time.</p>
+      </div>
+
+      <div class="mk">
+        <span class="mn">Mistake 06</span>
+        <h3>Not saying what was wrong</h3>
+        <p>When it misses, the instinct is to send the same request again, reworded. It almost never works — Claude doesn't know what you disliked, so it makes the same assumptions and lands in the same place.</p>
+        <div class="ba">
+          <div class="before"><span class="bl">Asking again</span><q>Can you try that again?</q></div>
+          <div class="after"><span class="bl">Saying what missed</span><q>Close, but the tone is too formal — make it more conversational. The second paragraph is too long, cut it in half. Lead with the benefit, not the feature. Keep everything else.</q></div>
+        </div>
+        <p class="fix"><b>The fix</b>Name the edit, not the mood. Claude can't fix what it doesn't know is broken.</p>
+      </div>
+
+      <div class="mk">
+        <span class="mn">Mistake 07</span>
+        <h3>Starting a new chat out of habit</h3>
+        <p>A long conversation gets better as it goes: it picks up your tone, your standards, the decisions you've already made. Open a new tab out of reflex and you throw all of that away and start at the warm-up again.</p>
+        <p class="fix"><b>The fix</b>If the work spans more than one sitting, stay in the thread — <em>but read the correction below, because this rule has a real limit.</em></p>
+      </div>
+    </div>
+
+    <div class="correction">
+      <span class="ct">Correction · the source overstates this one</span>
+      <h3>"Claude has no memory between conversations" is no longer true</h3>
+      <p>The advice to stay in one thread is good. The reason given for it isn't — and two of your own source guides flatly contradict each other here, so it's worth settling.</p>
+      <ul>
+        <li><strong>Memory exists now.</strong> Claude carries your role, preferences and working style into new chats, and you can review, edit or delete any of it in Settings. Projects each keep their own separate memory too. Starting fresh no longer means starting from zero.</li>
+        <li><strong>Long threads have a real cost.</strong> Everything earlier in a conversation stays loaded — so when you switch topics inside a long chat you pay for irrelevant context on every response, and old context can bleed into the new topic.</li>
+        <li><strong>The honest rule:</strong> stay in the thread while the context still helps. Start fresh when you change topic, or when the conversation has gone off the rails — Lesson 03's advice. With Projects and Memory set up, restarting is cheap, which is exactly why the setup matters more than the habit.</li>
+      </ul>
+      <a class="xl" href="lesson-05-projects.html">How Projects hold context →</a>
+    </div>
+  </div>
+</section>
+
+<!-- ══════ 3 · YOUR SETUP ══════ -->
+<section class="sect" id="s3">
+  <div class="wrap">
+    <div class="shead"><span class="snum">Leak 03</span><h2>Your setup</h2></div>
+    <p class="slede">If you type the same context at the start of every session, that isn't a prompting habit. It's a setup problem.</p>
+
+    <div class="mistakes">
+      <div class="mk">
+        <span class="mn">Mistake 08</span>
+        <h3>No standing instructions</h3>
+        <p>Every conversation that opens with you explaining who you are and how you like things is a conversation where the first ten messages get you back to where you already were.</p>
+        <p class="fix"><b>The fix</b>Write it once — your role, your preferences, your standards, what you never want. There's a fill-in template in the Vault.</p>
+        <a class="xl" href="power-prompts.html#lib">Standing instructions template →</a>
+      </div>
+
+      <div class="mk">
+        <span class="mn">Mistake 09</span>
+        <h3>Using the wrong model for the task</h3>
+        <p>Not everything needs the most capable model, and not everything should go to the fastest one. Run everything through the same model and some outputs feel shallow while others feel needlessly slow.</p>
+        <p class="fix"><b>The fix</b>Match the model to what the task actually demands — speed for summarising and formatting, depth for reasoning and nuanced writing. Turn on extended thinking when the problem is genuinely hard, not by default.</p>
+      </div>
+
+      <div class="mk">
+        <span class="mn">Mistake 10</span>
+        <h3>Not using Projects for recurring work</h3>
+        <p>If you do the same kind of work more than once, re-explaining it each time is the whole cost. People who say Claude finally understands them didn't find a better prompt — they stopped starting from zero.</p>
+        <p class="fix"><b>The fix</b>Write your context and instructions once inside a Project. Every conversation in it starts already loaded.</p>
+        <a class="xl" href="lesson-05-projects.html">Lesson 05 →</a>
+      </div>
+    </div>
+
+    <div class="correction" style="border-color:var(--rule);">
+      <span class="ct" style="color:var(--ink-soft);">Correction · model names go stale fast</span>
+      <h3>The principle holds. The list doesn't.</h3>
+      <p>Guides that name specific models date badly — Anthropic ships new ones several times a year, and the tiers get renamed. Learn the shape rather than the labels.</p>
+      <ul>
+        <li><strong>Fast and light</strong> for summarising, classifying, formatting — anywhere speed beats depth.</li>
+        <li><strong>The mid-tier default</strong> for most writing, research, analysis and coding. This is where you should spend most of your time.</li>
+        <li><strong>The most capable tier</strong> for genuinely hard reasoning and nuanced work. Reaching for it by default costs you speed for no gain.</li>
+        <li><strong>Check the current lineup</strong> in the model switcher itself, or at Anthropic's help centre. Any article naming specific versions is a snapshot, not a rule.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ══════ 4 · MINDSET ══════ -->
+<section class="sect" id="s4">
+  <div class="wrap">
+    <div class="shead"><span class="snum">Leak 04</span><h2>Your mindset</h2></div>
+    <p class="slede">The last two aren't techniques. They're the reason the other ten happen.</p>
+
+    <div class="mistakes">
+      <div class="mk">
+        <span class="mn">Mistake 11</span>
+        <h3>Treating it like Google</h3>
+        <p>Google is for finding things that already exist. A search box takes a question; Claude takes a situation. Type a two-sentence query and you get a two-sentence answer — then conclude Claude is underwhelming and go back to Google.</p>
+        <p class="fix"><b>The fix</b>Don't ask for an answer. Give it the situation and work through it together. The people who get the most out of Claude stopped asking questions and started having conversations.</p>
+        <a class="xl" href="what-is-claude-map.html#r2">The sorting exercise from Lesson 01 →</a>
+      </div>
+
+      <div class="mk">
+        <span class="mn">Mistake 12</span>
+        <h3>Not using Claude to learn</h3>
+        <p>Most people take the output and close the tab. The most underused move in the whole tool is asking it to explain what it did and why. The people who improve fastest aren't the ones who get the best first drafts — they're the ones who understand why something worked and carry it forward.</p>
+        <p class="fix"><b>The fix</b>After any output, ask: why did you structure it that way? What did you assume I wanted? What's the weakest part of this? What would an expert say is missing?</p>
+      </div>
+    </div>
+
+    <div class="correction" style="border-color:var(--marker);">
+      <span class="ct" style="color:var(--g3i);">Worth knowing · this advice has a shelf life</span>
+      <h3>The prescriptive half fades. The context half doesn't.</h3>
+      <p>Mistakes 3 and 4 tell you to assign roles and dictate format. That's sound today. But newer, stronger models need less of that steering — and guides on the latest models say the opposite: <strong>give goals rather than steps, and don't micromanage the approach.</strong> Both are right for their moment.</p>
+      <p style="margin-top:.7rem;">The part that never goes out of date is context: who you are, what you're trying to achieve, who it's for, and what "good" looks like. <span style="background:var(--marker);padding:0 .15em;">No model will ever guess your situation.</span> The scaffolding you build around a weaker model is what you can drop later; the context is what you keep forever.</p>
+    </div>
+
+    <p class="keep"><b>The honest summary:</b> none of these twelve are hard to fix. That's the frustrating part. The gap between average results and great ones isn't talent and isn't time — it's twelve small habits nobody laid out for you. Pick one and do it differently today.</p>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>Lesson 13 · The 12 mistakes · Leak chart ·
+      <a href="lesson-12-other-surfaces.html">← Lesson 12</a> ·
+      <a href="prompt-library.html">Vol 1</a> ·
+      <a href="power-prompts.html">Vol 2</a> ·
+      <a href="index.html">Home</a></p>
+  </div>
+</footer>
+
+
+
+<style>
+.pathnav{position:sticky;bottom:0;z-index:60;background:#16203C;border-top:2px solid #FFD84A;}
+.pathnav .inner{max-width:1160px;margin:0 auto;padding:.55rem 1.5rem;display:flex;align-items:center;gap:.8rem;flex-wrap:wrap;}
+.pathnav a{font-family:"Space Mono",monospace;font-size:.6rem;font-weight:700;text-transform:uppercase;
+letter-spacing:.1em;text-decoration:none;color:#E9E6DB;border:1.5px solid #4A5470;padding:.32rem .55rem;transition:all .15s ease;}
+.pathnav a:hover{border-color:#FFD84A;color:#FFD84A;}
+.pathnav a.next{border-color:#FFD84A;color:#FFD84A;margin-left:auto;}
+.pathnav .step{font-family:"Space Mono",monospace;font-size:.58rem;font-weight:700;letter-spacing:.12em;color:#8FA0C4;text-transform:uppercase;}
+@media print{.pathnav{display:none;}}
+</style>
+<div class="pathnav"><div class="inner"><a href="lesson-03-better-results.html">← 03 Better results</a>
+<a href="learning-path.html">↑ Learning path</a>
+<span class="step">Step 5 of 16</span>
+<a class="next" href="prompt-library.html">Practice · 50 pairs →</a></div></div>
+</body>
+</html>

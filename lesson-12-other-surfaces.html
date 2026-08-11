@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Other ways to work with Claude — the floor plan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Public+Sans:ital,wght@0,400;0,600;1,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   LESSON 12 — OTHER WAYS TO WORK WITH CLAUDE
+   Eight surfaces, but they aren't eight products to learn. They
+   are one assistant showing up in rooms you were already sitting
+   in. So the page is a floor plan. Same inks as Lessons 01–11.
+   Single file. No JavaScript.
+   ============================================================ */
+
+:root{
+  --paper:#E9E6DB; --paper-hi:#F4F2EA; --ink:#16203C; --ink-soft:#4A5470; --rule:#C9C4B4;
+
+  --code:#0E8A63; --code-ink:#0A6047;   /* Claude Code       */
+  --chat:#7B4BB0; --chat-ink:#573079;   /* @Claude in Slack  */
+  --docs:#1358A8; --docs-ink:#0D4079;   /* Microsoft 365     */
+  --web:#C9761A;  --web-ink:#8A4A06;    /* Claude in Chrome  */
+  --warn:#DE4438; --warn-ink:#A22119;
+
+  --marker:#FFD84A;
+  --sp-1:.5rem; --sp-2:1rem; --sp-3:1.5rem; --sp-4:2.25rem; --sp-5:3.5rem;
+
+  --display:"Bricolage Grotesque","Trebuchet MS",system-ui,sans-serif;
+  --body:"Public Sans",-apple-system,"Segoe UI",Roboto,sans-serif;
+  --mono:"Space Mono",ui-monospace,"Courier New",monospace;
+}
+
+*,*::before,*::after{ box-sizing:border-box; }
+html{ scroll-behavior:smooth; }
+body{
+  margin:0; background:var(--paper); color:var(--ink);
+  font-family:var(--body); font-size:1rem; line-height:1.6; -webkit-font-smoothing:antialiased;
+}
+body::after{
+  content:""; position:fixed; inset:0; pointer-events:none; z-index:99;
+  background-image:radial-gradient(var(--ink) .5px, transparent .5px);
+  background-size:4px 4px; opacity:.055;
+}
+.wrap{ max-width:1160px; margin:0 auto; padding:0 var(--sp-3); }
+
+h1,h2,h3{ font-family:var(--display); font-weight:800; line-height:1.04; margin:0; letter-spacing:-.02em; }
+h1{ font-size:clamp(2.4rem,8vw,5.2rem); text-transform:uppercase; }
+h2{ font-size:clamp(1.45rem,3.8vw,2.3rem); }
+h3{ font-size:1.04rem; font-weight:600; letter-spacing:0; }
+p{ margin:0 0 var(--sp-2); } p:last-child{ margin-bottom:0; }
+
+.tag{ font-family:var(--mono); font-size:.68rem; font-weight:700; text-transform:uppercase; letter-spacing:.16em; }
+.marked{ background:linear-gradient(transparent 58%, var(--marker) 58%, var(--marker) 94%, transparent 94%); padding:0 .12em; }
+a{ color:inherit; }
+a:focus-visible{ outline:3px solid var(--docs); outline-offset:3px; border-radius:2px; }
+
+/* ===================== sticky bar ===================== */
+.routebar{ position:sticky; top:0; z-index:50; background:var(--paper); border-bottom:2px solid var(--ink); }
+.routebar .wrap{ display:flex; align-items:center; gap:var(--sp-2); flex-wrap:wrap; padding-top:.6rem; padding-bottom:.6rem; }
+.routebar .brand{ font-family:var(--display); font-weight:800; text-transform:uppercase; margin-right:auto; letter-spacing:-.01em; }
+.routebar .brand small{ font-family:var(--mono); font-weight:700; font-size:.6rem; letter-spacing:.16em; color:var(--ink-soft); display:block; text-transform:uppercase; }
+.routebar nav{ display:flex; gap:.35rem; flex-wrap:wrap; }
+.pill{
+  font-family:var(--mono); font-size:.63rem; font-weight:700; text-transform:uppercase;
+  letter-spacing:.1em; text-decoration:none; color:#fff;
+  padding:.32rem .58rem; border-radius:999px; transition:transform .18s ease, filter .18s ease;
+}
+.pill:hover{ transform:translateY(-2px); filter:brightness(1.12); }
+.pill.p1{ background:var(--ink); } .pill.p2{ background:var(--docs-ink); }
+.pill.p3{ background:var(--warn-ink); } .pill.p4{ background:var(--code-ink); }
+
+/* ======================== hero ======================== */
+.hero{ padding:var(--sp-5) 0 var(--sp-3); }
+.hero .eyebrow{ color:var(--ink-soft); display:block; margin-bottom:var(--sp-2); }
+.hero h1{ margin-bottom:var(--sp-3); }
+.hero .deck{ font-size:clamp(1.05rem,2.2vw,1.28rem); max-width:58ch; color:var(--ink-soft); }
+.hero .deck strong{ color:var(--ink); font-weight:600; }
+
+/* ====================== sections ====================== */
+.sect{ padding:var(--sp-5) 0 var(--sp-2); border-top:1px solid var(--rule); scroll-margin-top:4.4rem; }
+.shead{ display:flex; align-items:baseline; gap:var(--sp-2); flex-wrap:wrap; margin-bottom:.5rem; }
+.snum{ font-family:var(--mono); font-weight:700; font-size:.72rem; text-transform:uppercase; letter-spacing:.14em; color:#fff; padding:.28rem .55rem; border-radius:3px; background:var(--ink); }
+.slede{ color:var(--ink-soft); max-width:62ch; margin-bottom:var(--sp-4); font-size:1.02rem; }
+.slede strong{ color:var(--ink); font-weight:600; }
+#care .snum{ background:var(--warn-ink); } #care h2{ color:var(--warn-ink); }
+
+/* ==================== the floor plan ==================== */
+.planfig{ display:none; margin-bottom:var(--sp-2); }
+.planfig svg{ width:100%; height:auto; display:block; }
+.planchips{ display:grid; grid-template-columns:1fr 1fr; gap:.5rem; margin-bottom:var(--sp-2); }
+.pchip{ border:2px solid; background:var(--paper-hi); padding:.55rem .7rem; }
+.pchip b{ display:block; font-family:var(--display); font-weight:800; font-size:.9rem; text-transform:uppercase; }
+.pchip span{ font-family:var(--mono); font-size:.55rem; text-transform:uppercase; letter-spacing:.08em; color:var(--ink-soft); }
+.pchip.c1{ border-color:var(--code); } .pchip.c1 b{ color:var(--code-ink); }
+.pchip.c2{ border-color:var(--chat); } .pchip.c2 b{ color:var(--chat-ink); }
+.pchip.c3{ border-color:var(--web); }  .pchip.c3 b{ color:var(--web-ink); }
+.pchip.c4{ border-color:var(--ink); background:var(--ink); } .pchip.c4 b{ color:var(--paper); } .pchip.c4 span{ color:var(--marker); }
+.pchip.c5{ border-color:var(--docs); } .pchip.c5 b{ color:var(--docs-ink); }
+
+.plancap{ font-family:var(--mono); font-size:.65rem; text-transform:uppercase; letter-spacing:.1em; color:var(--ink-soft); border-top:1px solid var(--rule); padding-top:.7rem; margin-bottom:var(--sp-3); }
+
+.thesis{ background:var(--ink); color:#C6CDDE; padding:var(--sp-3); border-left:6px solid var(--marker); }
+.thesis .tt{ font-family:var(--mono); font-size:.62rem; font-weight:700; text-transform:uppercase; letter-spacing:.12em; color:#8FA0C4; display:block; margin-bottom:.5rem; }
+.thesis .big{ font-family:var(--display); font-weight:800; letter-spacing:-.02em; font-size:clamp(1.2rem,3.2vw,1.9rem); line-height:1.1; margin:0 0 .6rem; color:var(--paper); }
+.thesis .big em{ font-style:normal; color:var(--marker); }
+.thesis p{ font-size:.95rem; }
+
+/* ==================== the rooms ==================== */
+.room{ margin-bottom:var(--sp-4); }
+.roomhead{ display:flex; align-items:baseline; gap:.8rem; border-bottom:2px solid; padding-bottom:.4rem; margin-bottom:var(--sp-2); flex-wrap:wrap; }
+.roomhead .rn{ font-family:var(--mono); font-size:.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.12em; }
+.roomhead h3{ font-family:var(--display); font-weight:800; text-transform:uppercase; font-size:1.3rem; letter-spacing:-.01em; }
+.roomhead .where{ font-family:var(--mono); font-size:.58rem; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:#fff; padding:.22rem .5rem; margin-left:auto; }
+.roomlede{ font-size:.96rem; color:var(--ink-soft); max-width:66ch; margin-bottom:var(--sp-2); }
+
+.surf{ background:var(--paper-hi); border:1px solid var(--rule); border-left:6px solid; padding:var(--sp-3); }
+.surf h4{ font-family:var(--display); font-weight:800; font-size:1.06rem; margin:0 0 .5rem; letter-spacing:-.01em; }
+.surf ul{ margin:0; padding-left:1.05rem; }
+.surf li{ font-size:.92rem; color:var(--ink-soft); margin-bottom:.45rem; }
+.surf li:last-child{ margin-bottom:0; }
+.surf li strong{ color:var(--ink); font-weight:600; }
+.grid2{ display:grid; grid-template-columns:1fr; gap:var(--sp-2); }
+
+.r1 .roomhead{ border-bottom-color:var(--code); } .r1 .rn,.r1 h3{ color:var(--code-ink); } .r1 .where{ background:var(--code-ink); } .r1 .surf{ border-left-color:var(--code); } .r1 h4{ color:var(--code-ink); }
+.r2 .roomhead{ border-bottom-color:var(--chat); } .r2 .rn,.r2 h3{ color:var(--chat-ink); } .r2 .where{ background:var(--chat-ink); } .r2 .surf{ border-left-color:var(--chat); } .r2 h4{ color:var(--chat-ink); }
+.r3 .roomhead{ border-bottom-color:var(--docs); } .r3 .rn,.r3 h3{ color:var(--docs-ink); } .r3 .where{ background:var(--docs-ink); } .r3 .surf{ border-left-color:var(--docs); } .r3 h4{ color:var(--docs-ink); }
+.r4 .roomhead{ border-bottom-color:var(--web); }  .r4 .rn,.r4 h3{ color:var(--web-ink); }  .r4 .where{ background:var(--web-ink); }  .r4 .surf{ border-left-color:var(--web); }  .r4 h4{ color:var(--web-ink); }
+.r5 .roomhead{ border-bottom-color:var(--ink); }  .r5 .rn,.r5 h3{ color:var(--ink); }      .r5 .where{ background:var(--ink); }      .r5 .surf{ border-left-color:var(--ink); }  .r5 h4{ color:var(--ink); }
+
+.trait{ border:2px dashed var(--rule); background:var(--paper); padding:.7rem .9rem; margin-bottom:var(--sp-2); font-size:.93rem; }
+.trait b{ font-weight:600; }
+.beta{ font-family:var(--mono); font-size:.55rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; background:var(--marker); color:var(--ink); padding:.15rem .4rem; margin-left:.35rem; white-space:nowrap; }
+
+/* ==================== cautions ==================== */
+.caution{ border:2px solid var(--warn); background:var(--paper-hi); padding:var(--sp-3); margin-bottom:var(--sp-2); }
+.caution .ct{ font-family:var(--mono); font-size:.62rem; font-weight:700; text-transform:uppercase; letter-spacing:.12em; color:var(--warn-ink); display:block; margin-bottom:.5rem; }
+.caution h3{ margin-bottom:.6rem; font-size:1.1rem; }
+.caution p{ font-size:.94rem; }
+.caution ul{ margin:.6rem 0 0; padding-left:1.1rem; }
+.caution li{ font-size:.93rem; color:var(--ink-soft); margin-bottom:.4rem; }
+.caution li strong{ color:var(--ink); font-weight:600; }
+.caution .src{ margin-top:.8rem; font-size:.82rem; color:var(--ink-soft); }
+
+.modes{ display:grid; grid-template-columns:1fr; gap:.6rem; margin-top:var(--sp-2); }
+.mode{ border:1px solid var(--rule); background:var(--paper); border-left:6px solid; padding:var(--sp-2) var(--sp-3); }
+.mode b{ display:block; font-family:var(--display); font-weight:800; text-transform:uppercase; font-size:.95rem; letter-spacing:-.01em; }
+.mode span{ font-size:.9rem; color:var(--ink-soft); }
+.mode.m1{ border-left-color:var(--code); } .mode.m1 b{ color:var(--code-ink); }
+.mode.m2{ border-left-color:var(--web); }  .mode.m2 b{ color:var(--web-ink); }
+.mode.m3{ border-left-color:var(--warn); } .mode.m3 b{ color:var(--warn-ink); }
+
+/* ==================== the router ==================== */
+.rrow{
+  display:grid; grid-template-columns:1fr; gap:.5rem;
+  border:1px solid var(--rule); background:var(--paper-hi);
+  border-left:7px solid; padding:var(--sp-2) var(--sp-3); margin-bottom:.6rem;
+}
+.rrow .lab{ font-family:var(--mono); font-size:.55rem; font-weight:700; text-transform:uppercase; letter-spacing:.12em; color:var(--ink-soft); display:block; margin-bottom:.1rem; }
+.rrow .tool{ font-family:var(--display); font-weight:800; text-transform:uppercase; font-size:1rem; letter-spacing:-.01em; }
+.rrow .best,.rrow .runs{ font-size:.91rem; color:var(--ink-soft); }
+.rrow.t0{ border-left-color:var(--ink); }  .rrow.t0 .tool{ color:var(--ink); }
+.rrow.t1{ border-left-color:var(--code); } .rrow.t1 .tool{ color:var(--code-ink); }
+.rrow.t2{ border-left-color:var(--code); } .rrow.t2 .tool{ color:var(--code-ink); }
+.rrow.t3{ border-left-color:var(--chat); } .rrow.t3 .tool{ color:var(--chat-ink); }
+.rrow.t4{ border-left-color:var(--ink); }  .rrow.t4 .tool{ color:var(--ink); }
+.rrow.t5{ border-left-color:var(--docs); } .rrow.t5 .tool{ color:var(--docs-ink); }
+.rrow.t6{ border-left-color:var(--web); }  .rrow.t6 .tool{ color:var(--web-ink); }
+
+.keep{ background:var(--ink); color:#C6CDDE; padding:.9rem var(--sp-2); font-size:.95rem; font-style:italic; margin-top:var(--sp-2); }
+.keep b{ font-style:normal; color:var(--marker); font-weight:600; }
+
+footer{ border-top:1px solid var(--rule); padding:var(--sp-3) 0 var(--sp-5); margin-top:var(--sp-5); }
+footer p{ font-family:var(--mono); font-size:.66rem; text-transform:uppercase; letter-spacing:.1em; color:var(--ink-soft); }
+footer a{ color:var(--docs-ink); }
+
+/* ===================== breakpoints ===================== */
+@media (min-width:700px){
+  .grid2{ grid-template-columns:1fr 1fr; }
+  .modes{ grid-template-columns:repeat(3,1fr); }
+  .planchips{ grid-template-columns:repeat(4,1fr); }
+  .rrow{ grid-template-columns:1.1fr 2fr 1.5fr; gap:1.2rem; align-items:start; }
+}
+@media (min-width:960px){
+  .planfig{ display:block; }
+  .planchips{ display:none; }
+}
+
+@media (prefers-reduced-motion:reduce){ html{ scroll-behavior:auto; } *{ transition:none !important; } }
+@media print{
+  .routebar,.planfig{ display:none; }
+  body::after{ display:none; }
+  .surf,.caution,.rrow,.mode{ break-inside:avoid; }
+}
+</style>
+</head>
+<body>
+
+<div class="routebar">
+  <div class="wrap">
+    <span class="brand">Other ways to work<small>Lesson 12</small></span>
+    <nav aria-label="Sections">
+      <a class="pill" style="background:#16203C" href="index.html">Home</a>
+      <a class="pill" style="background:#0A6047" href="prompt-library.html">50 prompts</a>
+      <a class="pill" style="background:#573079" href="power-prompts.html">40 power</a>
+      <a class="pill p1" href="#plan">The floor plan</a>
+      <a class="pill p2" href="#rooms">Five rooms</a>
+      <a class="pill p3" href="#care">Before you install</a>
+      <a class="pill p4" href="#router">The router</a>
+    </nav>
+  </div>
+</div>
+
+<header class="hero">
+  <div class="wrap">
+    <span class="tag eyebrow">Lesson 12 · Surfaces · read in ~6 minutes</span>
+    <h1>Claude comes<br>to you</h1>
+    <p class="deck">Eight more places Claude turns up — a terminal, a Slack thread, four Microsoft sidebars, a browser panel, a design canvas. <strong>They aren't eight products to learn.</strong> They're one assistant meeting you in rooms you were already sitting in, so the routing question isn't "which tool" — it's "where am I right now?"</p>
+  </div>
+</header>
+
+<main>
+
+<!-- ==================== FLOOR PLAN ==================== -->
+<section class="sect" id="plan" style="border-top:none;">
+  <div class="wrap">
+    <div class="shead"><span class="snum">Part 01</span><h2>The floor plan</h2></div>
+    <p class="slede">Eight rooms. Look at how little the marker changes from room to room — <strong>that repetition is the entire point of this lesson.</strong></p>
+
+    <figure class="planfig">
+      <svg viewBox="0 0 900 400" role="img" aria-label="A floor plan: terminal, Slack, Chrome, a design canvas, and a Microsoft 365 wing containing Word, Excel, PowerPoint and Outlook — Claude present in every room.">
+        <text x="14" y="26" fill="#4A5470" font-family="Space Mono, monospace" font-size="10.5" font-weight="700" letter-spacing="1.6">WHEREVER YOU ALREADY ARE</text>
+        <rect x="14" y="36" width="872" height="350" rx="6" fill="#F4F2EA" stroke="#16203C" stroke-width="3"/>
+
+        <!-- top row -->
+        <rect x="26" y="52" width="232" height="138" rx="4" fill="#E9E6DB" stroke="#0E8A63" stroke-width="2.5"/>
+        <rect x="266" y="52" width="232" height="138" rx="4" fill="#E9E6DB" stroke="#7B4BB0" stroke-width="2.5"/>
+        <rect x="506" y="52" width="154" height="138" rx="4" fill="#E9E6DB" stroke="#C9761A" stroke-width="2.5"/>
+        <rect x="668" y="52" width="206" height="138" rx="4" fill="#16203C" stroke="#16203C" stroke-width="2.5"/>
+
+        <g font-family="Bricolage Grotesque, sans-serif" font-size="15" font-weight="800">
+          <text x="42" y="84" fill="#0A6047">TERMINAL / IDE</text>
+          <text x="282" y="84" fill="#573079">SLACK</text>
+          <text x="522" y="84" fill="#8A4A06">CHROME</text>
+          <text x="684" y="84" fill="#E9E6DB">DESIGN CANVAS</text>
+        </g>
+        <g font-family="Space Mono, monospace" font-size="8.5" letter-spacing="0.7">
+          <text x="42" y="102" fill="#4A5470">WHERE THE CODE IS</text>
+          <text x="282" y="102" fill="#4A5470">WHERE THE TEAM IS</text>
+          <text x="522" y="102" fill="#4A5470">WHERE THE WEB IS</text>
+          <text x="684" y="102" fill="#FFD84A">A ROOM OF ITS OWN</text>
+        </g>
+        <g font-family="Space Mono, monospace" font-size="8.5" font-weight="700" letter-spacing="1">
+          <circle cx="46" cy="166" r="4" fill="#0E8A63"/><text x="58" y="169" fill="#0A6047">+ CLAUDE CODE</text>
+          <circle cx="286" cy="166" r="4" fill="#7B4BB0"/><text x="298" y="169" fill="#573079">+ @CLAUDE</text>
+          <circle cx="526" cy="166" r="4" fill="#C9761A"/><text x="538" y="169" fill="#8A4A06">+ SIDEBAR</text>
+          <circle cx="688" cy="166" r="4" fill="#FFD84A"/><text x="700" y="169" fill="#FFD84A">CLAUDE DESIGN</text>
+        </g>
+
+        <!-- microsoft wing -->
+        <rect x="26" y="198" width="848" height="26" rx="3" fill="#1358A8"/>
+        <text x="42" y="216" fill="#F4F2EA" font-family="Space Mono, monospace" font-size="9.5" font-weight="700" letter-spacing="1.4">MICROSOFT 365 — FOUR SIDEBARS, ONE WING</text>
+
+        <g fill="#E9E6DB" stroke="#1358A8" stroke-width="2.5">
+          <rect x="26" y="230" width="206" height="144" rx="4"/>
+          <rect x="240" y="230" width="206" height="144" rx="4"/>
+          <rect x="454" y="230" width="206" height="144" rx="4"/>
+          <rect x="668" y="230" width="206" height="144" rx="4"/>
+        </g>
+        <g font-family="Bricolage Grotesque, sans-serif" font-size="15" font-weight="800" fill="#0D4079">
+          <text x="42" y="262">WORD</text><text x="256" y="262">EXCEL</text>
+          <text x="470" y="262">POWERPOINT</text><text x="684" y="262">OUTLOOK</text>
+        </g>
+        <g font-family="Space Mono, monospace" font-size="8.5" fill="#4A5470" letter-spacing="0.7">
+          <text x="42" y="280">DOCUMENTS</text><text x="256" y="280">WORKBOOKS</text>
+          <text x="470" y="280">DECKS</text><text x="684" y="280">INBOX · BETA</text>
+        </g>
+        <g font-family="Space Mono, monospace" font-size="8.5" font-weight="700" fill="#0D4079" letter-spacing="1">
+          <circle cx="46" cy="350" r="4" fill="#1358A8"/><text x="58" y="353">+ CLAUDE</text>
+          <circle cx="260" cy="350" r="4" fill="#1358A8"/><text x="272" y="353">+ CLAUDE</text>
+          <circle cx="474" cy="350" r="4" fill="#1358A8"/><text x="486" y="353">+ CLAUDE</text>
+          <circle cx="688" cy="350" r="4" fill="#1358A8"/><text x="700" y="353">+ CLAUDE</text>
+        </g>
+      </svg>
+    </figure>
+
+    <div class="planchips" aria-hidden="true">
+      <div class="pchip c1"><b>Terminal / IDE</b><span>Claude Code</span></div>
+      <div class="pchip c2"><b>Slack</b><span>@Claude</span></div>
+      <div class="pchip c3"><b>Chrome</b><span>sidebar</span></div>
+      <div class="pchip c4"><b>Design canvas</b><span>a room of its own</span></div>
+      <div class="pchip c5"><b>Word</b><span>documents</span></div>
+      <div class="pchip c5"><b>Excel</b><span>workbooks</span></div>
+      <div class="pchip c5"><b>PowerPoint</b><span>decks</span></div>
+      <div class="pchip c5"><b>Outlook</b><span>inbox · beta</span></div>
+    </div>
+
+    <p class="plancap">Seven of these eight rooms are places you were already sitting. Only one is somewhere you go.</p>
+
+    <div class="thesis">
+      <span class="tt">The reframe</span>
+      <p class="big">You don't go to Claude. <em>Claude comes to the room.</em></p>
+      <p>Every surface here exists to remove the same friction: leaving the thing you're working in, explaining it somewhere else, and carrying the answer back. Claude for Word exists because the document is already open. @Claude exists because the thread is already in Slack. Once you see that, you don't have to memorise eight products — you just notice where you are.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== FIVE ROOMS ==================== -->
+<section class="sect" id="rooms">
+  <div class="wrap">
+    <div class="shead"><span class="snum">Part 02</span><h2>Five rooms, eight doors</h2></div>
+    <p class="slede">Grouped by what kind of room it is, because that's what tells you what the surface is genuinely good at.</p>
+
+    <!-- ROOM 1 -->
+    <div class="room r1">
+      <div class="roomhead"><span class="rn">Room 01</span><h3>Where the code is</h3><span class="where">Terminal · IDE · browser · Slack</span></div>
+      <p class="roomlede"><strong>Claude Code</strong> is an agentic coding tool that understands your codebase, executes commands, and handles whole development workflows through natural language.</p>
+      <p class="trait"><b>What makes it different:</b> it doesn't just suggest — it <em>runs</em>. Commands, tests, commits.</p>
+      <div class="surf">
+        <h4>Reach for it when</h4>
+        <ul>
+          <li>You want to <strong>build a feature by describing it</strong> in plain English and have Claude write the code, run the tests, and create the commits.</li>
+          <li>You need to <strong>debug</strong> — paste the error, let Claude analyse the codebase to find and fix the problem.</li>
+          <li>You're <strong>navigating an unfamiliar codebase</strong> and want to ask how different parts fit together.</li>
+          <li>You want to <strong>automate the tedium</strong>: lint errors, merge conflicts, release notes.</li>
+          <li>You'd rather <strong>stay in your terminal</strong> alongside your existing tools than switch to a separate interface.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- ROOM 2 -->
+    <div class="room r2">
+      <div class="roomhead"><span class="rn">Room 02</span><h3>Where the team is</h3><span class="where">Slack workspace</span></div>
+      <p class="roomlede"><strong>@Claude</strong> joins your Slack workspace, so the context it needs — the thread, the channel history, the shared files — is already around it.</p>
+      <p class="trait"><b>What makes it different:</b> it already has your team's conversation. Nothing to paste in.</p>
+      <div class="surf">
+        <h4>Reach for it when</h4>
+        <ul>
+          <li>You want to <strong>draft a reply, summarise a long thread</strong>, or break down a complex discussion without leaving Slack.</li>
+          <li>You're <strong>preparing for a meeting</strong> and want relevant conversations and shared documents pulled together.</li>
+          <li>You're <strong>onboarding to a new team</strong> and want the ongoing projects explained from the channel history.</li>
+          <li>You want to <strong>hand off a coding task straight from a bug report</strong> — tag @Claude and it can spin up a Claude Code session using the surrounding context.</li>
+          <li>You need a quick answer on an industry trend, a technical concept, or something about the company mid-conversation.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- ROOM 3 -->
+    <div class="room r3">
+      <div class="roomhead"><span class="rn">Room 03</span><h3>Where the document is</h3><span class="where">Microsoft 365 sidebars</span></div>
+      <p class="roomlede">Four sidebars — <strong>Word, Excel, PowerPoint and Outlook</strong> — so you can work on the file that's already open in front of you.</p>
+      <p class="trait"><b>What makes it different:</b> it edits <em>in place</em>, keeping your template, your brand styling, your tracked changes. Compare that with Chat, which hands finished files back as downloads.</p>
+
+      <div class="grid2">
+        <div class="surf">
+          <h4>Claude for Word</h4>
+          <ul>
+            <li>Turn an outline or rough notes into a <strong>structured first draft in your team's template</strong>.</li>
+            <li>Revise a section — tighten the writing, adjust tone for a specific reader, rework the structure — without leaving the document.</li>
+            <li>Work through <strong>reviewer comments and tracked changes</strong> in place.</li>
+            <li>Ground the draft in connected source material, so claims trace back to where they came from.</li>
+          </ul>
+        </div>
+
+        <div class="surf">
+          <h4>Claude for Excel</h4>
+          <ul>
+            <li>Understand how formulas and <strong>calculation flows work across a complex multi-tab workbook</strong>.</li>
+            <li>Update assumptions or inputs across a model <strong>while preserving formula dependencies</strong>.</li>
+            <li>Debug <strong>#REF!, #VALUE! and circular references</strong> — trace them to their source and get suggested fixes.</li>
+            <li>Create new spreadsheets or populate templates while keeping the formula structure sound.</li>
+            <li>Build pivot tables and charts quickly.</li>
+          </ul>
+        </div>
+
+        <div class="surf">
+          <h4>Claude for PowerPoint</h4>
+          <ul>
+            <li>Turn an outline, document or set of notes into a <strong>first-draft deck</strong> without building each slide by hand.</li>
+            <li>Rewrite or tighten slide copy — shorten bullets, add speaker notes, adjust tone for the audience.</li>
+            <li>Restructure an existing deck: reorder sections, split dense slides, merge overlapping ones.</li>
+            <li>Apply <strong>consistent formatting across the whole deck</strong> instead of fixing each slide manually.</li>
+            <li>Get a quick suggestion on which layout or chart type fits the point you're making.</li>
+          </ul>
+        </div>
+
+        <div class="surf">
+          <h4>Claude for Outlook <span class="beta">Beta · installs separately</span></h4>
+          <ul>
+            <li><strong>Triage your inbox</strong> without leaving it.</li>
+            <li>Draft replies with context pulled from related threads <strong>and your calendar</strong>.</li>
+            <li>Turn a long email chain into a clear summary, or a set of next steps.</li>
+            <li>Note: this one is installed <strong>separately</strong> from the other Microsoft 365 add-ins — if you've installed the others and can't find it, that's why.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- ROOM 4 -->
+    <div class="room r4">
+      <div class="roomhead"><span class="rn">Room 04</span><h3>Where the web is</h3><span class="where">Chrome sidebar</span></div>
+      <p class="roomlede"><strong>Claude in Chrome</strong> reads the page you're on and can act on it — clicking, filling, navigating between tabs.</p>
+      <p class="trait"><b>What makes it different:</b> it keeps context <em>as you move between tabs</em>, which is what makes it good at niche internal tools, CRMs and dashboards that have no connector.</p>
+      <div class="surf">
+        <h4>Reach for it when</h4>
+        <ul>
+          <li>You want to <strong>summarise an article, paper or page</strong> while browsing.</li>
+          <li>You need help drafting email responses or managing your inbox.</li>
+          <li>You're filling out <strong>repetitive forms</strong> and want the process automated.</li>
+          <li>You want to test website features or walk a multi-step workflow without clicking through every step.</li>
+          <li>You need a browsing assistant that <strong>holds context across tabs and tasks</strong>.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- ROOM 5 -->
+    <div class="room r5">
+      <div class="roomhead"><span class="rn">Room 05</span><h3>A room of its own</h3><span class="where">Web</span></div>
+      <p class="roomlede"><strong>Claude Design</strong> is the exception on this page — the one surface you actually travel to, because a prototype needs a canvas that no sidebar can give it.</p>
+      <p class="trait"><b>What makes it different:</b> the output is an <em>interactive prototype</em> you refine by conversation, not a description of one.</p>
+      <div class="surf">
+        <h4>Reach for it when</h4>
+        <ul>
+          <li>You want to go from a <strong>written brief, sketch or reference screenshot</strong> to a working UI prototype without writing code.</li>
+          <li>You're exploring design directions and want to <strong>generate and compare several variations</strong> quickly.</li>
+          <li>You want to iterate on layout, copy or interactions by <strong>describing the change</strong> rather than editing markup.</li>
+          <li>You want a prototype built on <strong>your team's design system</strong>, so what you hand off matches what engineering will build.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== BEFORE YOU INSTALL ==================== -->
+<section class="sect" id="care">
+  <div class="wrap">
+    <div class="shead"><span class="snum">Part 03</span><h2>Before you switch one on</h2></div>
+    <p class="slede">Two of these eight are in beta, and one of them changes the risk picture enough to be worth a page of its own. Your course notes give you the rules — <strong>here's the reasoning behind them,</strong> because a rule you understand is a rule you'll actually follow.</p>
+
+    <div class="caution">
+      <span class="ct">Claude in Chrome · public beta</span>
+      <h3>Why "trusted sites only" is the rule</h3>
+      <p>A browser assistant reads whatever's on the page — and a page can contain text written by someone who isn't you. Anthropic names <strong>prompt injection</strong> as the biggest risk facing browser-using AI tools: malicious instructions hidden in web content that try to make Claude do something you never asked for. Their own example is an innocent-looking to-do list or email carrying invisible text telling Claude to fetch bank statements and share them.</p>
+      <ul>
+        <li><strong>The protections are real but not absolute.</strong> Anthropic reports their configuration reduces attack success to under 0.08% in internal testing — and says plainly that the chance is still not zero.</li>
+        <li><strong>Some sites are off-limits by default.</strong> Certain high-risk categories are blocked outright, and Claude asks permission before touching financial sites.</li>
+        <li><strong>Start with sites you trust</strong>, and be wary of pages carrying user-generated content from unknown sources — that's where injected instructions live.</li>
+        <li><strong>Confirm before anything sensitive.</strong> Purchases, sharing personal data, anything irreversible.</li>
+      </ul>
+      <p class="src">Source: Anthropic Help Centre, "Use Claude in Chrome safely", checked August 2026.</p>
+    </div>
+
+    <div class="caution" style="border-color:var(--rule);">
+      <span class="ct" style="color:var(--ink-soft);">The setting your notes don't mention</span>
+      <h3>There are three permission modes, not one</h3>
+      <p>Your course material says the extension "asks for permission before high-risk actions" — true of the default, but there's a dropdown on the chat input with three settings, and the one you choose <em>is</em> your safety posture.</p>
+      <div class="modes">
+        <div class="mode m1"><b>Manually approve</b><span>Claude pauses before every action and you allow or deny each one. The safest option, and the one to start on.</span></div>
+        <div class="mode m2"><b>Automatically approve</b><span>Claude keeps working but checks each action for safety, blocking what it judges unsafe and pausing when it needs you. Fewer interruptions — and it uses more of your usage limit, because of the extra checking.</span></div>
+        <div class="mode m3"><b>Skip all approvals</b><span>Claude doesn't pause and <strong>nothing checks its actions automatically.</strong> Only for tasks where you trust every action, connector, file and app involved.</span></div>
+      </div>
+      <p class="src">Source: Anthropic Help Centre, "Claude in Chrome permissions guide", checked August 2026.</p>
+    </div>
+
+    <div class="caution" style="border-color:var(--rule);">
+      <span class="ct" style="color:var(--ink-soft);">Claude for Outlook · beta</span>
+      <h3>It installs separately</h3>
+      <p>Outlook is not bundled with the other Microsoft 365 add-ins. If you've installed Claude for Word, Excel and PowerPoint and the Outlook sidebar never appeared, nothing is broken — it's a separate install.</p>
+    </div>
+
+    <p class="keep"><b>The habit worth carrying:</b> the more a surface can <em>act</em> rather than just answer, the more the permission screen matters. A sidebar that drafts a paragraph and a sidebar that clicks buttons on your behalf are not the same kind of tool.</p>
+  </div>
+</section>
+
+<!-- ==================== THE ROUTER ==================== -->
+<section class="sect" id="router">
+  <div class="wrap">
+    <div class="shead"><span class="snum">Part 04</span><h2>The whole thing, routed</h2></div>
+    <p class="slede">Every surface in the course so far, on one card. Read the middle column when you know what you're doing; read the right column when you know where you are.</p>
+
+    <div class="rrow t0">
+      <div><span class="lab">Tool</span><span class="tool">Claude.ai</span></div>
+      <div><span class="lab">Best for</span><span class="best">General tasks, research, writing, analysis, file creation</span></div>
+      <div><span class="lab">Where it runs</span><span class="runs">Web, desktop and mobile apps</span></div>
+    </div>
+    <div class="rrow t1">
+      <div><span class="lab">Tool</span><span class="tool">Claude Code</span></div>
+      <div><span class="lab">Best for</span><span class="best">Software development, codebase navigation, git workflows</span></div>
+      <div><span class="lab">Where it runs</span><span class="runs">Terminal / command line, IDE, or your browser</span></div>
+    </div>
+    <div class="rrow t2">
+      <div><span class="lab">Tool</span><span class="tool">Claude Cowork</span></div>
+      <div><span class="lab">Best for</span><span class="best">Complex, multi-step tasks: research briefs, document creation, file organisation, data analysis</span></div>
+      <div><span class="lab">Where it runs</span><span class="runs">Desktop — plus web and mobile, in beta, on eligible plans</span></div>
+    </div>
+    <div class="rrow t3">
+      <div><span class="lab">Tool</span><span class="tool">@Claude</span></div>
+      <div><span class="lab">Best for</span><span class="best">Team collaboration, meeting prep, quick answers in context</span></div>
+      <div><span class="lab">Where it runs</span><span class="runs">Slack workspace</span></div>
+    </div>
+    <div class="rrow t4">
+      <div><span class="lab">Tool</span><span class="tool">Claude Design</span></div>
+      <div><span class="lab">Best for</span><span class="best">UI prototypes, design exploration, design-system-aware mockups</span></div>
+      <div><span class="lab">Where it runs</span><span class="runs">Web</span></div>
+    </div>
+    <div class="rrow t5">
+      <div><span class="lab">Tool</span><span class="tool">Claude for Microsoft 365</span></div>
+      <div><span class="lab">Best for</span><span class="best">Editing in place and carrying context across documents</span></div>
+      <div><span class="lab">Where it runs</span><span class="runs">Excel, PowerPoint, Word and Outlook sidebars</span></div>
+    </div>
+    <div class="rrow t6">
+      <div><span class="lab">Tool</span><span class="tool">Claude in Chrome</span></div>
+      <div><span class="lab">Best for</span><span class="best">Web research, email management, browser automation</span></div>
+      <div><span class="lab">Where it runs</span><span class="runs">Chrome browser sidebar</span></div>
+    </div>
+
+    <p class="keep"><b>One line to leave with:</b> you don't pick a surface, you notice a room. The friction you're trying to remove is always the same one — leaving the thing you're already in.</p>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>Lesson 12 · Other ways to work with Claude · The floor plan ·
+      <a href="lesson-11-use-cases.html">← Lesson 11</a> ·
+      <a href="lesson-13-twelve-mistakes.html">Lesson 13 →</a> ·
+      <a href="lesson-10-research.html">10</a> ·
+      <a href="lesson-09-enterprise-search.html">09</a> ·
+      <a href="lesson-08-connectors.html">08</a> ·
+      <a href="lesson-07-skills.html">07</a> ·
+      <a href="lesson-06-artifacts.html">06</a> ·
+      <a href="lesson-05-projects.html">05</a> ·
+      <a href="lesson-04-desktop-shapes.html">04</a> ·
+      <a href="lesson-03-better-results.html">03</a> ·
+      <a href="lesson-02-first-conversation.html">02</a> ·
+      <a href="what-is-claude-map.html">01</a></p>
+  </div>
+</footer>
+
+
+
+<style>
+.pathnav{position:sticky;bottom:0;z-index:60;background:#16203C;border-top:2px solid #FFD84A;}
+.pathnav .inner{max-width:1160px;margin:0 auto;padding:.55rem 1.5rem;display:flex;align-items:center;gap:.8rem;flex-wrap:wrap;}
+.pathnav a{font-family:"Space Mono",monospace;font-size:.6rem;font-weight:700;text-transform:uppercase;
+letter-spacing:.1em;text-decoration:none;color:#E9E6DB;border:1.5px solid #4A5470;padding:.32rem .55rem;transition:all .15s ease;}
+.pathnav a:hover{border-color:#FFD84A;color:#FFD84A;}
+.pathnav a.next{border-color:#FFD84A;color:#FFD84A;margin-left:auto;}
+.pathnav .step{font-family:"Space Mono",monospace;font-size:.58rem;font-weight:700;letter-spacing:.12em;color:#8FA0C4;text-transform:uppercase;}
+@media print{.pathnav{display:none;}}
+</style>
+<div class="pathnav"><div class="inner"><a href="lesson-10-research.html">← 10 Research</a>
+<a href="learning-path.html">↑ Learning path</a>
+<span class="step">Step 14 of 16</span>
+<a class="next" href="lesson-11-use-cases.html">11 Use cases →</a></div></div>
+</body>
+</html>

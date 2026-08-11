@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Introduction to Projects — the lesson as an anatomy diagram</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Public+Sans:ital,wght@0,400;0,600;1,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   LESSON 05 — INTRODUCTION TO PROJECTS
+   A project is a container with three compartments, so this is
+   drawn as an anatomy: one cutaway, then each part in detail.
+   Instructions stay blue, knowledge stays green, chats purple —
+   the same inks as Lessons 01–04. Single file. No JavaScript.
+   ============================================================ */
+
+:root{
+  --paper:#E9E6DB; --paper-hi:#F4F2EA; --ink:#16203C; --ink-soft:#4A5470; --rule:#C9C4B4;
+
+  --ins:#1358A8; --ins-ink:#0D4079;   /* instructions */
+  --kno:#0E8A63; --kno-ink:#0A6047;   /* knowledge    */
+  --cht:#7B4BB0; --cht-ink:#573079;   /* chats        */
+  --shr:#C9761A; --shr-ink:#8A4A06;   /* sharing      */
+  --warn:#DE4438; --warn-ink:#A22119;
+
+  --marker:#FFD84A;
+  --sp-1:.5rem; --sp-2:1rem; --sp-3:1.5rem; --sp-4:2.25rem; --sp-5:3.5rem;
+
+  --display:"Bricolage Grotesque","Trebuchet MS",system-ui,sans-serif;
+  --body:"Public Sans",-apple-system,"Segoe UI",Roboto,sans-serif;
+  --mono:"Space Mono",ui-monospace,"Courier New",monospace;
+}
+
+*,*::before,*::after{ box-sizing:border-box; }
+html{ scroll-behavior:smooth; }
+body{
+  margin:0; background:var(--paper); color:var(--ink);
+  font-family:var(--body); font-size:1rem; line-height:1.6; -webkit-font-smoothing:antialiased;
+}
+body::after{
+  content:""; position:fixed; inset:0; pointer-events:none; z-index:99;
+  background-image:radial-gradient(var(--ink) .5px, transparent .5px);
+  background-size:4px 4px; opacity:.055;
+}
+.wrap{ max-width:1160px; margin:0 auto; padding:0 var(--sp-3); }
+
+h1,h2,h3{ font-family:var(--display); font-weight:800; line-height:1.04; margin:0; letter-spacing:-.02em; }
+h1{ font-size:clamp(2.4rem,8vw,5.2rem); text-transform:uppercase; }
+h2{ font-size:clamp(1.45rem,3.8vw,2.3rem); }
+h3{ font-size:1.04rem; font-weight:600; letter-spacing:0; }
+p{ margin:0 0 var(--sp-2); } p:last-child{ margin-bottom:0; }
+
+.tag{ font-family:var(--mono); font-size:.68rem; font-weight:700; text-transform:uppercase; letter-spacing:.16em; }
+.marked{ background:linear-gradient(transparent 58%, var(--marker) 58%, var(--marker) 94%, transparent 94%); padding:0 .12em; }
+a{ color:inherit; }
+a:focus-visible{ outline:3px solid var(--ins); outline-offset:3px; border-radius:2px; }
+
+/* ===================== sticky bar ===================== */
+.routebar{ position:sticky; top:0; z-index:50; background:var(--paper); border-bottom:2px solid var(--ink); }
+.routebar .wrap{ display:flex; align-items:center; gap:var(--sp-2); flex-wrap:wrap; padding-top:.6rem; padding-bottom:.6rem; }
+.routebar .brand{ font-family:var(--display); font-weight:800; text-transform:uppercase; margin-right:auto; letter-spacing:-.01em; }
+.routebar .brand small{ font-family:var(--mono); font-weight:700; font-size:.6rem; letter-spacing:.16em; color:var(--ink-soft); display:block; text-transform:uppercase; }
+.routebar nav{ display:flex; gap:.35rem; flex-wrap:wrap; }
+.pill{
+  font-family:var(--mono); font-size:.63rem; font-weight:700; text-transform:uppercase;
+  letter-spacing:.1em; text-decoration:none; color:#fff;
+  padding:.32rem .58rem; border-radius:999px; transition:transform .18s ease, filter .18s ease;
+}
+.pill:hover{ transform:translateY(-2px); filter:brightness(1.12); }
+.pill.p0{ background:var(--ink); } .pill.p1{ background:var(--ins-ink); }
+.pill.p2{ background:var(--kno-ink); } .pill.p3{ background:var(--shr-ink); }
+
+/* ======================== hero ======================== */
+.hero{ padding:var(--sp-5) 0 var(--sp-3); }
+.hero .eyebrow{ color:var(--ink-soft); display:block; margin-bottom:var(--sp-2); }
+.hero h1{ margin-bottom:var(--sp-3); }
+.hero .deck{ font-size:clamp(1.05rem,2.2vw,1.28rem); max-width:56ch; color:var(--ink-soft); }
+.hero .deck strong{ color:var(--ink); font-weight:600; }
+
+/* ==================== the anatomy ==================== */
+.sect{ padding:var(--sp-5) 0 var(--sp-2); scroll-margin-top:4.4rem; }
+.sect + .sect{ border-top:1px solid var(--rule); }
+.shead{ display:flex; align-items:baseline; gap:var(--sp-2); flex-wrap:wrap; margin-bottom:.5rem; }
+.snum{ font-family:var(--mono); font-weight:700; font-size:.72rem; text-transform:uppercase; letter-spacing:.14em; color:#fff; padding:.28rem .55rem; border-radius:3px; }
+.slede{ color:var(--ink-soft); max-width:62ch; margin-bottom:var(--sp-4); font-size:1.02rem; }
+.slede strong{ color:var(--ink); font-weight:600; }
+
+#anatomy .snum{ background:var(--ink); }
+#build   .snum{ background:var(--ins-ink); } #build   h2{ color:var(--ins-ink); }
+#scale   .snum{ background:var(--kno-ink); } #scale   h2{ color:var(--kno-ink); }
+#share   .snum{ background:var(--shr-ink); } #share   h2{ color:var(--shr-ink); }
+#steal   .snum{ background:var(--ink); }
+
+.cutaway{ display:none; margin-bottom:var(--sp-3); }
+.cutaway svg{ width:100%; height:auto; display:block; }
+
+/* compact mobile flow */
+.flow{ display:grid; grid-template-columns:1fr; gap:.5rem; margin-bottom:var(--sp-3); }
+.flow .fchip{
+  border:2px solid; padding:.6rem .8rem; background:var(--paper-hi);
+  font-family:var(--mono); font-size:.66rem; font-weight:700; text-transform:uppercase; letter-spacing:.1em;
+}
+.flow .fc1{ border-color:var(--ins); color:var(--ins-ink); }
+.flow .fc2{ border-color:var(--kno); color:var(--kno-ink); }
+.flow .farrow{ font-family:var(--mono); font-size:.7rem; color:var(--ink-soft); text-align:center; letter-spacing:.1em; }
+.flow .fc3{ border-color:var(--cht); color:var(--cht-ink); background:var(--ink); border-color:var(--ink); color:var(--paper); }
+
+.parts{ display:grid; grid-template-columns:1fr; gap:var(--sp-2); }
+.part{ background:var(--paper-hi); border:1px solid var(--rule); border-top:6px solid; padding:var(--sp-3); }
+.part .pl{ font-family:var(--mono); font-size:.62rem; font-weight:700; text-transform:uppercase; letter-spacing:.14em; display:block; margin-bottom:.3rem; }
+.part h3{ font-family:var(--display); font-weight:800; text-transform:uppercase; font-size:1.3rem; margin-bottom:.5rem; letter-spacing:-.01em; }
+.part p{ font-size:.94rem; color:var(--ink-soft); }
+.part.a1{ border-top-color:var(--ins); } .part.a1 .pl,.part.a1 h3{ color:var(--ins-ink); }
+.part.a2{ border-top-color:var(--kno); } .part.a2 .pl,.part.a2 h3{ color:var(--kno-ink); }
+.part.a3{ border-top-color:var(--cht); } .part.a3 .pl,.part.a3 h3{ color:var(--cht-ink); }
+
+.keep{ background:var(--ink); color:#C6CDDE; padding:.9rem var(--sp-2); font-size:.95rem; font-style:italic; margin-top:var(--sp-2); }
+.keep b{ font-style:normal; color:var(--marker); font-weight:600; }
+
+.myth{ border:2px solid var(--warn); background:var(--paper-hi); padding:var(--sp-3); margin-top:var(--sp-2); }
+.myth .mt{ font-family:var(--mono); font-size:.62rem; font-weight:700; text-transform:uppercase; letter-spacing:.12em; color:var(--warn-ink); display:block; margin-bottom:.4rem; }
+.myth p{ font-size:.94rem; }
+.myth strong{ font-weight:600; }
+
+/* trigger cards: when to build one */
+.trig{ display:grid; grid-template-columns:1fr; gap:var(--sp-2); margin-top:var(--sp-3); }
+.tc{ border:1px solid var(--rule); background:var(--paper); border-left:6px solid var(--ink); padding:var(--sp-2) var(--sp-3); }
+.tc b{ display:block; font-size:.98rem; margin-bottom:.2rem; }
+.tc span{ font-size:.9rem; color:var(--ink-soft); }
+
+/* ==================== build steps ==================== */
+.step{ background:var(--paper-hi); border:1px solid var(--rule); border-left:7px solid var(--ins); padding:var(--sp-3); margin-bottom:var(--sp-2); }
+.step .sn{ font-family:var(--mono); font-size:.66rem; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--ins-ink); }
+.step h3{ margin:.35rem 0 .6rem; font-size:1.2rem; font-family:var(--display); font-weight:800; letter-spacing:-.01em; }
+.step ul{ margin:0; padding-left:1.05rem; }
+.step li{ font-size:.94rem; color:var(--ink-soft); margin-bottom:.45rem; }
+.step li:last-child{ margin-bottom:0; }
+.step li strong{ color:var(--ink); font-weight:600; }
+.step.k{ border-left-color:var(--kno); }
+.step.k .sn{ color:var(--kno-ink); }
+
+.ing{ display:grid; grid-template-columns:1fr; gap:.7rem; margin:var(--sp-2) 0; }
+.ic{ border:1px solid var(--rule); background:var(--paper); padding:var(--sp-2); border-left:4px solid var(--ins); }
+.ic b{ display:block; font-family:var(--mono); font-size:.62rem; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:var(--ins-ink); margin-bottom:.35rem; }
+.ic q{ quotes:none; font-size:.92rem; font-style:italic; }
+
+.tip{ border-left:3px solid var(--marker); background:var(--paper); padding:.7rem .9rem; font-size:.92rem; margin-top:var(--sp-2); }
+.tip b{ font-weight:600; }
+.tip code{ font-family:var(--mono); font-size:.85rem; background:var(--paper-hi); padding:.05rem .3rem; border:1px solid var(--rule); }
+
+.xlink{
+  display:inline-block; margin-top:.7rem; font-family:var(--mono); font-size:.6rem; font-weight:700;
+  text-transform:uppercase; letter-spacing:.1em; background:var(--marker); color:var(--ink);
+  padding:.25rem .5rem; text-decoration:none;
+}
+
+/* ==================== the scale switch ==================== */
+.states{ display:grid; grid-template-columns:1fr; gap:var(--sp-2); align-items:stretch; }
+.st{ border:1px solid var(--rule); background:var(--paper-hi); padding:var(--sp-3); border-top:6px solid var(--kno); }
+.st .stt{ font-family:var(--mono); font-size:.62rem; font-weight:700; text-transform:uppercase; letter-spacing:.12em; color:var(--kno-ink); display:block; margin-bottom:.4rem; }
+.st h3{ margin-bottom:.5rem; }
+.st p{ font-size:.93rem; color:var(--ink-soft); }
+.threshold{
+  display:grid; place-items:center; text-align:center;
+  font-family:var(--mono); font-size:.62rem; font-weight:700; text-transform:uppercase; letter-spacing:.12em;
+  color:var(--ink-soft); padding:var(--sp-2) 0;
+}
+.bignum{
+  background:var(--ink); color:var(--paper); padding:var(--sp-3); margin-top:var(--sp-2);
+  display:grid; grid-template-columns:auto 1fr; gap:1.2rem; align-items:center;
+}
+.bignum .n{ font-family:var(--display); font-weight:800; font-size:3.2rem; line-height:1; color:var(--marker); }
+.bignum p{ color:#C6CDDE; font-size:.95rem; }
+
+/* ==================== permissions ladder ==================== */
+.ladder{ display:grid; grid-template-columns:1fr; gap:.6rem; }
+.rung{ background:var(--paper-hi); border:1px solid var(--rule); border-left:7px solid var(--shr); padding:var(--sp-3); }
+.rung .rn{ font-family:var(--mono); font-size:.62rem; font-weight:700; text-transform:uppercase; letter-spacing:.12em; color:var(--shr-ink); }
+.rung h3{ margin:.3rem 0 .4rem; font-family:var(--display); font-weight:800; text-transform:uppercase; font-size:1.15rem; letter-spacing:-.01em; }
+.rung p{ font-size:.93rem; color:var(--ink-soft); }
+.rung.r2{ margin-left:0; } .rung.r3{ margin-left:0; }
+
+.howshare{ border:1px solid var(--rule); background:var(--paper); padding:var(--sp-3); margin-top:var(--sp-3); }
+.howshare .hs{ font-family:var(--mono); font-size:.62rem; font-weight:700; text-transform:uppercase; letter-spacing:.12em; color:var(--ink-soft); display:block; margin-bottom:.7rem; }
+.howshare ol{ margin:0; padding-left:1.15rem; }
+.howshare li{ font-size:.93rem; color:var(--ink-soft); margin-bottom:.45rem; }
+.howshare li strong{ color:var(--ink); font-weight:600; }
+.gate{
+  display:inline-block; font-family:var(--mono); font-size:.6rem; font-weight:700;
+  text-transform:uppercase; letter-spacing:.1em; background:var(--shr-ink); color:#fff; padding:.25rem .5rem;
+}
+
+/* ==================== examples + habits ==================== */
+.egs{ display:grid; grid-template-columns:1fr; gap:var(--sp-2); }
+.eg{ background:var(--paper-hi); border:1px solid var(--rule); border-left:6px solid var(--kno); padding:var(--sp-3); }
+.eg h3{ margin-bottom:.4rem; color:var(--kno-ink); }
+.eg .load{ font-family:var(--mono); font-size:.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:var(--ink-soft); display:block; margin-bottom:.3rem; }
+.eg p{ font-size:.92rem; color:var(--ink-soft); }
+
+.habits{ display:grid; grid-template-columns:1fr; gap:.6rem; margin-top:var(--sp-4); }
+.hb{ display:grid; grid-template-columns:auto 1fr; gap:.9rem; border-top:1px solid var(--rule); padding:.85rem 0; }
+.hb .hn{ font-family:var(--mono); font-size:.7rem; font-weight:700; color:var(--marker); background:var(--ink); padding:.15rem .4rem; height:fit-content; }
+.hb b{ display:block; font-size:.98rem; }
+.hb span{ font-size:.92rem; color:var(--ink-soft); }
+
+footer{ border-top:1px solid var(--rule); padding:var(--sp-3) 0 var(--sp-5); margin-top:var(--sp-5); }
+footer p{ font-family:var(--mono); font-size:.66rem; text-transform:uppercase; letter-spacing:.1em; color:var(--ink-soft); }
+footer a{ color:var(--ins-ink); }
+
+/* ===================== breakpoints ===================== */
+@media (min-width:700px){
+  .parts{ grid-template-columns:repeat(3,1fr); }
+  .trig{ grid-template-columns:repeat(3,1fr); }
+  .ing{ grid-template-columns:1fr 1fr; }
+  .egs{ grid-template-columns:1fr 1fr; }
+  .flow{ grid-template-columns:1fr auto 1fr; align-items:center; }
+  .flow .farrow{ padding:0 .5rem; }
+  .flow .fc3{ grid-column:1 / -1; }
+}
+@media (min-width:880px){
+  .cutaway{ display:block; }
+  .flow{ display:none; }
+  .states{ grid-template-columns:1fr auto 1fr; }
+  .threshold{ padding:0 var(--sp-2); }
+  .rung.r2{ margin-left:2.5rem; } .rung.r3{ margin-left:5rem; }
+}
+
+@media (prefers-reduced-motion:reduce){ html{ scroll-behavior:auto; } *{ transition:none !important; } }
+@media print{
+  .routebar,.cutaway{ display:none; }
+  body::after{ display:none; }
+  .part,.step,.eg,.rung,.st{ break-inside:avoid; }
+}
+</style>
+</head>
+<body>
+
+<div class="routebar">
+  <div class="wrap">
+    <span class="brand">Introduction to Projects<small>Lesson 05</small></span>
+    <nav aria-label="Sections">
+      <a class="pill" style="background:#16203C" href="index.html">Home</a>
+      <a class="pill" style="background:#0A6047" href="prompt-library.html">50 prompts</a>
+      <a class="pill" style="background:#573079" href="power-prompts.html">40 power</a>
+      <a class="pill p0" href="#anatomy">Anatomy</a>
+      <a class="pill p1" href="#build">Build one</a>
+      <a class="pill p2" href="#scale">When it grows</a>
+      <a class="pill p3" href="#share">Share it</a>
+      <a class="pill p0" href="#steal">Five to steal</a>
+    </nav>
+  </div>
+</div>
+
+<header class="hero">
+  <div class="wrap">
+    <span class="tag eyebrow">Lesson 05 · Projects · read in ~6 minutes</span>
+    <h1>A room<br>for the work</h1>
+    <p class="deck">A project is a self-contained workspace with its own instructions, its own knowledge and its own chats. <strong>What it really removes is the first five minutes of every conversation</strong> — the re-uploading, the re-explaining, the reminding Claude who you are and how you write.</p>
+  </div>
+</header>
+
+<main>
+
+<!-- ==================== ANATOMY ==================== -->
+<section class="sect" id="anatomy">
+  <div class="wrap">
+    <div class="shead"><span class="snum">Part 01</span><h2>What's inside one</h2></div>
+    <p class="slede">Three compartments, and the arrows are the whole point: <strong>every chat you start inside the project already has the instructions and the knowledge loaded.</strong> You never set them up twice.</p>
+
+    <figure class="cutaway">
+      <svg viewBox="0 0 900 366" role="img" aria-label="A project container holding instructions and knowledge, both feeding into every chat started inside it.">
+        <rect x="10" y="10" width="880" height="346" rx="10" fill="#F4F2EA" stroke="#16203C" stroke-width="3"/>
+        <path d="M13 56 H887" stroke="#16203C" stroke-width="0"/>
+        <rect x="11.5" y="11.5" width="877" height="46" rx="9" fill="#16203C"/>
+        <rect x="11.5" y="40" width="877" height="17" fill="#16203C"/>
+        <text x="34" y="40" fill="#FFD84A" font-family="Space Mono, monospace" font-size="11" font-weight="700" letter-spacing="1.6">PROJECT</text>
+        <text x="120" y="40" fill="#E9E6DB" font-family="Bricolage Grotesque, sans-serif" font-size="17" font-weight="800">Q4 MARKETING CAMPAIGN</text>
+
+        <!-- instructions -->
+        <rect x="40" y="84" width="300" height="104" rx="5" fill="#E9E6DB" stroke="#1358A8" stroke-width="3"/>
+        <text x="62" y="112" fill="#0D4079" font-family="Space Mono, monospace" font-size="10" font-weight="700" letter-spacing="1.4">COMPARTMENT 01</text>
+        <text x="62" y="140" fill="#0D4079" font-family="Bricolage Grotesque, sans-serif" font-size="21" font-weight="800">INSTRUCTIONS</text>
+        <text x="62" y="164" fill="#4A5470" font-family="Public Sans, sans-serif" font-size="13.5">How Claude behaves here</text>
+
+        <!-- knowledge -->
+        <rect x="40" y="206" width="300" height="104" rx="5" fill="#E9E6DB" stroke="#0E8A63" stroke-width="3"/>
+        <text x="62" y="234" fill="#0A6047" font-family="Space Mono, monospace" font-size="10" font-weight="700" letter-spacing="1.4">COMPARTMENT 02</text>
+        <text x="62" y="262" fill="#0A6047" font-family="Bricolage Grotesque, sans-serif" font-size="21" font-weight="800">KNOWLEDGE</text>
+        <text x="62" y="286" fill="#4A5470" font-family="Public Sans, sans-serif" font-size="13.5">What Claude already knows</text>
+
+        <!-- arrows -->
+        <defs>
+          <marker id="a1" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse" markerUnits="userSpaceOnUse">
+            <path d="M0 0 L10 5 L0 10 z" fill="#1358A8"/>
+          </marker>
+          <marker id="a2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse" markerUnits="userSpaceOnUse">
+            <path d="M0 0 L10 5 L0 10 z" fill="#0E8A63"/>
+          </marker>
+        </defs>
+        <path d="M344 136 C400 136 405 158 460 158" stroke="#1358A8" stroke-width="3.5" fill="none" marker-end="url(#a1)"/>
+        <path d="M344 258 C400 258 405 236 460 236" stroke="#0E8A63" stroke-width="3.5" fill="none" marker-end="url(#a2)"/>
+        <text x="402" y="200" text-anchor="middle" fill="#4A5470" font-family="Space Mono, monospace" font-size="10" font-weight="700" letter-spacing="1.2">INHERITED</text>
+
+        <!-- chats -->
+        <rect x="472" y="84" width="388" height="226" rx="5" fill="#E9E6DB" stroke="#7B4BB0" stroke-width="3"/>
+        <text x="496" y="112" fill="#573079" font-family="Space Mono, monospace" font-size="10" font-weight="700" letter-spacing="1.4">COMPARTMENT 03</text>
+        <text x="496" y="140" fill="#573079" font-family="Bricolage Grotesque, sans-serif" font-size="21" font-weight="800">CHATS</text>
+        <g fill="#F4F2EA" stroke="#7B4BB0" stroke-width="2">
+          <rect x="496" y="158" width="340" height="34" rx="4"/>
+          <rect x="496" y="200" width="340" height="34" rx="4"/>
+          <rect x="496" y="242" width="340" height="34" rx="4"/>
+        </g>
+        <g fill="#4A5470" font-family="Public Sans, sans-serif" font-size="13">
+          <text x="512" y="180">Launch email draft</text>
+          <text x="512" y="222">Competitor teardown</text>
+          <text x="512" y="264">New chat — already briefed</text>
+        </g>
+
+        <text x="450" y="338" text-anchor="middle" fill="#4A5470" font-family="Space Mono, monospace" font-size="10.5" font-weight="700" letter-spacing="1.4">SELF-CONTAINED · ITS OWN MEMORY · ITS OWN HISTORY</text>
+      </svg>
+    </figure>
+
+    <div class="flow" aria-hidden="true">
+      <div class="fchip fc1">Instructions → how Claude behaves</div>
+      <div class="farrow">↓ both inherited ↓</div>
+      <div class="fchip fc2">Knowledge → what Claude knows</div>
+      <div class="fchip fc3">Every chat in the project starts with both</div>
+    </div>
+
+    <div class="parts">
+      <div class="part a1">
+        <span class="pl">Compartment 01</span>
+        <h3>Instructions</h3>
+        <p>Standing orders for this workspace: tone, expertise level, response style, process, non-negotiables. They apply to every conversation here and work alongside your global preferences and styles.</p>
+      </div>
+      <div class="part a2">
+        <span class="pl">Compartment 02</span>
+        <h3>Knowledge</h3>
+        <p>Documents Claude references across all chats in the project. Upload once. No more attaching the same brand guide to the eleventh conversation about the same campaign.</p>
+      </div>
+      <div class="part a3">
+        <span class="pl">Compartment 03</span>
+        <h3>Chats</h3>
+        <p>Where the work happens. Every conversation started inside the project automatically has the knowledge base available and follows the instructions.</p>
+      </div>
+    </div>
+
+    <div class="myth">
+      <span class="mt">Worth getting straight early</span>
+      <p><strong>Chats in a project don't read each other.</strong> What's shared is the instructions and the knowledge base — not the contents of your other conversations. If something from Tuesday's chat needs to persist, it has to go <em>into</em> the knowledge base or the instructions. This trips people up because "self-contained workspace" sounds like everything inside can see everything else.</p>
+    </div>
+
+    <div class="trig">
+      <div class="tc"><b>Reference material you reuse</b><span>Meeting notes, survey results, reports, historical data — anything you'd otherwise re-attach.</span></div>
+      <div class="tc"><b>Consistent requirements</b><span>Always formal. Always cite sources. Always follow our template.</span></div>
+      <div class="tc"><b>People who need the same footing</b><span>Several of you working from one shared foundation rather than five private versions of it.</span></div>
+    </div>
+
+    <p class="keep"><b>The test:</b> is this ongoing, or a one-off? One question doesn't need a room. A work stream does.</p>
+  </div>
+</section>
+
+<!-- ==================== BUILD ==================== -->
+<section class="sect" id="build">
+  <div class="wrap">
+    <div class="shead"><span class="snum">Part 02</span><h2>Building one</h2></div>
+    <p class="slede">Three steps, genuinely in order — the setup, then the instructions, then the files. Ten minutes, once.</p>
+
+    <div class="step">
+      <span class="sn">Step 01</span>
+      <h3>Set it up</h3>
+      <ul>
+        <li>Hover the left sidebar and click <strong>Projects</strong>, or go straight to <strong>claude.ai/projects</strong>.</li>
+        <li>Click <strong>+ New Project</strong> in the upper right.</li>
+        <li>Give it a descriptive name — <em>"Q4 Marketing Campaign"</em>, <em>"Product Documentation"</em>.</li>
+        <li>Add a short description. <strong>Claude doesn't read this</strong> — it's there so you and your teammates know what the room is for.</li>
+        <li>Choose visibility: private, or shared with your organisation.</li>
+      </ul>
+    </div>
+
+    <div class="step">
+      <span class="sn">Step 02</span>
+      <h3>Write the instructions</h3>
+      <ul>
+        <li>Click <strong>Instructions</strong> to open the panel, then <strong>Save instructions</strong> when you're done. They apply to every chat in the project from then on.</li>
+      </ul>
+
+      <div class="ing">
+        <div class="ic"><b>Context — what this is</b><q>"This project is for creating marketing content for our B2B software product."</q></div>
+        <div class="ic"><b>Process — the order of work</b><q>"First consider a blog structure that will entice this audience, then write the draft."</q></div>
+        <div class="ic"><b>Tone &amp; style</b><q>"Use a professional but conversational tone. Avoid jargon when possible."</q></div>
+        <div class="ic"><b>Requirements — the non-negotiables</b><q>"Always include a call-to-action at the end of marketing copy."</q></div>
+      </div>
+
+      <div class="tip"><b>The move most people never try:</b> instructions can automate a workflow, not just set a tone. <em>"When I upload a meeting transcript, create a structured summary using this template."</em> Now the project does something the moment you drop a file in it.</div>
+
+      <p class="slede" style="margin:1rem 0 0; font-size:.92rem;">Look at those four ingredients and you'll recognise them: context, task, rules. Project instructions are Lesson 02's prompt framework, written once instead of every time.</p>
+      <a class="xlink" href="lesson-02-first-conversation.html#b2">Back to the three moves</a>
+    </div>
+
+    <div class="step k">
+      <span class="sn">Step 03</span>
+      <h3>Build the knowledge base</h3>
+      <ul>
+        <li>The files menu sits on the right of the project's main page. Click <strong>+</strong> to add.</li>
+        <li>Formats include <strong>PDF, DOCX, CSV, TXT, HTML</strong> and more — or connect <strong>Google Drive</strong> to link documents directly.</li>
+        <li><strong>Reference documents:</strong> brand guidelines, style guides, templates.</li>
+        <li><strong>Background material:</strong> research reports, meeting notes, requirements docs.</li>
+        <li><strong>Examples of work you want Claude to emulate</strong> — the fastest way to communicate a standard.</li>
+        <li><strong>Technical documentation and specs.</strong></li>
+      </ul>
+      <div class="tip"><b>Name files like you mean it.</b> Claude uses filenames to find the right document, so <code>Q4-2024-Brand-Guidelines.pdf</code> beats <code>document1.pdf</code>. This matters more than it sounds — see the next section for why.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== SCALE ==================== -->
+<section class="sect" id="scale">
+  <div class="wrap">
+    <div class="shead"><span class="snum">Part 03</span><h2>What happens when it gets big</h2></div>
+    <p class="slede">Projects change how they work as the knowledge base grows. You don't configure anything and you won't be asked — but knowing the switch exists explains a lot about how to organise your files.</p>
+
+    <div class="states">
+      <div class="st">
+        <span class="stt">Under the limit</span>
+        <h3>Everything loaded</h3>
+        <p>Your whole knowledge base sits in context. Claude has all of it in view at once, every chat.</p>
+      </div>
+      <div class="threshold">↓ knowledge grows ↓<br>the switch flips itself</div>
+      <div class="st">
+        <span class="stt">At the limit and beyond</span>
+        <h3>Searched, not loaded</h3>
+        <p>Claude stops loading everything and instead searches your project files, pulling in only the parts relevant to your question. This is called retrieval augmented generation, or RAG.</p>
+      </div>
+    </div>
+
+    <div class="bignum">
+      <span class="n">10×</span>
+      <p>Roughly how much more your project can hold once it switches to searching — with response quality held steady. You'll see an indicator when it's on, but the experience feels the same.</p>
+    </div>
+
+    <p class="keep"><b>Why this changes your habits:</b> once Claude is searching rather than reading everything, the filename <em>is</em> the search handle. Descriptive names and related files grouped together stop being tidiness and start being retrieval.</p>
+
+    <div class="myth">
+      <span class="mt">The plan detail the lesson leaves out</span>
+      <p>This automatic scaling is a <strong>paid-plan feature</strong> (Pro, Max, Team, Enterprise). On a free account, projects still work and you can create a handful of them — but keep the knowledge base lean, because nothing will step in to manage the overflow for you.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== SHARE ==================== -->
+<section class="sect" id="share">
+  <div class="wrap">
+    <div class="shead"><span class="snum">Part 04</span><h2>Sharing it</h2><span class="gate">Claude for Work · Team &amp; Enterprise</span></div>
+    <p class="slede">Three permission levels, and each one contains the one below it. Pick the lowest rung that lets someone do their job.</p>
+
+    <div class="ladder">
+      <div class="rung r1">
+        <span class="rn">Rung 01</span>
+        <h3>Can view</h3>
+        <p>See the project, use the knowledge, and chat inside it — but change nothing. Read-only, with full discussion rights.</p>
+      </div>
+      <div class="rung r2">
+        <span class="rn">Rung 02</span>
+        <h3>Can edit</h3>
+        <p>Everything above, plus modify the instructions, update the knowledge base, and manage other members. Full collaboration.</p>
+      </div>
+      <div class="rung r3">
+        <span class="rn">Rung 03</span>
+        <h3>Owner</h3>
+        <p>Everything above, plus control of who sees the project at all — specific people, or the whole organisation.</p>
+      </div>
+    </div>
+
+    <div class="howshare">
+      <span class="hs">How to actually share it</span>
+      <ol>
+        <li>Open the project and click <strong>Share project</strong>, to the right of the project name.</li>
+        <li>Add people by name or email — or paste a list of addresses for <strong>bulk sharing</strong>. It'll appear in their <em>Shared with you</em>.</li>
+        <li>Or share with <strong>Everyone at [your organisation]</strong> to make it discoverable in the Team tab.</li>
+        <li>People get an email notification, and find shared projects under <em>Shared with me</em>.</li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== STEAL ==================== -->
+<section class="sect" id="steal">
+  <div class="wrap">
+    <div class="shead"><span class="snum">Part 05</span><h2>Five to steal</h2></div>
+    <p class="slede">Not sure where to start? Copy one of these outright. The pattern is the same each time — load the material, set the standing rules, then work.</p>
+
+    <div class="egs">
+      <div class="eg">
+        <h3>Q4 product launch</h3>
+        <span class="load">What goes in</span>
+        <p>Product specs, competitive analysis, messaging brainstorm notes. Claude then has all of it in mind for any question or draft you throw at it.</p>
+      </div>
+      <div class="eg">
+        <h3>Research support</h3>
+        <span class="load">What goes in</span>
+        <p>Competitive review, user research data, customer feedback. Use it to synthesise sources, draft reports, and keep recommendations consistent with each other.</p>
+      </div>
+      <div class="eg">
+        <h3>Client account hub</h3>
+        <span class="load">What goes in</span>
+        <p>The client's brand guidelines, past deliverables, communication history — plus instructions so Claude matches their tone on every proposal and report.</p>
+      </div>
+      <div class="eg">
+        <h3>Event planning workspace</h3>
+        <span class="load">What goes in</span>
+        <p>Venue contracts, speaker bios, attendee data. Out come run-of-show documents, attendee comms and post-event reports that stay on theme.</p>
+      </div>
+      <div class="eg">
+        <h3>Job description generator</h3>
+        <span class="load">What goes in</span>
+        <p>Past job descriptions, team charters, internal headcount requests. Drafts then reflect how your team actually works, not a generic template.</p>
+      </div>
+    </div>
+
+    <div class="habits">
+      <div class="hb"><span class="hn">01</span><div><b>Start focused, then expand.</b><span>One specific use case beats one project for everything. You can always add later.</span></div></div>
+      <div class="hb"><span class="hn">02</span><div><b>Keep the knowledge current.</b><span>Outdated documents produce outdated answers. Replace superseded files rather than piling new ones on top.</span></div></div>
+      <div class="hb"><span class="hn">03</span><div><b>Write clear instructions.</b><span>Vague instructions give inconsistent results. Be specific about what you want.</span></div></div>
+      <div class="hb"><span class="hn">04</span><div><b>Name and group files deliberately.</b><span>Claude uses filenames and proximity to work out how documents relate to each other.</span></div></div>
+      <div class="hb"><span class="hn">05</span><div><b>Reference documents by name.</b><span><em>"Based on our Q3 report, what were the top customer concerns?"</em> — it points the search straight at the right file.</span></div></div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>Lesson 05 · Introduction to Projects · Anatomy diagram ·
+      <a href="lesson-04-desktop-shapes.html">← Lesson 04</a> ·
+      <a href="lesson-06-artifacts.html">Lesson 06 →</a></p>
+  </div>
+</footer>
+
+
+
+<style>
+.pathnav{position:sticky;bottom:0;z-index:60;background:#16203C;border-top:2px solid #FFD84A;}
+.pathnav .inner{max-width:1160px;margin:0 auto;padding:.55rem 1.5rem;display:flex;align-items:center;gap:.8rem;flex-wrap:wrap;}
+.pathnav a{font-family:"Space Mono",monospace;font-size:.6rem;font-weight:700;text-transform:uppercase;
+letter-spacing:.1em;text-decoration:none;color:#E9E6DB;border:1.5px solid #4A5470;padding:.32rem .55rem;transition:all .15s ease;}
+.pathnav a:hover{border-color:#FFD84A;color:#FFD84A;}
+.pathnav a.next{border-color:#FFD84A;color:#FFD84A;margin-left:auto;}
+.pathnav .step{font-family:"Space Mono",monospace;font-size:.58rem;font-weight:700;letter-spacing:.12em;color:#8FA0C4;text-transform:uppercase;}
+@media print{.pathnav{display:none;}}
+</style>
+<div class="pathnav"><div class="inner"><a href="lesson-04-desktop-shapes.html">← 04 Desktop</a>
+<a href="learning-path.html">↑ Learning path</a>
+<span class="step">Step 8 of 16</span>
+<a class="next" href="lesson-06-artifacts.html">06 Artifacts →</a></div></div>
+</body>
+</html>

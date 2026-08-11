@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Your first conversation with Claude — the lesson as a branch map</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Public+Sans:ital,wght@0,400;0,600;1,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   LESSON 02 — YOUR FIRST CONVERSATION WITH CLAUDE
+   One hub, six branches. Same ink and paper as Lesson 01, so
+   the two pages read as one course; different diagram, because
+   this lesson is a fan of parallel moves, not a route to walk.
+   Card anatomy: Purpose / Do this / Most people miss / the line
+   worth keeping. Single file. No JavaScript.
+   ============================================================ */
+
+:root{
+  --paper:    #E9E6DB;
+  --paper-hi: #F4F2EA;
+  --ink:      #16203C;
+  --ink-soft: #4A5470;
+  --rule:     #C9C4B4;
+
+  --b1: #DE4438;  --b1-ink: #A22119;   /* mindset      */
+  --b2: #1358A8;  --b2-ink: #0D4079;   /* the prompt   */
+  --b3: #0E8A63;  --b3-ink: #0A6047;   /* context      */
+  --b4: #7B4BB0;  --b4-ink: #573079;   /* iterate      */
+  --b5: #C9761A;  --b5-ink: #8A4A06;   /* personalise  */
+  --b6: #0E7C8F;  --b6-ink: #08596A;   /* get inspired */
+
+  --marker: #FFD84A;
+
+  --sp-1:.5rem; --sp-2:1rem; --sp-3:1.5rem; --sp-4:2.25rem; --sp-5:3.5rem; --sp-6:5rem;
+
+  --display:"Bricolage Grotesque","Trebuchet MS",system-ui,sans-serif;
+  --body:"Public Sans",-apple-system,"Segoe UI",Roboto,sans-serif;
+  --mono:"Space Mono",ui-monospace,"Courier New",monospace;
+}
+
+*,*::before,*::after{ box-sizing:border-box; }
+html{ scroll-behavior:smooth; }
+
+body{
+  margin:0; background:var(--paper); color:var(--ink);
+  font-family:var(--body); font-size:1rem; line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+}
+body::after{                       /* riso paper grain */
+  content:""; position:fixed; inset:0; pointer-events:none; z-index:99;
+  background-image:radial-gradient(var(--ink) .5px, transparent .5px);
+  background-size:4px 4px; opacity:.055;
+}
+
+.wrap{ max-width:1200px; margin:0 auto; padding:0 var(--sp-3); }
+
+h1,h2,h3{ font-family:var(--display); font-weight:800; line-height:1.03; margin:0; letter-spacing:-.02em; }
+h1{ font-size:clamp(2.5rem,8.5vw,5.6rem); text-transform:uppercase; }
+h2{ font-size:clamp(1.35rem,3.4vw,2rem); }
+h3{ font-size:1.02rem; font-weight:600; letter-spacing:0; }
+p{ margin:0 0 var(--sp-2); } p:last-child{ margin-bottom:0; }
+
+.tag{ font-family:var(--mono); font-size:.68rem; font-weight:700; text-transform:uppercase; letter-spacing:.16em; }
+.marked{ background:linear-gradient(transparent 58%, var(--marker) 58%, var(--marker) 94%, transparent 94%); padding:0 .12em; }
+
+a{ color:inherit; }
+a:focus-visible{ outline:3px solid var(--b2); outline-offset:3px; border-radius:2px; }
+
+/* ================= sticky bar: legend + nav ================= */
+.routebar{ position:sticky; top:0; z-index:50; background:var(--paper); border-bottom:2px solid var(--ink); }
+.routebar .wrap{ display:flex; align-items:center; gap:var(--sp-2); flex-wrap:wrap; padding-top:.6rem; padding-bottom:.6rem; }
+.routebar .brand{ font-family:var(--display); font-weight:800; text-transform:uppercase; margin-right:auto; letter-spacing:-.01em; }
+.routebar .brand small{ font-family:var(--mono); font-weight:700; font-size:.6rem; letter-spacing:.16em; color:var(--ink-soft); display:block; text-transform:uppercase; }
+.routebar nav{ display:flex; gap:.35rem; flex-wrap:wrap; }
+.pill{
+  font-family:var(--mono); font-size:.63rem; font-weight:700; text-transform:uppercase;
+  letter-spacing:.1em; text-decoration:none; color:#fff;
+  padding:.32rem .58rem; border-radius:999px;
+  transition:transform .18s ease, filter .18s ease;
+}
+.pill:hover{ transform:translateY(-2px); filter:brightness(1.12); }
+.pill.p1{ background:var(--b1-ink); } .pill.p2{ background:var(--b2-ink); }
+.pill.p3{ background:var(--b3-ink); } .pill.p4{ background:var(--b4-ink); }
+.pill.p5{ background:var(--b5-ink); }
+.pill.p6{ background:var(--b6-ink); }
+
+/* ========================== hero ========================== */
+.hero{ padding:var(--sp-5) 0 var(--sp-4); }
+.hero .eyebrow{ color:var(--ink-soft); display:block; margin-bottom:var(--sp-2); }
+.hero h1{ margin-bottom:var(--sp-3); }
+.hero .deck{ font-size:clamp(1.05rem,2.2vw,1.28rem); max-width:52ch; color:var(--ink-soft); }
+.hero .deck strong{ color:var(--ink); font-weight:600; }
+
+/* ================== hub + branches layout ================== */
+.map{ padding-bottom:var(--sp-5); }
+.mapgrid{ display:block; }
+
+.hub{ display:none; }                 /* desktop only, see @media */
+.hub svg{ width:100%; height:auto; display:block; }
+.hub .hubcap{
+  font-family:var(--mono); font-size:.62rem; text-transform:uppercase; letter-spacing:.12em;
+  color:var(--ink-soft); border-top:1px solid var(--rule); padding-top:.6rem; margin-top:.8rem;
+}
+
+.branches{ position:relative; }
+
+.branch{ display:block; padding-bottom:var(--sp-3); scroll-margin-top:4.4rem; }
+
+/* the node chip */
+.node{
+  display:inline-flex; align-items:center; gap:.5rem;
+  background:var(--ink); color:var(--paper);
+  padding:.4rem .7rem; margin-bottom:.7rem;
+  font-family:var(--mono); font-size:.68rem; font-weight:700;
+  text-transform:uppercase; letter-spacing:.12em;
+  border-radius:4px; position:relative; z-index:2;
+}
+.node .ndot{ width:.6rem; height:.6rem; border-radius:50%; display:block; }
+.b1 .node .ndot{ background:var(--b1); } .b2 .node .ndot{ background:var(--b2); }
+.b3 .node .ndot{ background:var(--b3); } .b4 .node .ndot{ background:var(--b4); }
+.b5 .node .ndot{ background:var(--b5); } .b6 .node .ndot{ background:var(--b6); }
+
+.conn{ display:none; }                /* the dashed arrow, desktop only */
+
+/* ========================== the card ========================== */
+.card{ background:var(--paper-hi); border:1px solid var(--rule); border-left-width:7px; border-left-style:solid; padding:var(--sp-3); }
+.b1 .card{ border-left-color:var(--b1); } .b2 .card{ border-left-color:var(--b2); }
+.b3 .card{ border-left-color:var(--b3); } .b4 .card{ border-left-color:var(--b4); }
+.b5 .card{ border-left-color:var(--b5); } .b6 .card{ border-left-color:var(--b6); }
+
+.card > h2{ margin-bottom:.5rem; }
+.b1 .card > h2{ color:var(--b1-ink); } .b2 .card > h2{ color:var(--b2-ink); }
+.b3 .card > h2{ color:var(--b3-ink); } .b4 .card > h2{ color:var(--b4-ink); }
+.b5 .card > h2{ color:var(--b5-ink); } .b6 .card > h2{ color:var(--b6-ink); }
+
+.purpose{ font-size:1.04rem; margin-bottom:var(--sp-3); }
+.purpose b{ font-family:var(--mono); font-size:.7rem; font-weight:700; text-transform:uppercase; letter-spacing:.12em; color:var(--ink-soft); display:block; margin-bottom:.2rem; }
+
+.panels{ display:grid; gap:var(--sp-2); grid-template-columns:1fr; }
+.panel{ border:1px solid var(--rule); background:var(--paper); padding:var(--sp-2) var(--sp-2) var(--sp-2); }
+.ptitle{
+  display:inline-block; color:#fff;
+  font-family:var(--mono); font-size:.63rem; font-weight:700;
+  text-transform:uppercase; letter-spacing:.1em;
+  padding:.24rem .5rem; border-radius:3px; margin-bottom:.6rem;
+}
+.b1 .ptitle{ background:var(--b1-ink); } .b2 .ptitle{ background:var(--b2-ink); }
+.b3 .ptitle{ background:var(--b3-ink); } .b4 .ptitle{ background:var(--b4-ink); }
+.b5 .ptitle{ background:var(--b5-ink); } .b6 .ptitle{ background:var(--b6-ink); }
+.panel ul{ margin:0; padding-left:1.05rem; }
+.panel li{ font-size:.93rem; margin-bottom:.5rem; color:var(--ink-soft); }
+.panel li:last-child{ margin-bottom:0; }
+.panel li strong{ color:var(--ink); font-weight:600; }
+.panel .say{ font-style:italic; color:var(--ink); }
+
+/* the dark keeper bar */
+.keep{
+  margin-top:var(--sp-2); background:var(--ink); color:#C6CDDE;
+  padding:.85rem var(--sp-2); font-size:.94rem; font-style:italic;
+}
+.keep strong{ font-style:normal; font-weight:600; color:var(--marker); }
+
+/* ============ branch 02: the dissected prompt ============ */
+.dissect{ margin-top:var(--sp-2); border:2px solid var(--ink); background:var(--paper); }
+.dissect .dhead{
+  background:var(--ink); color:var(--paper); padding:.55rem var(--sp-2);
+  font-family:var(--mono); font-size:.65rem; font-weight:700;
+  text-transform:uppercase; letter-spacing:.12em;
+}
+.dline{ display:grid; grid-template-columns:1fr; gap:.3rem; padding:var(--sp-2); border-bottom:1px dashed var(--rule); }
+.dline:last-of-type{ border-bottom:none; }
+.dlabel{ font-family:var(--mono); font-size:.63rem; font-weight:700; text-transform:uppercase; letter-spacing:.1em; }
+.dline q{ font-size:.95rem; quotes:none; display:block; padding-left:.7rem; border-left:4px solid; }
+.d1 .dlabel{ color:var(--b3-ink); } .d1 q{ border-left-color:var(--b3); }
+.d2 .dlabel{ color:var(--b2-ink); } .d2 q{ border-left-color:var(--b2); }
+.d3 .dlabel{ color:var(--b5-ink); } .d3 q{ border-left-color:var(--b5); }
+.dfoot{ padding:.7rem var(--sp-2); border-top:2px solid var(--ink); font-size:.85rem; color:var(--ink-soft); }
+
+/* ---- branch 06: real specimens pulled from the gallery ---- */
+.specimens{ margin-top:var(--sp-2); border:2px solid var(--ink); background:var(--paper); }
+.shead{ background:var(--ink); color:var(--paper); padding:.55rem var(--sp-2);
+  font-family:var(--mono); font-size:.65rem; font-weight:700; text-transform:uppercase; letter-spacing:.12em; }
+.spec{ display:grid; grid-template-columns:1fr; gap:.15rem;
+  padding:.6rem var(--sp-2); border-bottom:1px dashed var(--rule); font-size:.92rem; }
+.spec:last-child{ border-bottom:none; }
+.spec b{ font-weight:400; }
+.spec span{ font-family:var(--mono); font-size:.6rem; font-weight:700; text-transform:uppercase;
+  letter-spacing:.1em; color:var(--b6-ink); }
+
+.filters{ display:flex; flex-wrap:wrap; gap:.3rem; margin:.45rem 0 .2rem; }
+.filters i{ font-style:normal; font-family:var(--mono); font-size:.6rem; font-weight:700;
+  text-transform:uppercase; letter-spacing:.06em; color:var(--ink);
+  border:1px solid var(--rule); background:var(--paper-hi); padding:.16rem .38rem; border-radius:3px; }
+
+.source{
+  margin-top:var(--sp-2); font-size:.82rem; color:var(--ink-soft);
+  border-left:3px solid var(--rule); padding-left:.8rem;
+}
+.source b{ color:var(--ink); font-weight:600; }
+
+footer{ border-top:1px solid var(--rule); padding:var(--sp-3) 0 var(--sp-5); }
+footer p{ font-family:var(--mono); font-size:.66rem; text-transform:uppercase; letter-spacing:.1em; color:var(--ink-soft); }
+footer a{ color:var(--b2-ink); }
+
+/* ========================= breakpoints ========================= */
+@media (min-width:680px){
+  .panels{ grid-template-columns:1fr 1fr; }
+  .dline{ grid-template-columns:9.5rem 1fr; gap:1rem; align-items:start; }
+  .spec{ grid-template-columns:1fr 9rem; gap:1rem; align-items:baseline; }
+  .spec span{ text-align:right; }
+  .dlabel{ padding-top:.15rem; }
+}
+
+@media (min-width:1000px){
+  .mapgrid{ display:grid; grid-template-columns:236px 1fr; gap:var(--sp-4); align-items:start; }
+  .hub{ display:block; position:sticky; top:5rem; }
+
+  /* the spine that all five branches hang off */
+  .branches::before{
+    content:""; position:absolute; left:78px; top:.9rem; bottom:3rem;
+    border-left:3px dashed var(--rule);
+  }
+  .branch{ display:grid; grid-template-columns:158px 46px 1fr; align-items:start; padding-bottom:var(--sp-4); }
+  .node{ margin-bottom:0; justify-self:center; }
+  .conn{ display:block; width:46px; height:12px; margin-top:.65rem; }
+}
+
+@media (prefers-reduced-motion:reduce){
+  html{ scroll-behavior:auto; }
+  *{ transition:none !important; animation:none !important; }
+}
+
+@media print{
+  .routebar,.hub{ display:none; }
+  body::after{ display:none; }
+  .card,.dissect{ break-inside:avoid; }
+  .branches::before{ display:none; }
+}
+</style>
+</head>
+<body>
+
+<div class="routebar">
+  <div class="wrap">
+    <span class="brand">Your first conversation<small>Lesson 02</small></span>
+    <nav aria-label="Branches">
+      <a class="pill" style="background:#16203C" href="index.html">Home</a>
+      <a class="pill" style="background:#0A6047" href="prompt-library.html">50 prompts</a>
+      <a class="pill" style="background:#573079" href="power-prompts.html">40 power</a>
+      <a class="pill p1" href="#b1">01 Mindset</a>
+      <a class="pill p2" href="#b2">02 The prompt</a>
+      <a class="pill p3" href="#b3">03 Context</a>
+      <a class="pill p4" href="#b4">04 Iterate</a>
+      <a class="pill p5" href="#b5">05 Personalise</a>
+      <a class="pill p6" href="#b6">06 Get inspired</a>
+    </nav>
+  </div>
+</div>
+
+<header class="hero">
+  <div class="wrap">
+    <span class="tag eyebrow">Lesson 02 · Foundations · read in ~5 minutes</span>
+    <h1>Your first<br>conversation</h1>
+    <p class="deck"><strong>Claude brings the intelligence. You bring the context and the expertise that makes the work mean anything.</strong> Six branches below, and they're not steps — you'll use them in whatever order the work demands.</p>
+  </div>
+</header>
+
+<main class="map">
+  <div class="wrap mapgrid">
+
+    <!-- ===================== HUB ===================== -->
+    <aside class="hub">
+      <svg viewBox="0 0 236 300" aria-hidden="true">
+        <g fill="none" stroke-width="3" stroke-linecap="round">
+          <path d="M34 150 C62 150 60 25 84 25"   stroke="#DE4438"/>
+          <path d="M34 150 C62 150 61 75 84 75"   stroke="#1358A8"/>
+          <path d="M34 150 C62 150 64 125 84 125" stroke="#0E8A63"/>
+          <path d="M34 150 C62 150 64 175 84 175" stroke="#7B4BB0"/>
+          <path d="M34 150 C62 150 61 225 84 225" stroke="#C9761A"/>
+          <path d="M34 150 C62 150 60 275 84 275" stroke="#0E7C8F"/>
+        </g>
+        <g fill="#F4F2EA" stroke-width="4">
+          <circle cx="84" cy="25"  r="6" stroke="#DE4438"/>
+          <circle cx="84" cy="75"  r="6" stroke="#1358A8"/>
+          <circle cx="84" cy="125" r="6" stroke="#0E8A63"/>
+          <circle cx="84" cy="175" r="6" stroke="#7B4BB0"/>
+          <circle cx="84" cy="225" r="6" stroke="#C9761A"/>
+          <circle cx="84" cy="275" r="6" stroke="#0E7C8F"/>
+        </g>
+        <g font-family="Space Mono, monospace" font-size="10.5" letter-spacing="0.5">
+          <text x="98" y="29"  fill="#A22119">01 MINDSET</text>
+          <text x="98" y="79"  fill="#0D4079">02 THE PROMPT</text>
+          <text x="98" y="129" fill="#0A6047">03 CONTEXT</text>
+          <text x="98" y="179" fill="#573079">04 ITERATE</text>
+          <text x="98" y="229" fill="#8A4A06">05 PERSONALISE</text>
+          <text x="98" y="279" fill="#08596A">06 GET INSPIRED</text>
+        </g>
+        <circle cx="34" cy="150" r="20" fill="#16203C"/>
+        <circle cx="34" cy="150" r="14" fill="none" stroke="#E9E6DB" stroke-width="2"/>
+        <text x="34" y="154" text-anchor="middle" fill="#FFD84A"
+              font-family="Space Mono, monospace" font-size="10" font-weight="700">02</text>
+      </svg>
+      <p class="hubcap">One conversation, six branches. Colours match the cards.</p>
+    </aside>
+
+    <!-- ===================== BRANCHES ===================== -->
+    <div class="branches">
+
+      <!-- ---------- 01 MINDSET ---------- -->
+      <article class="branch b1" id="b1">
+        <span class="node"><span class="ndot"></span>01 Mindset</span>
+        <svg class="conn" viewBox="0 0 46 12" aria-hidden="true" fill="#4A5470">
+          <circle cx="4" cy="6" r="2.5"/><circle cx="13" cy="6" r="2.5"/><circle cx="22" cy="6" r="2.5"/>
+          <path d="M30 6h9M35 2.5 39 6l-4 3.5" fill="none" stroke="#16203C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <div class="card">
+          <h2>Talk to it like a coworker</h2>
+          <p class="purpose"><b>Purpose</b>Settle who is bringing what, before you type anything at all.</p>
+          <div class="panels">
+            <div class="panel">
+              <span class="ptitle">Do this</span>
+              <ul>
+                <li>Write <strong>naturally, concisely, conversationally</strong> — the way you'd brief a colleague, not the way you'd query a search engine.</li>
+                <li>Bring the context and the expertise. That half is yours and nothing replaces it.</li>
+                <li>Start anywhere on the range: a quick question like brainstorming code names, or a full request to co-create a file.</li>
+              </ul>
+            </div>
+            <div class="panel">
+              <span class="ptitle">Most people miss</span>
+              <ul>
+                <li>Claude <strong>amplifies</strong> what you can do — it doesn't replace your judgement. The intelligence is Claude's; the meaning is yours.</li>
+                <li>The real power shows up in <strong>continued, frequent conversation</strong>, not in one perfect prompt.</li>
+              </ul>
+            </div>
+          </div>
+          <p class="keep"><strong>The shift that matters:</strong> you're not querying a database. You're briefing a collaborator who wasn't in the room.</p>
+        </div>
+      </article>
+
+      <!-- ---------- 02 THE PROMPT ---------- -->
+      <article class="branch b2" id="b2">
+        <span class="node"><span class="ndot"></span>02 The prompt</span>
+        <svg class="conn" viewBox="0 0 46 12" aria-hidden="true" fill="#4A5470">
+          <circle cx="4" cy="6" r="2.5"/><circle cx="13" cy="6" r="2.5"/><circle cx="22" cy="6" r="2.5"/>
+          <path d="M30 6h9M35 2.5 39 6l-4 3.5" fill="none" stroke="#16203C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <div class="card">
+          <h2>Three moves make a brief</h2>
+          <p class="purpose"><b>Purpose</b>Turn a request into something anyone could actually act on.</p>
+          <div class="panels">
+            <div class="panel">
+              <span class="ptitle">Do this</span>
+              <ul>
+                <li><strong>1 · Set the stage.</strong> What's your role, what's the objective, what should Claude know about your work?</li>
+                <li><strong>2 · Define the task.</strong> What action do you want — write, analyse, build, something else?</li>
+                <li><strong>3 · Specify rules.</strong> What style and tone? Any example you can attach to show what good looks like?</li>
+              </ul>
+            </div>
+            <div class="panel">
+              <span class="ptitle">Most people miss</span>
+              <ul>
+                <li><strong>"Examples" belongs in rules.</strong> Attaching one sample of what you want beats a paragraph describing it.</li>
+                <li>The stage is the piece people skip — and it's the piece that makes the answer <span class="marked">yours instead of generic</span>.</li>
+                <li>The task line should name a verb. "About Q3" isn't a task; "summarise Q3 for a board audience" is.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="dissect">
+            <p class="dhead">The same prompt, cut into its three jobs</p>
+            <div class="dline d1">
+              <span class="dlabel">Set the stage</span>
+              <q>I'm the marketing lead at an indie streaming startup, and we're preparing an investor pitch deck for Series A investors.</q>
+            </div>
+            <div class="dline d2">
+              <span class="dlabel">Define the task</span>
+              <q>Can you research the current state of the independent film streaming market and identify key trends, competitor positioning, and growth opportunities?</q>
+            </div>
+            <div class="dline d3">
+              <span class="dlabel">Specify rules</span>
+              <q>Use current web research with citations and structure it as a professional report of up to 5 pages, with an executive summary, market analysis, competitive landscape, and growth opportunities.</q>
+            </div>
+            <p class="dfoot">Read the three rows top to bottom and you have the original prompt, word for word. Nothing clever was added — the clauses were already doing three different jobs.</p>
+          </div>
+
+          <p class="source"><b>Where this comes from:</b> the framework is adapted from the <b>4D Framework for AI Fluency</b> — Delegation, Description, Discernment, Diligence — developed by Prof. Rick Dakan (Ringling College of Art and Design) and Prof. Joseph Feller (University College Cork).</p>
+
+          <p class="keep"><strong>The test:</strong> read your prompt back as if you were a new hire. If you couldn't start work from it, neither can Claude.</p>
+        </div>
+      </article>
+
+      <!-- ---------- 03 CONTEXT ---------- -->
+      <article class="branch b3" id="b3">
+        <span class="node"><span class="ndot"></span>03 Context</span>
+        <svg class="conn" viewBox="0 0 46 12" aria-hidden="true" fill="#4A5470">
+          <circle cx="4" cy="6" r="2.5"/><circle cx="13" cy="6" r="2.5"/><circle cx="22" cy="6" r="2.5"/>
+          <path d="M30 6h9M35 2.5 39 6l-4 3.5" fill="none" stroke="#16203C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <div class="card">
+          <h2>Hand over the material</h2>
+          <p class="purpose"><b>Purpose</b>Show Claude the thing instead of describing the thing.</p>
+          <div class="panels">
+            <div class="panel">
+              <span class="ptitle">Do this</span>
+              <ul>
+                <li>Upload a document → <span class="say">"summarise the key points."</span></li>
+                <li>Share an image → <span class="say">"describe what you see here."</span></li>
+                <li>Attach a spreadsheet → <span class="say">"what trends are in this data?"</span></li>
+                <li>Upload code → <span class="say">"explain how this works"</span> or <span class="say">"find the bug."</span></li>
+              </ul>
+            </div>
+            <div class="panel">
+              <span class="ptitle">Most people miss</span>
+              <ul>
+                <li>Claude reads the <strong>visual</strong> parts too — charts and graphics inside a PDF, not only its text.</li>
+                <li>Supported types include PDF, DOCX, CSV, TXT and common images like PNG and JPEG.</li>
+                <li><strong>Settings → General → "What personal preferences should Claude consider?"</strong> applies to every conversation you have, forever.</li>
+                <li>Connectors pull in context from tools you already work in.</li>
+              </ul>
+            </div>
+          </div>
+          <p class="keep"><strong>Why it works:</strong> an upload is a shortcut past three rounds of you explaining what you meant.</p>
+        </div>
+      </article>
+
+      <!-- ---------- 04 ITERATE ---------- -->
+      <article class="branch b4" id="b4">
+        <span class="node"><span class="ndot"></span>04 Iterate</span>
+        <svg class="conn" viewBox="0 0 46 12" aria-hidden="true" fill="#4A5470">
+          <circle cx="4" cy="6" r="2.5"/><circle cx="13" cy="6" r="2.5"/><circle cx="22" cy="6" r="2.5"/>
+          <path d="M30 6h9M35 2.5 39 6l-4 3.5" fill="none" stroke="#16203C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <div class="card">
+          <h2>The first reply is a draft</h2>
+          <p class="purpose"><b>Purpose</b>Steer the conversation instead of restarting your thinking.</p>
+          <div class="panels">
+            <div class="panel">
+              <span class="ptitle">Do this — three moves</span>
+              <ul>
+                <li><strong>Ask a follow-up.</strong> <span class="say">"Expand on the second point."</span> <span class="say">"That's helpful — make it more concise."</span></li>
+                <li><strong>Give feedback.</strong> <span class="say">"This is good, but the tone is too formal. Make it more conversational."</span></li>
+                <li><strong>Redirect, or restart.</strong> <span class="say">"Actually, I was asking about X, not Y."</span> Worst case, open a new chat to fully refresh the context.</li>
+              </ul>
+            </div>
+            <div class="panel">
+              <span class="ptitle">Most people miss</span>
+              <ul>
+                <li>The <strong>pencil icon on your own message.</strong> Edit and resubmit the prompt rather than stacking a correction on top of it.</li>
+                <li>Chaining <strong>bite-sized prompts</strong> beats one enormous one — you get to steer based on what actually came back.</li>
+              </ul>
+            </div>
+          </div>
+          <p class="keep"><strong>The habit:</strong> small prompts, chained. That's a dialogue. One-shot prompting is a lottery ticket.</p>
+        </div>
+      </article>
+
+      <!-- ---------- 05 PERSONALISE ---------- -->
+      <article class="branch b5" id="b5">
+        <span class="node"><span class="ndot"></span>05 Personalise</span>
+        <svg class="conn" viewBox="0 0 46 12" aria-hidden="true" fill="#4A5470">
+          <circle cx="4" cy="6" r="2.5"/><circle cx="13" cy="6" r="2.5"/><circle cx="22" cy="6" r="2.5"/>
+          <path d="M30 6h9M35 2.5 39 6l-4 3.5" fill="none" stroke="#16203C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <div class="card">
+          <h2>Set it once, not every time</h2>
+          <p class="purpose"><b>Purpose</b>Stop re-explaining yourself at the top of every new chat.</p>
+          <div class="panels">
+            <div class="panel">
+              <span class="ptitle">Do this</span>
+              <ul>
+                <li><strong>Memory</strong> saves key context from your conversations — your role, preferences, past decisions, working style — and carries it into new chats.</li>
+                <li><strong>Styles</strong> control how Claude writes. Pick a preset — concise, formal, explanatory — or describe your own.</li>
+              </ul>
+            </div>
+            <div class="panel">
+              <span class="ptitle">Most people miss</span>
+              <ul>
+                <li>You stay in control: <strong>review, edit or delete</strong> anything Claude remembers, any time, in Settings. It syncs across your devices.</li>
+                <li>A custom Style is just a plain-English description of how you want Claude to write. No special syntax.</li>
+                <li>Once set, a Style applies across all your conversations automatically.</li>
+              </ul>
+            </div>
+          </div>
+          <p class="keep"><strong>The compounding part:</strong> everything on this branch pays out on every future conversation, not just this one.</p>
+        </div>
+      </article>
+
+
+      <!-- ---------- 06 GET INSPIRED ---------- -->
+      <article class="branch b6" id="b6">
+        <span class="node"><span class="ndot"></span>06 Get inspired</span>
+        <svg class="conn" viewBox="0 0 46 12" aria-hidden="true" fill="#4A5470">
+          <circle cx="4" cy="6" r="2.5"/><circle cx="13" cy="6" r="2.5"/><circle cx="22" cy="6" r="2.5"/>
+          <path d="M30 6h9M35 2.5 39 6l-4 3.5" fill="none" stroke="#16203C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <div class="card">
+          <h2>Borrow, don't invent</h2>
+          <p class="purpose"><b>Purpose</b>Steal a worked example from someone with your job instead of starting at a blank box.</p>
+          <div class="panels">
+            <div class="panel">
+              <span class="ptitle">Do this</span>
+              <ul>
+                <li>Open the <strong><a href="https://claude.com/resources/use-cases">Use Case Gallery</a></strong> — practical examples across research, writing, coding, analysis and everyday work, solo or with a team.</li>
+                <li>Filter by <strong>Category</strong> to find your job:
+                  <span class="filters"><i>Education</i><i>Finance</i><i>HR</i><i>Legal</i><i>Life Sciences</i><i>Marketing</i><i>Nonprofits</i><i>Personal</i><i>Professional</i><i>Research</i><i>Sales</i><i>Cowork</i><i>Custom visuals</i></span>
+                </li>
+                <li>Filter by <strong>Feature</strong> to learn one capability at a time:
+                  <span class="filters"><i>Artifacts</i><i>Connectors</i><i>Extended Thinking</i><i>Projects</i><i>Research</i><i>Skills</i><i>Web Search</i></span>
+                </li>
+                <li>Filter by <strong>Product</strong> if you want examples in one surface:
+                  <span class="filters"><i>Claude.ai</i><i>Claude Cowork</i><i>Claude in Excel</i><i>Claude Design</i><i>Claude in Chrome</i></span>
+                </li>
+              </ul>
+            </div>
+            <div class="panel">
+              <span class="ptitle">Most people miss</span>
+              <ul>
+                <li>There are <strong>six pages</strong>, not one. Page one leans towards education, nonprofits and finance — filter rather than scroll and conclude nothing fits.</li>
+                <li>Every card lists the <strong>model and the features</strong> the example used, so you know what to switch on before you start.</li>
+                <li>Further down the page sit <strong>ready-made starter prompts</strong> grouped under Write, Learn and Code — copy one and swap in your details.</li>
+                <li><strong>Custom visuals</strong> is a whole category where Claude draws the thing inside the chat as you talk. Most people never try it.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="specimens">
+            <p class="shead">Six real examples, to show the shape</p>
+            <div class="spec"><b>Plan your syllabus, and see which weeks are actually locked by prerequisites</b><span>Education</span></div>
+            <div class="spec"><b>Map a lit review mid-conversation to surface the underlying debate</b><span>Education</span></div>
+            <div class="spec"><b>Put three budget futures side by side and see where the pressure lands</b><span>Nonprofits</span></div>
+            <div class="spec"><b>Update a financial model after earnings, then build the deck page</b><span>Finance</span></div>
+            <div class="spec"><b>Audit a folder of visual assets against your brand guidelines</b><span>Cowork</span></div>
+            <div class="spec"><b>Turn one textbook spread into handouts at three reading levels</b><span>Cowork</span></div>
+          </div>
+
+          <p class="source"><b>Read the starter prompts like a worked answer to branch 02.</b> Each one asks Claude to put 1–2 clarifying questions back to you, invites you to attach documents, permits web search and connectors, fixes the tone, and names the output format. That is set the stage, define the task, specify rules — written out by the people who built it.</p>
+
+          <p class="keep"><strong>The shortcut:</strong> the fastest way to get good at prompting is to read a good prompt for a job like yours, then swap in your own details.</p>
+        </div>
+      </article>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>Lesson 02 · Your first conversation with Claude · Branch map · <a href="what-is-claude-map.html">← Lesson 01</a> · <a href="lesson-03-better-results.html">Lesson 03 →</a></p>
+  </div>
+</footer>
+
+
+
+<style>
+.pathnav{position:sticky;bottom:0;z-index:60;background:#16203C;border-top:2px solid #FFD84A;}
+.pathnav .inner{max-width:1160px;margin:0 auto;padding:.55rem 1.5rem;display:flex;align-items:center;gap:.8rem;flex-wrap:wrap;}
+.pathnav a{font-family:"Space Mono",monospace;font-size:.6rem;font-weight:700;text-transform:uppercase;
+letter-spacing:.1em;text-decoration:none;color:#E9E6DB;border:1.5px solid #4A5470;padding:.32rem .55rem;transition:all .15s ease;}
+.pathnav a:hover{border-color:#FFD84A;color:#FFD84A;}
+.pathnav a.next{border-color:#FFD84A;color:#FFD84A;margin-left:auto;}
+.pathnav .step{font-family:"Space Mono",monospace;font-size:.58rem;font-weight:700;letter-spacing:.12em;color:#8FA0C4;text-transform:uppercase;}
+@media print{.pathnav{display:none;}}
+</style>
+<div class="pathnav"><div class="inner"><a href="what-is-claude-map.html">← 01 What is Claude</a>
+<a href="learning-path.html">↑ Learning path</a>
+<span class="step">Step 3 of 16</span>
+<a class="next" href="lesson-03-better-results.html">03 Better results →</a></div></div>
+</body>
+</html>

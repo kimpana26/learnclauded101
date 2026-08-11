@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Working with Skills — the lesson as a shelf</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Public+Sans:ital,wght@0,400;0,600;1,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   LESSON 07 — WORKING WITH SKILLS
+   A skill is a discrete package Claude picks up on its own, so
+   the page is drawn as a shelf: prebuilt ones on the left, your
+   own on the right, and the request reaching for the right card
+   without being told. Same paper and inks as Lessons 01–06.
+   Single file. No JavaScript.
+   ============================================================ */
+
+:root{
+  --paper:#E9E6DB; --paper-hi:#F4F2EA; --ink:#16203C; --ink-soft:#4A5470; --rule:#C9C4B4;
+
+  --skl:#7B4BB0; --skl-ink:#573079;   /* skills          */
+  --set:#C9761A; --set-ink:#8A4A06;   /* setup / gates   */
+  --run:#1358A8; --run-ink:#0D4079;   /* running / built-in */
+  --prj:#0E8A63; --prj-ink:#0A6047;   /* projects / build */
+  --warn:#DE4438; --warn-ink:#A22119;
+
+  --marker:#FFD84A;
+  --sp-1:.5rem; --sp-2:1rem; --sp-3:1.5rem; --sp-4:2.25rem; --sp-5:3.5rem;
+
+  --display:"Bricolage Grotesque","Trebuchet MS",system-ui,sans-serif;
+  --body:"Public Sans",-apple-system,"Segoe UI",Roboto,sans-serif;
+  --mono:"Space Mono",ui-monospace,"Courier New",monospace;
+}
+
+*,*::before,*::after{ box-sizing:border-box; }
+html{ scroll-behavior:smooth; }
+body{
+  margin:0; background:var(--paper); color:var(--ink);
+  font-family:var(--body); font-size:1rem; line-height:1.6; -webkit-font-smoothing:antialiased;
+}
+body::after{
+  content:""; position:fixed; inset:0; pointer-events:none; z-index:99;
+  background-image:radial-gradient(var(--ink) .5px, transparent .5px);
+  background-size:4px 4px; opacity:.055;
+}
+.wrap{ max-width:1160px; margin:0 auto; padding:0 var(--sp-3); }
+
+h1,h2,h3{ font-family:var(--display); font-weight:800; line-height:1.04; margin:0; letter-spacing:-.02em; }
+h1{ font-size:clamp(2.4rem,8vw,5.2rem); text-transform:uppercase; }
+h2{ font-size:clamp(1.45rem,3.8vw,2.3rem); }
+h3{ font-size:1.04rem; font-weight:600; letter-spacing:0; }
+p{ margin:0 0 var(--sp-2); } p:last-child{ margin-bottom:0; }
+
+.tag{ font-family:var(--mono); font-size:.68rem; font-weight:700; text-transform:uppercase; letter-spacing:.16em; }
+.marked{ background:linear-gradient(transparent 58%, var(--marker) 58%, var(--marker) 94%, transparent 94%); padding:0 .12em; }
+a{ color:inherit; }
+a:focus-visible{ outline:3px solid var(--run); outline-offset:3px; border-radius:2px; }
+
+/* ===================== sticky bar ===================== */
+.routebar{ position:sticky; top:0; z-index:50; background:var(--paper); border-bottom:2px solid var(--ink); }
+.routebar .wrap{ display:flex; align-items:center; gap:var(--sp-2); flex-wrap:wrap; padding-top:.6rem; padding-bottom:.6rem; }
+.routebar .brand{ font-family:var(--display); font-weight:800; text-transform:uppercase; margin-right:auto; letter-spacing:-.01em; }
+.routebar .brand small{ font-family:var(--mono); font-weight:700; font-size:.6rem; letter-spacing:.16em; color:var(--ink-soft); display:block; text-transform:uppercase; }
+.routebar nav{ display:flex; gap:.35rem; flex-wrap:wrap; }
+.pill{
+  font-family:var(--mono); font-size:.63rem; font-weight:700; text-transform:uppercase;
+  letter-spacing:.1em; text-decoration:none; color:#fff;
+  padding:.32rem .58rem; border-radius:999px; transition:transform .18s ease, filter .18s ease;
+}
+.pill:hover{ transform:translateY(-2px); filter:brightness(1.12); }
+.pill.p1{ background:var(--skl-ink); } .pill.p2{ background:var(--set-ink); }
+.pill.p3{ background:var(--run-ink); } .pill.p4{ background:var(--prj-ink); }
+.pill.p5{ background:var(--ink); }
+
+/* ======================== hero ======================== */
+.hero{ padding:var(--sp-5) 0 var(--sp-3); }
+.hero .eyebrow{ color:var(--ink-soft); display:block; margin-bottom:var(--sp-2); }
+.hero h1{ margin-bottom:var(--sp-3); }
+.hero .deck{ font-size:clamp(1.05rem,2.2vw,1.28rem); max-width:56ch; color:var(--ink-soft); }
+.hero .deck strong{ color:var(--ink); font-weight:600; }
+
+/* ================= corrections / cautions ================= */
+.correction{ border:2px solid var(--warn); background:var(--paper-hi); padding:var(--sp-3); margin-top:var(--sp-3); }
+.correction .ct{ font-family:var(--mono); font-size:.62rem; font-weight:700; text-transform:uppercase; letter-spacing:.12em; color:var(--warn-ink); display:block; margin-bottom:.5rem; }
+.correction h3{ margin-bottom:.6rem; font-size:1.1rem; }
+.correction p{ font-size:.94rem; }
+.correction ul{ margin:.6rem 0 0; padding-left:1.1rem; }
+.correction li{ font-size:.93rem; color:var(--ink-soft); margin-bottom:.4rem; }
+.correction li strong{ color:var(--ink); font-weight:600; }
+.correction .src{ margin-top:.8rem; font-size:.82rem; color:var(--ink-soft); }
+
+/* ==================== the shelf ==================== */
+.shelffig{ display:none; margin:var(--sp-4) 0 var(--sp-2); }
+.shelffig svg{ width:100%; height:auto; display:block; }
+.shelfchips{ display:grid; grid-template-columns:1fr; gap:var(--sp-2); margin:var(--sp-3) 0; }
+.scg{ border:2px solid; background:var(--paper-hi); padding:var(--sp-2) var(--sp-3); }
+.scg b{ font-family:var(--mono); font-size:.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.12em; display:block; margin-bottom:.5rem; }
+.scg .row{ display:flex; gap:.35rem; flex-wrap:wrap; }
+.scg .row span{ font-family:var(--mono); font-size:.62rem; font-weight:700; border:1px solid; padding:.25rem .45rem; }
+.scg.b1{ border-color:var(--run); } .scg.b1 b{ color:var(--run-ink); } .scg.b1 .row span{ border-color:var(--run); color:var(--run-ink); }
+.scg.b2{ border-color:var(--skl); } .scg.b2 b{ color:var(--skl-ink); } .scg.b2 .row span{ border-color:var(--skl); color:var(--skl-ink); }
+
+/* ====================== sections ====================== */
+.sect{ padding:var(--sp-5) 0 var(--sp-2); border-top:1px solid var(--rule); scroll-margin-top:4.4rem; }
+.shead{ display:flex; align-items:baseline; gap:var(--sp-2); flex-wrap:wrap; margin-bottom:.5rem; }
+.snum{ font-family:var(--mono); font-weight:700; font-size:.72rem; text-transform:uppercase; letter-spacing:.14em; color:#fff; padding:.28rem .55rem; border-radius:3px; }
+.slede{ color:var(--ink-soft); max-width:62ch; margin-bottom:var(--sp-4); font-size:1.02rem; }
+.slede strong{ color:var(--ink); font-weight:600; }
+#what .snum{ background:var(--skl-ink); } #what h2{ color:var(--skl-ink); }
+#on   .snum{ background:var(--set-ink); } #on   h2{ color:var(--set-ink); }
+#fire .snum{ background:var(--run-ink); } #fire h2{ color:var(--run-ink); }
+#make .snum{ background:var(--prj-ink); } #make h2{ color:var(--prj-ink); }
+#vs   .snum{ background:var(--ink); }
+
+/* two kinds */
+.kinds{ display:grid; grid-template-columns:1fr; gap:var(--sp-2); }
+.kind{ background:var(--paper-hi); border:1px solid var(--rule); border-top:6px solid; padding:var(--sp-3); }
+.kind .kl{ font-family:var(--mono); font-size:.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.12em; display:block; margin-bottom:.3rem; }
+.kind h3{ font-family:var(--display); font-weight:800; text-transform:uppercase; font-size:1.25rem; margin-bottom:.5rem; letter-spacing:-.01em; }
+.kind p{ font-size:.93rem; color:var(--ink-soft); }
+.kind ul{ margin:.5rem 0 0; padding-left:1.05rem; }
+.kind li{ font-size:.91rem; color:var(--ink-soft); margin-bottom:.3rem; }
+.kind.k1{ border-top-color:var(--run); } .kind.k1 .kl,.kind.k1 h3{ color:var(--run-ink); }
+.kind.k2{ border-top-color:var(--skl); } .kind.k2 .kl,.kind.k2 h3{ color:var(--skl-ink); }
+
+.reveal{ background:var(--ink); color:#C6CDDE; padding:var(--sp-3); margin-bottom:var(--sp-3); border-left:6px solid var(--marker); }
+.reveal .rt{ font-family:var(--mono); font-size:.62rem; font-weight:700; text-transform:uppercase; letter-spacing:.12em; color:#8FA0C4; display:block; margin-bottom:.5rem; }
+.reveal .big{ font-family:var(--display); font-weight:800; letter-spacing:-.02em; font-size:clamp(1.2rem,3vw,1.75rem); line-height:1.12; margin:0 0 .6rem; color:var(--paper); }
+.reveal .big em{ font-style:normal; color:var(--marker); }
+.reveal p{ font-size:.94rem; }
+
+/* dependency chain */
+.chain{ display:grid; grid-template-columns:1fr; gap:.5rem; align-items:center; margin-bottom:var(--sp-3); }
+.chain .node{ border:2px solid var(--set); background:var(--paper-hi); padding:var(--sp-2) var(--sp-3); }
+.chain .node b{ display:block; font-family:var(--display); font-weight:800; text-transform:uppercase; font-size:1rem; color:var(--set-ink); }
+.chain .node span{ font-size:.88rem; color:var(--ink-soft); }
+.chain .node.off{ border-style:dashed; }
+.chain .ar{ text-align:center; font-family:var(--mono); font-size:.7rem; color:var(--ink-soft); letter-spacing:.1em; }
+
+.paths{ display:grid; grid-template-columns:1fr; gap:var(--sp-2); }
+.path{ border:1px solid var(--rule); background:var(--paper); border-left:6px solid var(--set); padding:var(--sp-2) var(--sp-3); }
+.path b{ display:block; font-size:.97rem; margin-bottom:.2rem; }
+.path span{ font-size:.9rem; color:var(--ink-soft); }
+.path code{ font-family:var(--mono); font-size:.82rem; background:var(--paper-hi); border:1px solid var(--rule); padding:.05rem .3rem; }
+
+/* firing */
+.says{ display:grid; grid-template-columns:1fr; gap:.6rem; margin:var(--sp-3) 0; }
+.say{ border:1px dashed var(--rule); background:var(--paper); padding:.7rem .9rem; font-size:.92rem; font-style:italic; }
+.say b{ font-style:normal; font-family:var(--mono); font-size:.56rem; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:var(--ink-soft); display:block; margin-bottom:.25rem; }
+
+.beats{ display:grid; grid-template-columns:1fr; gap:.6rem; }
+.beat{ display:grid; grid-template-columns:auto 1fr; gap:.8rem; border-top:1px solid var(--rule); padding:.85rem 0; }
+.beat .bn{ font-family:var(--mono); font-size:.62rem; font-weight:700; color:#fff; background:var(--run-ink); padding:.15rem .4rem; height:fit-content; }
+.beat b{ display:block; font-size:.97rem; }
+.beat span{ font-size:.91rem; color:var(--ink-soft); }
+
+.caveat{ border:2px solid var(--marker); background:var(--paper-hi); padding:var(--sp-3); margin-top:var(--sp-3); }
+.caveat .cvt{ font-family:var(--mono); font-size:.62rem; font-weight:700; text-transform:uppercase; letter-spacing:.12em; color:var(--set-ink); display:block; margin-bottom:.45rem; }
+.caveat h3{ margin-bottom:.5rem; }
+.caveat p{ font-size:.94rem; color:var(--ink-soft); }
+.caveat strong{ color:var(--ink); font-weight:600; }
+
+/* make your own */
+.step{ background:var(--paper-hi); border:1px solid var(--rule); border-left:7px solid var(--prj); padding:var(--sp-3); margin-bottom:var(--sp-2); }
+.step .sn{ font-family:var(--mono); font-size:.64rem; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--prj-ink); }
+.step h3{ margin:.3rem 0 .5rem; font-family:var(--display); font-weight:800; font-size:1.15rem; letter-spacing:-.01em; }
+.step p{ font-size:.93rem; color:var(--ink-soft); }
+.step ul{ margin:.5rem 0 0; padding-left:1.05rem; }
+.step li{ font-size:.91rem; color:var(--ink-soft); margin-bottom:.3rem; }
+.step em{ color:var(--ink); }
+
+/* vs projects */
+.anchor{ background:var(--ink); color:var(--paper); padding:var(--sp-4) var(--sp-3); margin-bottom:var(--sp-3); text-align:center; }
+.anchor .big{ font-family:var(--display); font-weight:800; letter-spacing:-.02em; font-size:clamp(1.5rem,4.4vw,2.6rem); line-height:1.08; margin:0; }
+.anchor .big em{ font-style:normal; color:var(--marker); }
+
+.duo{ display:grid; grid-template-columns:1fr; gap:var(--sp-2); }
+.side{ background:var(--paper-hi); border:1px solid var(--rule); border-top:6px solid; padding:var(--sp-3); }
+.side h3{ font-family:var(--display); font-weight:800; text-transform:uppercase; font-size:1.3rem; margin-bottom:.2rem; letter-spacing:-.01em; }
+.side .tagline{ font-family:var(--mono); font-size:.62rem; font-weight:700; text-transform:uppercase; letter-spacing:.12em; margin-bottom:.9rem; display:block; }
+.side dl{ margin:0; }
+.side dt{ font-family:var(--mono); font-size:.56rem; font-weight:700; text-transform:uppercase; letter-spacing:.12em; color:var(--ink-soft); margin-top:.7rem; }
+.side dd{ margin:.15rem 0 0; font-size:.92rem; }
+.side.sp{ border-top-color:var(--prj); } .side.sp h3,.side.sp .tagline{ color:var(--prj-ink); }
+.side.sk{ border-top-color:var(--skl); } .side.sk h3,.side.sk .tagline{ color:var(--skl-ink); }
+
+.bridge{ border:2px dashed var(--rule); background:var(--paper); padding:var(--sp-3); margin-top:var(--sp-2); }
+.bridge .bt{ font-family:var(--mono); font-size:.62rem; font-weight:700; text-transform:uppercase; letter-spacing:.12em; color:var(--ink-soft); display:block; margin-bottom:.45rem; }
+.bridge p{ font-size:.95rem; }
+.bridge strong{ font-weight:600; }
+
+.keep{ background:var(--ink); color:#C6CDDE; padding:.9rem var(--sp-2); font-size:.95rem; font-style:italic; margin-top:var(--sp-2); }
+.keep b{ font-style:normal; color:var(--marker); font-weight:600; }
+
+footer{ border-top:1px solid var(--rule); padding:var(--sp-3) 0 var(--sp-5); margin-top:var(--sp-5); }
+footer p{ font-family:var(--mono); font-size:.66rem; text-transform:uppercase; letter-spacing:.1em; color:var(--ink-soft); }
+footer a{ color:var(--run-ink); }
+
+/* ===================== breakpoints ===================== */
+@media (min-width:700px){
+  .kinds{ grid-template-columns:1fr 1fr; }
+  .says{ grid-template-columns:1fr 1fr; }
+  .paths{ grid-template-columns:repeat(3,1fr); }
+  .duo{ grid-template-columns:1fr 1fr; }
+  .shelfchips{ grid-template-columns:1fr 1fr; }
+  .chain{ grid-template-columns:1fr auto 1fr auto 1fr; }
+  .chain .ar{ padding:0 .3rem; }
+}
+@media (min-width:960px){
+  .shelffig{ display:block; }
+  .shelfchips{ display:none; }
+}
+
+@media (prefers-reduced-motion:reduce){ html{ scroll-behavior:auto; } *{ transition:none !important; } }
+@media print{
+  .routebar,.shelffig{ display:none; }
+  body::after{ display:none; }
+  .kind,.step,.side,.correction,.caveat{ break-inside:avoid; }
+}
+</style>
+</head>
+<body>
+
+<div class="routebar">
+  <div class="wrap">
+    <span class="brand">Working with Skills<small>Lesson 07</small></span>
+    <nav aria-label="Sections">
+      <a class="pill" style="background:#16203C" href="index.html">Home</a>
+      <a class="pill" style="background:#0A6047" href="prompt-library.html">50 prompts</a>
+      <a class="pill" style="background:#573079" href="power-prompts.html">40 power</a>
+      <a class="pill p1" href="#what">01 What it is</a>
+      <a class="pill p2" href="#on">02 Switch it on</a>
+      <a class="pill p3" href="#fire">03 How it fires</a>
+      <a class="pill p4" href="#make">04 Make one</a>
+      <a class="pill p5" href="#vs">05 vs Projects</a>
+    </nav>
+  </div>
+</div>
+
+<header class="hero">
+  <div class="wrap">
+    <span class="tag eyebrow">Lesson 07 · Skills · read in ~6 minutes</span>
+    <h1>Expertise<br>on a shelf</h1>
+    <p class="deck">A Skill is a folder of instructions, scripts and resources that Claude picks up when the task calls for it. <strong>Projects hold what Claude knows. Skills hold how Claude works.</strong> You don't invoke them — they fire themselves.</p>
+
+    <div class="correction">
+      <span class="ct">Check this before you skip anything</span>
+      <h3>The plan requirement has moved — and it was never really the plan</h3>
+      <p>Course material on Skills often opens by saying it's a feature preview for Pro, Max, Team and Enterprise, and tells Free-plan readers to skip the hands-on parts. Anthropic's help centre now says otherwise.</p>
+      <ul>
+        <li><strong>Skills are available on Free, Pro, Max, Team and Enterprise.</strong> If you're on Free, don't skip this lesson — do it.</li>
+        <li><strong>The real dependency is code execution</strong>, not your subscription. A greyed-out Skills menu is almost always this, and almost never the plan.</li>
+        <li><strong>On Team and Enterprise an owner can switch it off</strong> for the whole organisation — so if the setting isn't in your own settings, that's who to ask.</li>
+      </ul>
+      <p class="src">Source: Anthropic Help Centre, "Use skills in Claude", checked August 2026. Product pages move faster than course pages — when the two disagree, believe the help centre.</p>
+    </div>
+  </div>
+</header>
+
+<main>
+
+<!-- ==================== 01 WHAT IT IS ==================== -->
+<section class="sect" id="what">
+  <div class="wrap">
+    <div class="shead"><span class="snum">Part 01</span><h2>What sits on the shelf</h2></div>
+    <p class="slede">Think of Skills as expertise packages. Each one teaches Claude how to do a specific job the same rigorous way every time — and Claude reaches for the right one on its own.</p>
+
+    <figure class="shelffig">
+      <svg viewBox="0 0 900 250" role="img" aria-label="A request reaches for one card on a shelf of skills: four built by Anthropic, three of your own.">
+        <defs>
+          <marker id="pick" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse" markerUnits="userSpaceOnUse">
+            <path d="M0 0 L10 5 L0 10 z" fill="#16203C"/>
+          </marker>
+        </defs>
+
+        <rect x="20" y="12" width="352" height="42" rx="6" fill="#16203C"/>
+        <text x="38" y="39" fill="#E9E6DB" font-family="Public Sans, sans-serif" font-size="14.5">"Turn these notes into a PowerPoint"</text>
+        <path d="M200 58 C200 82 250 86 306 98" stroke="#16203C" stroke-width="3" fill="none" marker-end="url(#pick)"/>
+
+        <text x="40" y="92" fill="#0D4079" font-family="Space Mono, monospace" font-size="10" font-weight="700" letter-spacing="1.4">ANTHROPIC'S — ALREADY THERE</text>
+        <text x="545" y="92" fill="#573079" font-family="Space Mono, monospace" font-size="10" font-weight="700" letter-spacing="1.4">YOURS — YOU BUILD THESE</text>
+
+        <rect x="252" y="96" width="112" height="116" rx="8" fill="#FFD84A" opacity="0.4"/>
+
+        <g fill="#F4F2EA" stroke="#1358A8" stroke-width="2.5">
+          <rect x="40"  y="104" width="96" height="100" rx="5"/>
+          <rect x="150" y="104" width="96" height="100" rx="5"/>
+          <rect x="370" y="104" width="96" height="100" rx="5"/>
+        </g>
+        <rect x="260" y="104" width="96" height="100" rx="5" fill="#F4F2EA" stroke="#1358A8" stroke-width="4"/>
+        <g fill="#1358A8">
+          <rect x="40"  y="104" width="96" height="8" rx="4"/>
+          <rect x="150" y="104" width="96" height="8" rx="4"/>
+          <rect x="260" y="104" width="96" height="8" rx="4"/>
+          <rect x="370" y="104" width="96" height="8" rx="4"/>
+        </g>
+
+        <path d="M505 100 V204" stroke="#C9C4B4" stroke-width="2" stroke-dasharray="5 5"/>
+
+        <g fill="#F4F2EA" stroke="#7B4BB0" stroke-width="2.5">
+          <rect x="545" y="104" width="96" height="100" rx="5"/>
+          <rect x="655" y="104" width="96" height="100" rx="5"/>
+        </g>
+        <rect x="765" y="104" width="96" height="100" rx="5" fill="#F4F2EA" stroke="#7B4BB0" stroke-width="2.5" stroke-dasharray="6 5"/>
+        <g fill="#7B4BB0">
+          <rect x="545" y="104" width="96" height="8" rx="4"/>
+          <rect x="655" y="104" width="96" height="8" rx="4"/>
+        </g>
+
+        <g text-anchor="middle" font-family="Bricolage Grotesque, sans-serif" font-size="16" font-weight="800" fill="#16203C">
+          <text x="88" y="152">XLSX</text><text x="198" y="152">DOCX</text>
+          <text x="308" y="152">PPTX</text><text x="418" y="152">PDF</text>
+          <text x="593" y="152">BRAND</text><text x="703" y="152">QBR</text>
+          <text x="813" y="152">+ ADD</text>
+        </g>
+        <g text-anchor="middle" font-family="Space Mono, monospace" font-size="9" fill="#4A5470" letter-spacing="0.8">
+          <text x="88" y="172">SPREADSHEETS</text><text x="198" y="172">DOCUMENTS</text>
+          <text x="308" y="172">DECKS</text><text x="418" y="172">REPORTS</text>
+          <text x="593" y="172">VOICE CHECK</text><text x="703" y="172">METHOD</text>
+          <text x="813" y="172">YOURS</text>
+        </g>
+
+        <path d="M30 206 H870" stroke="#16203C" stroke-width="4" stroke-linecap="round"/>
+        <text x="308" y="232" text-anchor="middle" fill="#8A4A06" font-family="Space Mono, monospace" font-size="10.5" font-weight="700" letter-spacing="1.2">PICKED AUTOMATICALLY — YOU NEVER SAID WHICH</text>
+      </svg>
+    </figure>
+
+    <div class="shelfchips" aria-hidden="true">
+      <div class="scg b1"><b>Anthropic's — already there</b><div class="row"><span>XLSX</span><span>DOCX</span><span>PPTX</span><span>PDF</span></div></div>
+      <div class="scg b2"><b>Yours — you build these</b><div class="row"><span>BRAND VOICE</span><span>QBR METHOD</span><span>+ ADD</span></div></div>
+    </div>
+
+    <div class="reveal">
+      <span class="rt">The thing nobody tells you</span>
+      <p class="big">You've been using Skills <em>for months</em> without knowing it.</p>
+      <p>Every time Claude made you an Excel sheet, a Word document, a PowerPoint deck or a PDF, a Skill was doing the work behind the scenes. This lesson isn't introducing a new feature — it's naming something you've already relied on, and then handing you the ability to build your own.</p>
+    </div>
+
+    <div class="kinds">
+      <div class="kind k1">
+        <span class="kl">Kind 01</span>
+        <h3>Anthropic's</h3>
+        <p>Built and maintained by Anthropic, covering document creation for Excel, Word, PowerPoint and PDF. Nothing to configure — Claude invokes them when they're relevant.</p>
+      </div>
+      <div class="kind k2">
+        <span class="kl">Kind 02</span>
+        <h3>Yours</h3>
+        <p>Ones you or your organisation create for specialised workflows and domain-specific work. This is where the value is, because your methodology isn't in anyone's default.</p>
+        <ul>
+          <li>Apply your company's brand guidelines to every presentation</li>
+          <li>Structure meeting notes in your exact format</li>
+          <li>Run your quarterly variance analysis the same way each quarter</li>
+          <li>Walk a compliance checklist without skipping a line</li>
+        </ul>
+      </div>
+    </div>
+
+    <p class="keep"><b>The definition worth keeping:</b> a Skill codifies a repeatable workflow, so Claude follows the same rigorous steps every time — rather than improvising a slightly different process on each occasion.</p>
+  </div>
+</section>
+
+<!-- ==================== 02 SWITCH IT ON ==================== -->
+<section class="sect" id="on">
+  <div class="wrap">
+    <div class="shead"><span class="snum">Part 02</span><h2>Switching it on</h2></div>
+    <p class="slede">Skills run inside Claude's secure sandboxed computing environment, which is why they have one hard dependency. Get this order right and everything else follows.</p>
+
+    <div class="chain">
+      <div class="node"><b>Code execution &amp; file creation</b><span>Must be on first. This is the sandbox Skills run inside.</span></div>
+      <div class="ar">→ enables →</div>
+      <div class="node"><b>Skills</b><span>Toggle individual skills on or off as you need them.</span></div>
+      <div class="ar">→ gives you →</div>
+      <div class="node off"><b>Your skills list</b><span>Anthropic's built-ins plus any custom ones you've added.</span></div>
+    </div>
+
+    <div class="paths">
+      <div class="path"><b>On your own account</b><span>Go to <code>Settings → Capabilities</code>. Turn on code execution and file creation, then scroll to the Skills section.</span></div>
+      <div class="path"><b>On a Team plan</b><span>Enabled by default at the organisation level — you shouldn't have to do anything.</span></div>
+      <div class="path"><b>On Enterprise</b><span>An organisation Owner enables code execution and Skills in the organisation settings before members can use them.</span></div>
+    </div>
+
+    <div class="correction">
+      <span class="ct">Because Skills can contain executable code</span>
+      <h3>Four rules for what you install</h3>
+      <ul>
+        <li><strong>Only install custom Skills from sources you trust.</strong> A Skill isn't just text — it can carry scripts that run.</li>
+        <li><strong>Anthropic's built-in Skills are tested and maintained by Anthropic.</strong> Those you can take as read.</li>
+        <li><strong>Custom Skills you upload are private to your account.</strong> They don't leak sideways to other people.</li>
+        <li><strong>Installing something from outside? Read it first.</strong> Open the contents and understand what it does before you switch it on.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 03 HOW IT FIRES ==================== -->
+<section class="sect" id="fire">
+  <div class="wrap">
+    <div class="shead"><span class="snum">Part 03</span><h2>How it fires</h2></div>
+    <p class="slede">The best part of Skills is that you don't manage them. You describe the outcome and Claude works out which Skill the job needs — <strong>no triggering, no menu, no syntax.</strong></p>
+
+    <div class="says">
+      <div class="say"><b>Say this</b>"Create an Excel spreadsheet tracking monthly expenses with formulas for totals."</div>
+      <div class="say"><b>Say this</b>"Turn this meeting notes document into a PowerPoint presentation."</div>
+      <div class="say"><b>Say this</b>"Generate a PDF report summarising this data."</div>
+      <div class="say"><b>Say this</b>"Build a financial model in Excel with scenario analysis."</div>
+    </div>
+
+    <div class="beats">
+      <div class="beat"><span class="bn">01</span><div><b>Claude names the Skill as it works</b><span>You'll see it mentioned in the chain of thought — which is how you learn what's actually available to you.</span></div></div>
+      <div class="beat"><span class="bn">02</span><div><b>The output is a real file</b><span>Downloadable to your computer, or saved straight to Google Drive.</span></div></div>
+      <div class="beat"><span class="bn">03</span><div><b>It works on files you already have</b><span>Upload slides, spreadsheets, contracts — any .xlsx, .pptx, .docx or .pdf — and Claude builds slides, runs the analysis, and marks up suggested edits inside a contained environment.</span></div></div>
+      <div class="beat"><span class="bn">04</span><div><b>Network access is a prompt, not a setting to hunt for</b><span>Reaching external data sources needs <em>Allow limited network access</em> switched on. Claude asks when it needs it.</span></div></div>
+    </div>
+
+    <div class="caveat">
+      <span class="cvt">The behaviour that surprises people</span>
+      <h3>In Chat, your original file is never touched</h3>
+      <p>Claude doesn't edit the document in place. It produces a <strong>new version</strong> and hands that back. Two consequences worth holding onto: your original is safe no matter what Claude does to it — and the improved version <strong>only exists if you download it.</strong> Close the tab without saving and the work is gone.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 04 MAKE ONE ==================== -->
+<section class="sect" id="make">
+  <div class="wrap">
+    <div class="shead"><span class="snum">Part 04</span><h2>Making your own</h2></div>
+    <p class="slede">This is the part worth doing today. You don't write a Skill, and you don't touch a file structure — <strong>you get interviewed about one</strong>, and Claude builds it.</p>
+
+    <div class="step">
+      <span class="sn">Step 01</span>
+      <h3>Say what you want to make</h3>
+      <p>Start a new chat and describe it plainly. <em>"I want to create a skill for writing quarterly business reviews."</em> <em>"I need a skill that applies our brand guidelines to presentations."</em></p>
+    </div>
+
+    <div class="step">
+      <span class="sn">Step 02</span>
+      <h3>Answer the interview</h3>
+      <p>Claude asks about your workflow rather than waiting for a spec. Expect questions like:</p>
+      <ul>
+        <li>What should this skill do?</li>
+        <li>What makes output <em>good</em> for this kind of work?</li>
+        <li>When would you reach for it?</li>
+      </ul>
+      <p style="margin-top:.6rem;">Answer these as if briefing a new colleague. The quality of the Skill is mostly the quality of your answers here.</p>
+    </div>
+
+    <div class="step">
+      <span class="sn">Step 03</span>
+      <h3>Hand over your reference material</h3>
+      <p>Templates, style guides, brand assets — and above all, <span class="marked">examples of work you're proud of.</span> A finished piece you rate teaches the standard faster than any description of it.</p>
+    </div>
+
+    <div class="step">
+      <span class="sn">Step 04</span>
+      <h3>Save it</h3>
+      <p>Claude generates a properly structured skill file. You save it. That's the whole technical step.</p>
+    </div>
+
+    <div class="step">
+      <span class="sn">Step 05</span>
+      <h3>Find it, and keep improving it</h3>
+      <p>The <strong>Customize</strong> tab in the left sidebar lists every skill available to you. Edit them by hand, or just ask Claude to change one and it rewrites the files for you. From here on it fires automatically whenever the work is relevant — no manual triggering ever again.</p>
+    </div>
+
+    <p class="keep"><b>Why this beats writing instructions yourself:</b> you know your process but you've never had to articulate it. The interview drags out the steps you do without thinking — which are usually the ones that make your work yours.</p>
+  </div>
+</section>
+
+<!-- ==================== 05 VS PROJECTS ==================== -->
+<section class="sect" id="vs">
+  <div class="wrap">
+    <div class="shead"><span class="snum">Part 05</span><h2>Skills or Projects?</h2></div>
+    <p class="slede">Both give Claude more context, so the two get confused constantly. One sentence separates them for good.</p>
+
+    <div class="anchor">
+      <p class="big">Projects store <em>knowledge</em>.<br>Skills perform <em>tasks</em>.</p>
+    </div>
+
+    <div class="duo">
+      <div class="side sp">
+        <h3>Projects</h3>
+        <span class="tagline">Knowledge hubs — the <em>what</em></span>
+        <dl>
+          <dt>Purpose</dt><dd>Store the knowledge Claude references.</dd>
+          <dt>Best for</dt><dd>Long-term context, reference materials, team collaboration.</dd>
+          <dt>Looks like</dt><dd>A customer hub, a research workspace, a feedback generator.</dd>
+          <dt>Persistence</dt><dd>Knowledge is available across every chat inside the project.</dd>
+        </dl>
+      </div>
+      <div class="side sk">
+        <h3>Skills</h3>
+        <span class="tagline">Procedural machines — the <em>how</em></span>
+        <dl>
+          <dt>Purpose</dt><dd>Define the processes Claude executes.</dd>
+          <dt>Best for</dt><dd>Repeatable workflows, multi-step tasks, consistent methodology.</dd>
+          <dt>Looks like</dt><dd>Brand or legal guidelines, blog drafting, PDF creation.</dd>
+          <dt>Persistence</dt><dd>Instructions applied whenever the skill is invoked.</dd>
+        </dl>
+      </div>
+    </div>
+
+    <div class="bridge">
+      <span class="bt">They're better together</span>
+      <p>A Skill can read from a Project. Your <strong>customer call prep</strong> skill pulls the customer profiles sitting in a project's knowledge base — <strong>the project supplies the information, the skill supplies the process.</strong> If you find yourself uploading the same procedure as a document, that's a Skill wearing a Project's clothes.</p>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>Lesson 07 · Working with Skills · The shelf ·
+      <a href="lesson-06-artifacts.html">← Lesson 06</a> ·
+      <a href="lesson-08-connectors.html">Lesson 08 →</a></p>
+  </div>
+</footer>
+
+
+
+<style>
+.pathnav{position:sticky;bottom:0;z-index:60;background:#16203C;border-top:2px solid #FFD84A;}
+.pathnav .inner{max-width:1160px;margin:0 auto;padding:.55rem 1.5rem;display:flex;align-items:center;gap:.8rem;flex-wrap:wrap;}
+.pathnav a{font-family:"Space Mono",monospace;font-size:.6rem;font-weight:700;text-transform:uppercase;
+letter-spacing:.1em;text-decoration:none;color:#E9E6DB;border:1.5px solid #4A5470;padding:.32rem .55rem;transition:all .15s ease;}
+.pathnav a:hover{border-color:#FFD84A;color:#FFD84A;}
+.pathnav a.next{border-color:#FFD84A;color:#FFD84A;margin-left:auto;}
+.pathnav .step{font-family:"Space Mono",monospace;font-size:.58rem;font-weight:700;letter-spacing:.12em;color:#8FA0C4;text-transform:uppercase;}
+@media print{.pathnav{display:none;}}
+</style>
+<div class="pathnav"><div class="inner"><a href="lesson-06-artifacts.html">← 06 Artifacts</a>
+<a href="learning-path.html">↑ Learning path</a>
+<span class="step">Step 10 of 16</span>
+<a class="next" href="lesson-08-connectors.html">08 Connectors →</a></div></div>
+</body>
+</html>

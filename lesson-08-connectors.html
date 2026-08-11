@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Connecting your tools — the lesson as a port board</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Public+Sans:ital,wght@0,400;0,600;1,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   LESSON 08 — CONNECTING YOUR TOOLS
+   The demo at the top is real: three checkboxes, no JavaScript.
+   Switch a source off and the clause that depended on it loses
+   its footing — which is the entire lesson, felt rather than
+   read. Same paper and inks as Lessons 01–07. Single file.
+   ============================================================ */
+
+:root{
+  --paper:#E9E6DB; --paper-hi:#F4F2EA; --ink:#16203C; --ink-soft:#4A5470; --rule:#C9C4B4;
+
+  --web:#1358A8; --web-ink:#0D4079;   /* web connectors     */
+  --set:#C9761A; --set-ink:#8A4A06;   /* setup              */
+  --use:#0E8A63; --use-ink:#0A6047;   /* using / connected  */
+  --dsk:#7B4BB0; --dsk-ink:#573079;   /* desktop / security */
+  --warn:#DE4438; --warn-ink:#A22119;
+
+  --marker:#FFD84A;
+  --sp-1:.5rem; --sp-2:1rem; --sp-3:1.5rem; --sp-4:2.25rem; --sp-5:3.5rem;
+
+  --display:"Bricolage Grotesque","Trebuchet MS",system-ui,sans-serif;
+  --body:"Public Sans",-apple-system,"Segoe UI",Roboto,sans-serif;
+  --mono:"Space Mono",ui-monospace,"Courier New",monospace;
+}
+
+*,*::before,*::after{ box-sizing:border-box; }
+html{ scroll-behavior:smooth; }
+body{
+  margin:0; background:var(--paper); color:var(--ink);
+  font-family:var(--body); font-size:1rem; line-height:1.6; -webkit-font-smoothing:antialiased;
+}
+body::after{
+  content:""; position:fixed; inset:0; pointer-events:none; z-index:99;
+  background-image:radial-gradient(var(--ink) .5px, transparent .5px);
+  background-size:4px 4px; opacity:.055;
+}
+.wrap{ max-width:1160px; margin:0 auto; padding:0 var(--sp-3); }
+
+h1,h2,h3{ font-family:var(--display); font-weight:800; line-height:1.04; margin:0; letter-spacing:-.02em; }
+h1{ font-size:clamp(2.4rem,8vw,5.2rem); text-transform:uppercase; }
+h2{ font-size:clamp(1.45rem,3.8vw,2.3rem); }
+h3{ font-size:1.04rem; font-weight:600; letter-spacing:0; }
+p{ margin:0 0 var(--sp-2); } p:last-child{ margin-bottom:0; }
+
+.tag{ font-family:var(--mono); font-size:.68rem; font-weight:700; text-transform:uppercase; letter-spacing:.16em; }
+.marked{ background:linear-gradient(transparent 58%, var(--marker) 58%, var(--marker) 94%, transparent 94%); padding:0 .12em; }
+a{ color:inherit; }
+a:focus-visible{ outline:3px solid var(--web); outline-offset:3px; border-radius:2px; }
+
+/* ===================== sticky bar ===================== */
+.routebar{ position:sticky; top:0; z-index:50; background:var(--paper); border-bottom:2px solid var(--ink); }
+.routebar .wrap{ display:flex; align-items:center; gap:var(--sp-2); flex-wrap:wrap; padding-top:.6rem; padding-bottom:.6rem; }
+.routebar .brand{ font-family:var(--display); font-weight:800; text-transform:uppercase; margin-right:auto; letter-spacing:-.01em; }
+.routebar .brand small{ font-family:var(--mono); font-weight:700; font-size:.6rem; letter-spacing:.16em; color:var(--ink-soft); display:block; text-transform:uppercase; }
+.routebar nav{ display:flex; gap:.35rem; flex-wrap:wrap; }
+.pill{
+  font-family:var(--mono); font-size:.63rem; font-weight:700; text-transform:uppercase;
+  letter-spacing:.1em; text-decoration:none; color:#fff;
+  padding:.32rem .58rem; border-radius:999px; transition:transform .18s ease, filter .18s ease;
+}
+.pill:hover{ transform:translateY(-2px); filter:brightness(1.12); }
+.pill.p0{ background:var(--ink); } .pill.p1{ background:var(--web-ink); }
+.pill.p2{ background:var(--set-ink); } .pill.p3{ background:var(--use-ink); }
+.pill.p4{ background:var(--dsk-ink); }
+
+/* ======================== hero ======================== */
+.hero{ padding:var(--sp-5) 0 var(--sp-3); }
+.hero .eyebrow{ color:var(--ink-soft); display:block; margin-bottom:var(--sp-2); }
+.hero h1{ margin-bottom:var(--sp-3); }
+.hero .deck{ font-size:clamp(1.05rem,2.2vw,1.28rem); max-width:56ch; color:var(--ink-soft); }
+.hero .deck strong{ color:var(--ink); font-weight:600; }
+
+/* ====================== THE DEMO ====================== */
+.demo{ position:relative; border:2px solid var(--ink); background:var(--paper-hi); padding:var(--sp-3); margin:var(--sp-4) 0 var(--sp-2); }
+.demo .dt{ font-family:var(--mono); font-size:.62rem; font-weight:700; text-transform:uppercase; letter-spacing:.14em; color:var(--ink-soft); display:block; margin-bottom:.4rem; }
+.demo h3{ font-family:var(--display); font-weight:800; text-transform:uppercase; font-size:1.25rem; letter-spacing:-.01em; margin-bottom:.5rem; }
+.demo .intro{ font-size:.95rem; color:var(--ink-soft); margin-bottom:var(--sp-3); max-width:64ch; }
+
+.sbox{ position:absolute; opacity:0; width:1px; height:1px; margin:0; }
+
+.toggles{ display:grid; grid-template-columns:1fr; gap:.5rem; margin-bottom:var(--sp-3); }
+.tg{
+  display:block; cursor:pointer; user-select:none;
+  border:2px dashed var(--rule); background:var(--paper);
+  padding:.65rem .8rem; transition:border-color .18s ease, background .18s ease;
+}
+.tg b{ display:block; font-family:var(--display); font-weight:800; text-transform:uppercase; font-size:.92rem; color:var(--ink-soft); }
+.tg span{ font-family:var(--mono); font-size:.58rem; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:var(--ink-soft); }
+.tg::before{
+  content:"○ OFF"; float:right; font-family:var(--mono); font-size:.56rem; font-weight:700;
+  letter-spacing:.1em; color:var(--ink-soft);
+}
+#s-store:checked ~ .toggles .t-store,
+#s-mail:checked  ~ .toggles .t-mail,
+#s-chat:checked  ~ .toggles .t-chat{ border-style:solid; border-color:var(--use); background:var(--paper-hi); }
+#s-store:checked ~ .toggles .t-store b,
+#s-mail:checked  ~ .toggles .t-mail b,
+#s-chat:checked  ~ .toggles .t-chat b{ color:var(--use-ink); }
+#s-store:checked ~ .toggles .t-store::before,
+#s-mail:checked  ~ .toggles .t-mail::before,
+#s-chat:checked  ~ .toggles .t-chat::before{ content:"● CONNECTED"; color:var(--use-ink); }
+#s-store:focus-visible ~ .toggles .t-store,
+#s-mail:focus-visible  ~ .toggles .t-mail,
+#s-chat:focus-visible  ~ .toggles .t-chat{ outline:3px solid var(--web); outline-offset:3px; }
+
+.req{ border:1px solid var(--rule); background:var(--paper); padding:var(--sp-3); }
+.req .rl{ font-family:var(--mono); font-size:.58rem; font-weight:700; text-transform:uppercase; letter-spacing:.12em; color:var(--ink-soft); display:block; margin-bottom:.7rem; }
+.cl{ display:block; margin-bottom:.7rem; font-size:1.02rem; transition:opacity .2s ease; }
+.cl:last-child{ margin-bottom:0; }
+.need{
+  font-style:normal; font-family:var(--mono); font-size:.55rem; font-weight:700;
+  text-transform:uppercase; letter-spacing:.08em; color:#fff; background:var(--use-ink);
+  padding:.15rem .35rem; white-space:nowrap; margin-left:.25rem;
+}
+.need::after{ content:" · reaching it"; }
+.cl.base .need{ background:var(--ink); }
+.cl.base .need::after{ content:" · already in your words"; }
+#s-mail:not(:checked) ~ .req .needs-mail,
+#s-chat:not(:checked) ~ .req .needs-chat{ opacity:.42; text-decoration:line-through; text-decoration-color:var(--warn); }
+#s-mail:not(:checked) ~ .req .needs-mail .need,
+#s-chat:not(:checked) ~ .req .needs-chat .need{ background:var(--warn-ink); text-decoration:none; }
+#s-mail:not(:checked) ~ .req .needs-mail .need::after,
+#s-chat:not(:checked) ~ .req .needs-chat .need::after{ content:" · nowhere to point"; }
+
+.outcome{ margin-top:var(--sp-2); }
+.o{ display:none; background:var(--ink); color:#C6CDDE; padding:.85rem var(--sp-2); font-size:.95rem; }
+.o b{ color:var(--marker); font-weight:600; }
+#s-mail:checked      ~ #s-chat:checked      ~ .outcome .o3 { display:block; }
+#s-mail:not(:checked)~ #s-chat:checked      ~ .outcome .o2a{ display:block; }
+#s-mail:checked      ~ #s-chat:not(:checked)~ .outcome .o2b{ display:block; }
+#s-mail:not(:checked)~ #s-chat:not(:checked)~ .outcome .o1 { display:block; }
+.storenote{ display:none; border:2px solid var(--marker); background:var(--paper); padding:.8rem var(--sp-2); margin-top:.6rem; font-size:.93rem; }
+.storenote b{ font-weight:600; }
+#s-store:checked ~ .outcome .storenote{ display:block; }
+
+.lesson-of-demo{ border-left:4px solid var(--marker); background:var(--paper-hi); padding:.9rem var(--sp-2); margin-top:var(--sp-2); font-size:.95rem; }
+.lesson-of-demo b{ font-weight:600; }
+
+/* ====================== sections ====================== */
+.sect{ padding:var(--sp-5) 0 var(--sp-2); border-top:1px solid var(--rule); scroll-margin-top:4.4rem; }
+.shead{ display:flex; align-items:baseline; gap:var(--sp-2); flex-wrap:wrap; margin-bottom:.5rem; }
+.snum{ font-family:var(--mono); font-weight:700; font-size:.72rem; text-transform:uppercase; letter-spacing:.14em; color:#fff; padding:.28rem .55rem; border-radius:3px; }
+.slede{ color:var(--ink-soft); max-width:62ch; margin-bottom:var(--sp-4); font-size:1.02rem; }
+.slede strong{ color:var(--ink); font-weight:600; }
+#what .snum{ background:var(--web-ink); } #what h2{ color:var(--web-ink); }
+#setup .snum{ background:var(--set-ink); } #setup h2{ color:var(--set-ink); }
+#ask  .snum{ background:var(--use-ink); } #ask  h2{ color:var(--use-ink); }
+#safe .snum{ background:var(--dsk-ink); } #safe h2{ color:var(--dsk-ink); }
+
+.portfig{ display:none; margin-bottom:var(--sp-3); }
+.portfig svg{ width:100%; height:auto; display:block; }
+.portchips{ display:grid; grid-template-columns:1fr 1fr; gap:.5rem; margin-bottom:var(--sp-3); }
+.pc{ border:2px solid; background:var(--paper-hi); padding:.55rem .7rem; }
+.pc b{ display:block; font-family:var(--display); font-weight:800; font-size:.88rem; text-transform:uppercase; }
+.pc span{ font-family:var(--mono); font-size:.55rem; text-transform:uppercase; letter-spacing:.08em; color:var(--ink-soft); }
+.pc.w{ border-color:var(--web); } .pc.w b{ color:var(--web-ink); }
+.pc.d{ border-color:var(--dsk); } .pc.d b{ color:var(--dsk-ink); }
+
+.duo{ display:grid; grid-template-columns:1fr; gap:var(--sp-2); }
+.card{ background:var(--paper-hi); border:1px solid var(--rule); border-top:6px solid; padding:var(--sp-3); }
+.card .cl2{ font-family:var(--mono); font-size:.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.12em; display:block; margin-bottom:.3rem; }
+.card h3{ font-family:var(--display); font-weight:800; text-transform:uppercase; font-size:1.2rem; margin-bottom:.5rem; letter-spacing:-.01em; }
+.card p{ font-size:.93rem; color:var(--ink-soft); }
+.card ul{ margin:.5rem 0 0; padding-left:1.05rem; }
+.card li{ font-size:.91rem; color:var(--ink-soft); margin-bottom:.3rem; }
+.card.w{ border-top-color:var(--web); } .card.w .cl2,.card.w h3{ color:var(--web-ink); }
+.card.d{ border-top-color:var(--dsk); } .card.d .cl2,.card.d h3{ color:var(--dsk-ink); }
+
+.usbc{ background:var(--ink); color:#C6CDDE; padding:var(--sp-3); margin-bottom:var(--sp-3); border-left:6px solid var(--marker); }
+.usbc .ut{ font-family:var(--mono); font-size:.62rem; font-weight:700; text-transform:uppercase; letter-spacing:.12em; color:#8FA0C4; display:block; margin-bottom:.5rem; }
+.usbc .big{ font-family:var(--display); font-weight:800; letter-spacing:-.02em; font-size:clamp(1.2rem,3vw,1.75rem); line-height:1.12; margin:0 0 .6rem; color:var(--paper); }
+.usbc .big em{ font-style:normal; color:var(--marker); }
+.usbc p{ font-size:.94rem; }
+
+/* setup steps */
+.step{ background:var(--paper-hi); border:1px solid var(--rule); border-left:7px solid var(--set); padding:var(--sp-2) var(--sp-3); margin-bottom:.6rem; display:grid; grid-template-columns:auto 1fr; gap:.9rem; align-items:start; }
+.step .sn{ font-family:var(--mono); font-size:.66rem; font-weight:700; color:#fff; background:var(--set-ink); padding:.15rem .4rem; height:fit-content; margin-top:.15rem; }
+.step b{ display:block; font-size:.98rem; }
+.step span{ font-size:.91rem; color:var(--ink-soft); }
+.step code{ font-family:var(--mono); font-size:.82rem; background:var(--paper); border:1px solid var(--rule); padding:.05rem .3rem; }
+
+.correction{ border:2px solid var(--warn); background:var(--paper-hi); padding:var(--sp-3); margin-top:var(--sp-3); }
+.correction .ct{ font-family:var(--mono); font-size:.62rem; font-weight:700; text-transform:uppercase; letter-spacing:.12em; color:var(--warn-ink); display:block; margin-bottom:.5rem; }
+.correction h3{ margin-bottom:.6rem; font-size:1.1rem; }
+.correction p{ font-size:.94rem; }
+.correction ul{ margin:.6rem 0 0; padding-left:1.1rem; }
+.correction li{ font-size:.93rem; color:var(--ink-soft); margin-bottom:.4rem; }
+.correction li strong{ color:var(--ink); font-weight:600; }
+.correction .src{ margin-top:.8rem; font-size:.82rem; color:var(--ink-soft); }
+
+/* what to ask */
+.fams{ display:grid; grid-template-columns:1fr; gap:var(--sp-2); }
+.fam{ background:var(--paper-hi); border:1px solid var(--rule); border-left:6px solid var(--use); padding:var(--sp-3); }
+.fam h3{ color:var(--use-ink); margin-bottom:.15rem; }
+.fam .tools{ font-family:var(--mono); font-size:.58rem; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:var(--ink-soft); display:block; margin-bottom:.7rem; }
+.fam ul{ margin:0; padding:0; list-style:none; }
+.fam li{ font-size:.93rem; font-style:italic; border-top:1px dashed var(--rule); padding:.5rem 0; }
+.fam li:first-child{ border-top:none; padding-top:0; }
+.fam li:last-child{ padding-bottom:0; }
+
+/* safety */
+.rules{ display:grid; grid-template-columns:1fr; gap:var(--sp-2); }
+.rule{ background:var(--paper-hi); border:1px solid var(--rule); border-top:6px solid var(--dsk); padding:var(--sp-3); }
+.rule .rn{ font-family:var(--mono); font-size:.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.12em; color:var(--dsk-ink); }
+.rule h3{ margin:.3rem 0 .5rem; }
+.rule p{ font-size:.92rem; color:var(--ink-soft); }
+.rule.hero-rule{ border-top-color:var(--marker); background:var(--ink); color:#C6CDDE; }
+.rule.hero-rule .rn{ color:var(--marker); }
+.rule.hero-rule h3{ color:var(--paper); font-family:var(--display); font-weight:800; text-transform:uppercase; font-size:1.25rem; }
+.rule.hero-rule p{ color:#C6CDDE; font-size:.95rem; }
+.rule.hero-rule strong{ color:var(--paper); font-weight:600; }
+
+.keep{ background:var(--ink); color:#C6CDDE; padding:.9rem var(--sp-2); font-size:.95rem; font-style:italic; margin-top:var(--sp-2); }
+.keep b{ font-style:normal; color:var(--marker); font-weight:600; }
+
+footer{ border-top:1px solid var(--rule); padding:var(--sp-3) 0 var(--sp-5); margin-top:var(--sp-5); }
+footer p{ font-family:var(--mono); font-size:.66rem; text-transform:uppercase; letter-spacing:.1em; color:var(--ink-soft); }
+footer a{ color:var(--web-ink); }
+
+/* ===================== breakpoints ===================== */
+@media (min-width:700px){
+  .toggles{ grid-template-columns:repeat(3,1fr); }
+  .duo{ grid-template-columns:1fr 1fr; }
+  .fams{ grid-template-columns:1fr 1fr; }
+  .rules{ grid-template-columns:1fr 1fr; }
+  .portchips{ grid-template-columns:repeat(3,1fr); }
+}
+@media (min-width:960px){
+  .portfig{ display:block; }
+  .portchips{ display:none; }
+  .rule.hero-rule{ grid-column:1 / -1; }
+}
+
+@media (prefers-reduced-motion:reduce){ html{ scroll-behavior:auto; } *{ transition:none !important; } }
+@media print{
+  .routebar,.portfig{ display:none; }
+  body::after{ display:none; }
+  .card,.fam,.rule,.step,.correction{ break-inside:avoid; }
+}
+</style>
+</head>
+<body>
+
+<div class="routebar">
+  <div class="wrap">
+    <span class="brand">Connecting your tools<small>Lesson 08</small></span>
+    <nav aria-label="Sections">
+      <a class="pill" style="background:#16203C" href="index.html">Home</a>
+      <a class="pill" style="background:#0A6047" href="prompt-library.html">50 prompts</a>
+      <a class="pill" style="background:#573079" href="power-prompts.html">40 power</a>
+      <a class="pill p0" href="#demo">Try it</a>
+      <a class="pill p1" href="#what">01 What it is</a>
+      <a class="pill p2" href="#setup">02 Connect one</a>
+      <a class="pill p3" href="#ask">03 What to ask</a>
+      <a class="pill p4" href="#safe">04 Permissions</a>
+    </nav>
+  </div>
+</div>
+
+<header class="hero">
+  <div class="wrap">
+    <span class="tag eyebrow">Lesson 08 · Connectors · read in ~6 minutes</span>
+    <h1>Somewhere<br>to point</h1>
+    <p class="deck">A connector doesn't make Claude smarter. It gives your request <strong>somewhere to reach</strong> — your inbox, your docs, your team's channel. Instead of starting every conversation from scratch, you can ask for things that live outside the message you typed.</p>
+  </div>
+</header>
+
+<main>
+
+<!-- ==================== THE DEMO ==================== -->
+<section id="demo">
+  <div class="wrap">
+    <div class="demo">
+      <input type="checkbox" id="s-store" class="sbox">
+      <input type="checkbox" id="s-mail" class="sbox" checked>
+      <input type="checkbox" id="s-chat" class="sbox" checked>
+
+      <span class="dt">Try it — this one actually works</span>
+      <h3>Same request. Different reach.</h3>
+      <p class="intro">Below is a request you might send. Switch a source off and watch the clause that depended on it lose its footing. Nothing about the request changes — only what it's able to point at.</p>
+
+      <div class="toggles">
+        <label class="tg t-store" for="s-store"><b>Cloud storage</b><span>your files</span></label>
+        <label class="tg t-mail"  for="s-mail"><b>Email</b><span>your inbox</span></label>
+        <label class="tg t-chat"  for="s-chat"><b>Team chat</b><span>your channels</span></label>
+      </div>
+
+      <div class="req">
+        <span class="rl">Your request to Claude</span>
+        <span class="cl base">Draft a short status update on the budget project for my manager.<i class="need">No source</i></span>
+        <span class="cl needs-mail">Note the two questions finance raised over email last week, and how we're answering them.<i class="need">Email</i></span>
+        <span class="cl needs-chat">Match the tone the team has been using in the project channel this week.<i class="need">Team chat</i></span>
+      </div>
+
+      <div class="outcome">
+        <p class="o o3"><b>Three sentences.</b> The update, the finance answers, in your team's voice. Every clause found something to reach.</p>
+        <p class="o o2a"><b>Two sentences.</b> Right voice, but the finance answers dropped out — that thread is sitting in an inbox Claude can't open.</p>
+        <p class="o o2b"><b>Two sentences.</b> The facts are there, written in a default voice, because the conversation that carries your team's tone was never in the room.</p>
+        <p class="o o1"><b>One sentence.</b> A generic status update. Everything you asked for beyond your own words had nowhere to go.</p>
+        <p class="storenote"><b>Cloud storage is on — and nothing changed.</b> Nothing in this request points at your files, so the connection sits idle. A connector only earns its place when a request reaches for it.</p>
+      </div>
+
+      <p class="lesson-of-demo"><b>The point, in one line:</b> Claude didn't go looking on its own. You wrote every clause — each connection only added somewhere a clause could land. Turn a source off and that part of the request has nowhere to go, so it comes back out.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 01 WHAT IT IS ==================== -->
+<section class="sect" id="what">
+  <div class="wrap">
+    <div class="shead"><span class="snum">Part 01</span><h2>One port, many tools</h2></div>
+    <p class="slede">Connectors let Claude <strong>read</strong> information and <strong>perform actions</strong> on your behalf — search files, retrieve documents, analyse data, create content, update records — all from inside the conversation, and all bounded by the permissions you grant.</p>
+
+    <figure class="portfig">
+      <svg viewBox="0 0 900 240" role="img" aria-label="Six tools plugging into a single MCP bus that connects to Claude.">
+        <g fill="#F4F2EA" stroke-width="2.5">
+          <rect x="40"  y="30" width="118" height="54" rx="5" stroke="#1358A8"/>
+          <rect x="178" y="30" width="118" height="54" rx="5" stroke="#1358A8"/>
+          <rect x="316" y="30" width="118" height="54" rx="5" stroke="#1358A8"/>
+          <rect x="454" y="30" width="118" height="54" rx="5" stroke="#1358A8"/>
+          <rect x="592" y="30" width="118" height="54" rx="5" stroke="#7B4BB0"/>
+          <rect x="730" y="30" width="118" height="54" rx="5" stroke="#7B4BB0"/>
+        </g>
+        <g text-anchor="middle" font-family="Bricolage Grotesque, sans-serif" font-size="12.5" font-weight="800" fill="#16203C">
+          <text x="99" y="54">GOOGLE DRIVE</text><text x="237" y="54">SLACK</text>
+          <text x="375" y="54">NOTION</text><text x="513" y="54">ASANA</text>
+          <text x="651" y="54">LOCAL FILES</text><text x="789" y="54">FIGMA</text>
+        </g>
+        <g text-anchor="middle" font-family="Space Mono, monospace" font-size="8.5" fill="#4A5470" letter-spacing="0.6">
+          <text x="99" y="71">CLOUD STORAGE</text><text x="237" y="71">TEAM CHAT</text>
+          <text x="375" y="71">DOCS</text><text x="513" y="71">TASKS</text>
+          <text x="651" y="71">YOUR MACHINE</text><text x="789" y="71">DESIGN APP</text>
+        </g>
+        <g stroke-width="3" fill="none">
+          <path d="M99 84 V124"  stroke="#1358A8"/><path d="M237 84 V124" stroke="#1358A8"/>
+          <path d="M375 84 V124" stroke="#1358A8"/><path d="M513 84 V124" stroke="#1358A8"/>
+          <path d="M651 84 V124" stroke="#7B4BB0"/><path d="M789 84 V124" stroke="#7B4BB0"/>
+        </g>
+        <path d="M40 126 H860" stroke="#16203C" stroke-width="9" stroke-linecap="round"/>
+        <text x="40" y="150" fill="#8A4A06" font-family="Space Mono, monospace" font-size="10.5" font-weight="700" letter-spacing="1.4">MCP — ONE STANDARD PORT FOR ALL OF THEM</text>
+        <path d="M450 131 V168" stroke="#16203C" stroke-width="3"/>
+        <rect x="330" y="168" width="240" height="52" rx="8" fill="#16203C"/>
+        <text x="450" y="192" text-anchor="middle" fill="#E9E6DB" font-family="Bricolage Grotesque, sans-serif" font-size="19" font-weight="800">CLAUDE</text>
+        <text x="450" y="209" text-anchor="middle" fill="#FFD84A" font-family="Space Mono, monospace" font-size="9" letter-spacing="1.2">ONE INTERFACE</text>
+        <g font-family="Space Mono, monospace" font-size="9" fill="#4A5470" letter-spacing="0.6">
+          <rect x="640" y="182" width="10" height="10" fill="#1358A8"/><text x="656" y="191">WEB CONNECTOR</text>
+          <rect x="640" y="200" width="10" height="10" fill="#7B4BB0"/><text x="656" y="209">DESKTOP EXTENSION</text>
+        </g>
+      </svg>
+    </figure>
+
+    <div class="portchips" aria-hidden="true">
+      <div class="pc w"><b>Google Drive</b><span>web</span></div>
+      <div class="pc w"><b>Slack</b><span>web</span></div>
+      <div class="pc w"><b>Notion</b><span>web</span></div>
+      <div class="pc w"><b>Asana</b><span>web</span></div>
+      <div class="pc d"><b>Local files</b><span>desktop</span></div>
+      <div class="pc d"><b>Figma</b><span>desktop</span></div>
+    </div>
+
+    <div class="usbc">
+      <span class="ut">Why they all fit</span>
+      <p class="big">MCP is <em>USB-C for AI.</em></p>
+      <p>The Model Context Protocol is one universal standard, so Claude talks to hundreds of different applications through a single consistent interface. Because it's open, anyone can build a connector for any tool and it works with Claude without special-casing. That's the whole reason the directory can be enormous rather than a short list of partnerships.</p>
+    </div>
+
+    <div class="duo">
+      <div class="card w">
+        <span class="cl2">Type 01</span>
+        <h3>Web connectors</h3>
+        <p>Link Claude to cloud services — Gmail, Google Drive, Notion, Slack, Asana, Linear, Stripe and many more. They run remotely, so they work across your devices.</p>
+      </div>
+      <div class="card d">
+        <span class="cl2">Type 02</span>
+        <h3>Desktop extensions</h3>
+        <p>Run locally on your computer through the Claude Desktop app, reaching things a cloud service can't.</p>
+        <ul>
+          <li>Local file access for reading and organising documents</li>
+          <li>Browser control for automated web tasks</li>
+          <li>Native app integration, like Figma for design work</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 02 CONNECT ONE ==================== -->
+<section class="sect" id="setup">
+  <div class="wrap">
+    <div class="shead"><span class="snum">Part 02</span><h2>Connecting one</h2></div>
+    <p class="slede">Anthropic keeps a directory at <strong>claude.ai/directory</strong>. You can also reach it from any chat: click the <strong>+</strong> button near the message box, then choose <strong>Connectors</strong>.</p>
+
+    <div class="step"><span class="sn">01</span><div><b>Find it</b><span>Browse the directory, or use <code>+ → Connectors</code> in any chat.</span></div></div>
+    <div class="step"><span class="sn">02</span><div><b>Click Connect</b><span>Select the connector you want to add.</span></div></div>
+    <div class="step"><span class="sn">03</span><div><b>Authenticate</b><span>You're sent to the service's own login page. Sign in with the credentials you already have — Claude never sees your password.</span></div></div>
+    <div class="step"><span class="sn">04</span><div><b>Grant permissions</b><span>Read what's actually being requested before you authorise. This screen is the one people click through fastest and should read slowest.</span></div></div>
+    <div class="step"><span class="sn">05</span><div><b>Test it</b><span>Back in Claude, try something small: <em>"Can you access my [tool name]?"</em> Confirm it works before you rely on it.</span></div></div>
+
+    <div class="card d" style="margin-top:var(--sp-3);">
+      <span class="cl2">If you need a desktop extension</span>
+      <h3>Four steps, one app</h3>
+      <ul>
+        <li>Download and install the Claude Desktop app — the web interface can't do local access.</li>
+        <li>Open it and go to <strong>Settings → Extensions</strong>.</li>
+        <li>Browse the available extensions and click Install.</li>
+        <li>Follow any extra setup specific to that extension.</li>
+      </ul>
+    </div>
+
+    <div class="correction">
+      <span class="ct">The directory label your source doesn't mention</span>
+      <h3>Look for "verified" before you connect</h3>
+      <p>Course material tends to describe the directory as two tabs — web and desktop. That split is real, but it isn't the label that matters for safety. Anthropic's current documentation describes the directory as holding <strong>verified</strong> and <strong>community</strong> connectors.</p>
+      <ul>
+        <li><strong>Verified</strong> connectors have been reviewed by Anthropic for security, reliability and compatibility.</li>
+        <li><strong>Community</strong> connectors pass automated checks but are <strong>not</strong> reviewed in depth by Anthropic.</li>
+        <li>The label describes <strong>how much scrutiny it has had</strong>, not how it behaves — both work identically once connected. Which is exactly why the label is the thing to read.</li>
+        <li>On a Team plan, if you can't enable connectors yourself you'll see a <strong>Request</strong> button that sends it to your admins instead.</li>
+      </ul>
+      <p class="src">Source: Anthropic connector documentation, checked August 2026. The same catalogue serves Claude.ai, Desktop, mobile, Cowork and Claude Code.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 03 WHAT TO ASK ==================== -->
+<section class="sect" id="ask">
+  <div class="wrap">
+    <div class="shead"><span class="snum">Part 03</span><h2>What you can now ask</h2></div>
+    <p class="slede">Once a tool is connected, Claude takes it into account when answering. These are the shapes of request that only become possible on the other side of a connection.</p>
+
+    <div class="fams">
+      <div class="fam">
+        <h3>Project management</h3>
+        <span class="tools">Asana · Linear · Jira</span>
+        <ul>
+          <li>"What are my highest priority tasks due this week?"</li>
+          <li>"Create a new task for reviewing the Q4 budget proposal."</li>
+          <li>"Summarise the status of our product launch project."</li>
+        </ul>
+      </div>
+      <div class="fam">
+        <h3>Communication</h3>
+        <span class="tools">Slack · Gmail</span>
+        <ul>
+          <li>"Find the email thread where we discussed the vendor contract."</li>
+          <li>"Draft a reply to the latest message in the #marketing channel."</li>
+          <li>"What did the team decide about the timeline in yesterday's discussion?"</li>
+        </ul>
+      </div>
+      <div class="fam">
+        <h3>Documentation</h3>
+        <span class="tools">Notion · Google Drive · Confluence</span>
+        <ul>
+          <li>"Search our documentation for our brand voice guidelines."</li>
+          <li>"Summarise the meeting notes from last week's product review."</li>
+          <li>"What does our style guide say about using contractions?"</li>
+        </ul>
+      </div>
+      <div class="fam">
+        <h3>Business tools</h3>
+        <span class="tools">Stripe · PayPal · Salesforce</span>
+        <ul>
+          <li>"Show me revenue trends for the past quarter."</li>
+          <li>"What's the status of the Acme Corp opportunity?"</li>
+          <li>"List recent transactions over $1,000."</li>
+        </ul>
+      </div>
+    </div>
+
+    <p class="keep"><b>Read those again as a pattern:</b> every one of them names a thing that lives somewhere else. That's the tell for when a connector is what you needed — not a better prompt.</p>
+  </div>
+</section>
+
+<!-- ==================== 04 PERMISSIONS ==================== -->
+<section class="sect" id="safe">
+  <div class="wrap">
+    <div class="shead"><span class="snum">Part 04</span><h2>What you're handing over</h2></div>
+    <p class="slede">Connecting a service grants Claude access to read — and sometimes modify — data inside it. Four things worth understanding before you click authorise.</p>
+
+    <div class="rules">
+      <div class="rule hero-rule">
+        <span class="rn">The one that reassures people most</span>
+        <h3>Claude sees what you see</h3>
+        <p>Claude can only reach data <strong>you already have access to.</strong> Connecting your work email doesn't hand Claude your CEO's inbox — only your own. A connector inherits your permissions; it doesn't expand them.</p>
+      </div>
+
+      <div class="rule">
+        <span class="rn">Rule 02</span>
+        <h3>Scoped access</h3>
+        <p>Permissions are specific to what the connector needs, and you can toggle individual permissions on and off inside each application's own menu.</p>
+      </div>
+
+      <div class="rule">
+        <span class="rn">Rule 03</span>
+        <h3>Revocable at any time</h3>
+        <p>Disconnect through Claude's settings, or from the third-party service's own security settings. Two doors out, and neither requires anyone's help.</p>
+      </div>
+
+      <div class="rule">
+        <span class="rn">Rule 04</span>
+        <h3>Custom connectors, same caution</h3>
+        <p>You can find or build your own, exactly as with Skills — and the warning carries across unchanged. Only install from sources you trust.</p>
+      </div>
+    </div>
+
+    <p class="keep"><b>The habit:</b> the permissions screen is the only moment you get to decide. Once you've authorised, you've authorised — so read that screen at the speed you'd read a contract, not the speed you'd read a cookie banner.</p>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>Lesson 08 · Connecting your tools · Port board ·
+      <a href="lesson-07-skills.html">← Lesson 07</a> ·
+      <a href="lesson-09-enterprise-search.html">Lesson 09 →</a></p>
+  </div>
+</footer>
+
+
+
+<style>
+.pathnav{position:sticky;bottom:0;z-index:60;background:#16203C;border-top:2px solid #FFD84A;}
+.pathnav .inner{max-width:1160px;margin:0 auto;padding:.55rem 1.5rem;display:flex;align-items:center;gap:.8rem;flex-wrap:wrap;}
+.pathnav a{font-family:"Space Mono",monospace;font-size:.6rem;font-weight:700;text-transform:uppercase;
+letter-spacing:.1em;text-decoration:none;color:#E9E6DB;border:1.5px solid #4A5470;padding:.32rem .55rem;transition:all .15s ease;}
+.pathnav a:hover{border-color:#FFD84A;color:#FFD84A;}
+.pathnav a.next{border-color:#FFD84A;color:#FFD84A;margin-left:auto;}
+.pathnav .step{font-family:"Space Mono",monospace;font-size:.58rem;font-weight:700;letter-spacing:.12em;color:#8FA0C4;text-transform:uppercase;}
+@media print{.pathnav{display:none;}}
+</style>
+<div class="pathnav"><div class="inner"><a href="lesson-07-skills.html">← 07 Skills</a>
+<a href="learning-path.html">↑ Learning path</a>
+<span class="step">Step 11 of 16</span>
+<a class="next" href="lesson-09-enterprise-search.html">09 Enterprise search →</a></div></div>
+</body>
+</html>

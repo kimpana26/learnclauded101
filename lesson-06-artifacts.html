@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Creating with artifacts — the lesson as a production line</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Public+Sans:ital,wght@0,400;0,600;1,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   LESSON 06 — CREATING WITH ARTIFACTS
+   An artifact has a life: something triggers it, it takes a
+   form, you work it in the panel, you send it somewhere. So the
+   page is a production line, with a specimen sheet in the
+   middle showing what each of the six types actually looks like.
+   Same paper and inks as Lessons 01–05. Single file. No JS.
+   ============================================================ */
+
+:root{
+  --paper:#E9E6DB; --paper-hi:#F4F2EA; --ink:#16203C; --ink-soft:#4A5470; --rule:#C9C4B4;
+
+  --t1:#C9761A; --t1-ink:#8A4A06;   /* trigger */
+  --t2:#1358A8; --t2-ink:#0D4079;   /* type    */
+  --t3:#7B4BB0; --t3-ink:#573079;   /* panel   */
+  --t4:#0E8A63; --t4-ink:#0A6047;   /* share   */
+  --warn:#DE4438; --warn-ink:#A22119;
+
+  --marker:#FFD84A;
+  --sp-1:.5rem; --sp-2:1rem; --sp-3:1.5rem; --sp-4:2.25rem; --sp-5:3.5rem;
+
+  --display:"Bricolage Grotesque","Trebuchet MS",system-ui,sans-serif;
+  --body:"Public Sans",-apple-system,"Segoe UI",Roboto,sans-serif;
+  --mono:"Space Mono",ui-monospace,"Courier New",monospace;
+}
+
+*,*::before,*::after{ box-sizing:border-box; }
+html{ scroll-behavior:smooth; }
+body{
+  margin:0; background:var(--paper); color:var(--ink);
+  font-family:var(--body); font-size:1rem; line-height:1.6; -webkit-font-smoothing:antialiased;
+}
+body::after{
+  content:""; position:fixed; inset:0; pointer-events:none; z-index:99;
+  background-image:radial-gradient(var(--ink) .5px, transparent .5px);
+  background-size:4px 4px; opacity:.055;
+}
+.wrap{ max-width:1160px; margin:0 auto; padding:0 var(--sp-3); }
+
+h1,h2,h3{ font-family:var(--display); font-weight:800; line-height:1.04; margin:0; letter-spacing:-.02em; }
+h1{ font-size:clamp(2.4rem,8vw,5.2rem); text-transform:uppercase; }
+h2{ font-size:clamp(1.45rem,3.8vw,2.3rem); }
+h3{ font-size:1.04rem; font-weight:600; letter-spacing:0; }
+p{ margin:0 0 var(--sp-2); } p:last-child{ margin-bottom:0; }
+
+.tag{ font-family:var(--mono); font-size:.68rem; font-weight:700; text-transform:uppercase; letter-spacing:.16em; }
+.marked{ background:linear-gradient(transparent 58%, var(--marker) 58%, var(--marker) 94%, transparent 94%); padding:0 .12em; }
+a{ color:inherit; }
+a:focus-visible{ outline:3px solid var(--t2); outline-offset:3px; border-radius:2px; }
+
+/* ===================== sticky bar ===================== */
+.routebar{ position:sticky; top:0; z-index:50; background:var(--paper); border-bottom:2px solid var(--ink); }
+.routebar .wrap{ display:flex; align-items:center; gap:var(--sp-2); flex-wrap:wrap; padding-top:.6rem; padding-bottom:.6rem; }
+.routebar .brand{ font-family:var(--display); font-weight:800; text-transform:uppercase; margin-right:auto; letter-spacing:-.01em; }
+.routebar .brand small{ font-family:var(--mono); font-weight:700; font-size:.6rem; letter-spacing:.16em; color:var(--ink-soft); display:block; text-transform:uppercase; }
+.routebar nav{ display:flex; gap:.35rem; flex-wrap:wrap; }
+.pill{
+  font-family:var(--mono); font-size:.63rem; font-weight:700; text-transform:uppercase;
+  letter-spacing:.1em; text-decoration:none; color:#fff;
+  padding:.32rem .58rem; border-radius:999px; transition:transform .18s ease, filter .18s ease;
+}
+.pill:hover{ transform:translateY(-2px); filter:brightness(1.12); }
+.pill.p1{ background:var(--t1-ink); } .pill.p2{ background:var(--t2-ink); }
+.pill.p3{ background:var(--t3-ink); } .pill.p4{ background:var(--t4-ink); }
+
+/* ======================== hero ======================== */
+.hero{ padding:var(--sp-5) 0 var(--sp-3); }
+.hero .eyebrow{ color:var(--ink-soft); display:block; margin-bottom:var(--sp-2); }
+.hero h1{ margin-bottom:var(--sp-3); }
+.hero .deck{ font-size:clamp(1.05rem,2.2vw,1.28rem); max-width:56ch; color:var(--ink-soft); }
+.hero .deck strong{ color:var(--ink); font-weight:600; }
+.selfref{
+  margin-top:var(--sp-3); border-left:4px solid var(--marker); background:var(--paper-hi);
+  padding:.8rem var(--sp-2); font-size:.93rem; max-width:56ch;
+}
+.selfref b{ font-weight:600; }
+
+/* ==================== production line ==================== */
+.line{ padding:var(--sp-4) 0 var(--sp-2); }
+.linefig{ display:none; }
+.linefig svg{ width:100%; height:auto; display:block; }
+.linechips{ display:grid; grid-template-columns:1fr; gap:.4rem; }
+.lc{ border:2px solid; background:var(--paper-hi); padding:.6rem .8rem; }
+.lc b{ font-family:var(--display); font-weight:800; text-transform:uppercase; font-size:.95rem; display:block; }
+.lc span{ font-family:var(--mono); font-size:.62rem; text-transform:uppercase; letter-spacing:.1em; color:var(--ink-soft); }
+.lc.c1{ border-color:var(--t1); } .lc.c1 b{ color:var(--t1-ink); }
+.lc.c2{ border-color:var(--t2); } .lc.c2 b{ color:var(--t2-ink); }
+.lc.c3{ border-color:var(--t3); } .lc.c3 b{ color:var(--t3-ink); }
+.lc.c4{ border-color:var(--t4); } .lc.c4 b{ color:var(--t4-ink); }
+
+/* ====================== sections ====================== */
+.sect{ padding:var(--sp-5) 0 var(--sp-2); border-top:1px solid var(--rule); scroll-margin-top:4.4rem; }
+.shead{ display:flex; align-items:baseline; gap:var(--sp-2); flex-wrap:wrap; margin-bottom:.5rem; }
+.snum{ font-family:var(--mono); font-weight:700; font-size:.72rem; text-transform:uppercase; letter-spacing:.14em; color:#fff; padding:.28rem .55rem; border-radius:3px; }
+.slede{ color:var(--ink-soft); max-width:62ch; margin-bottom:var(--sp-4); font-size:1.02rem; }
+.slede strong{ color:var(--ink); font-weight:600; }
+#trigger .snum{ background:var(--t1-ink); } #trigger h2{ color:var(--t1-ink); }
+#types   .snum{ background:var(--t2-ink); } #types   h2{ color:var(--t2-ink); }
+#panel   .snum{ background:var(--t3-ink); } #panel   h2{ color:var(--t3-ink); }
+#share   .snum{ background:var(--t4-ink); } #share   h2{ color:var(--t4-ink); }
+
+/* gates: the four criteria */
+.gates{ display:grid; grid-template-columns:1fr; gap:var(--sp-2); }
+.gate{ background:var(--paper-hi); border:1px solid var(--rule); border-left:6px solid var(--t1); padding:var(--sp-3); }
+.gate .gn{ font-family:var(--mono); font-size:.62rem; font-weight:700; text-transform:uppercase; letter-spacing:.12em; color:var(--t1-ink); }
+.gate h3{ margin:.3rem 0 .4rem; }
+.gate p{ font-size:.92rem; color:var(--ink-soft); }
+
+.says{ display:grid; grid-template-columns:1fr; gap:.6rem; margin-top:var(--sp-3); }
+.say{ border:1px dashed var(--rule); background:var(--paper); padding:.7rem .9rem; font-size:.93rem; font-style:italic; }
+.say b{ font-style:normal; font-family:var(--mono); font-size:.58rem; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:var(--ink-soft); display:block; margin-bottom:.25rem; }
+
+.override{ background:var(--ink); color:#C6CDDE; padding:var(--sp-3); margin-top:var(--sp-3); border-left:6px solid var(--marker); }
+.override h3{ color:var(--paper); font-family:var(--display); font-weight:800; text-transform:uppercase; font-size:1.1rem; margin-bottom:.5rem; }
+.override p{ font-size:.95rem; }
+.override em{ color:var(--marker); font-style:normal; }
+
+/* ================= the specimen sheet ================= */
+.sheet{ display:grid; grid-template-columns:1fr; gap:var(--sp-2); }
+.spc{ background:var(--paper-hi); border:1px solid var(--rule); border-top:6px solid var(--t2); padding:var(--sp-3); }
+.spc .sl{ font-family:var(--mono); font-size:.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.12em; color:var(--t2-ink); }
+.spc h3{ font-family:var(--display); font-weight:800; text-transform:uppercase; font-size:1.15rem; margin:.25rem 0 .5rem; letter-spacing:-.01em; }
+.spc > p{ font-size:.91rem; color:var(--ink-soft); }
+.spec{
+  position:relative; background:var(--paper); border:1px solid var(--rule);
+  padding:.9rem; margin:.8rem 0; min-height:104px; overflow:hidden;
+}
+.spec::after{
+  content:"SPECIMEN"; position:absolute; right:6px; bottom:4px;
+  font-family:var(--mono); font-size:.5rem; font-weight:700; letter-spacing:.14em; color:var(--rule);
+}
+.good{ font-size:.86rem; color:var(--ink-soft); }
+.good b{ font-family:var(--mono); font-size:.58rem; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:var(--ink); }
+
+/* specimen internals */
+.sp-h{ font-size:.82rem; font-weight:600; margin-bottom:.4rem; }
+.bar{ height:5px; background:var(--rule); border-radius:2px; margin-bottom:.32rem; }
+.bar.w80{ width:80%; } .bar.w60{ width:60%; } .bar.w90{ width:90%; }
+.sp-bul{ font-size:.72rem; color:var(--ink-soft); margin-top:.4rem; }
+
+pre.sp-code{ margin:0; font-family:var(--mono); font-size:.66rem; line-height:1.7; color:var(--ink); white-space:pre; overflow:hidden; }
+pre.sp-code .kw{ color:var(--t3-ink); font-weight:700; }
+pre.sp-code .fn{ color:var(--t2-ink); }
+pre.sp-code .cm{ color:var(--ink-soft); }
+
+.sp-browser{ border:1px solid var(--rule); }
+.sp-browser .chrome{ background:var(--ink); padding:.28rem .4rem; display:flex; gap:.22rem; }
+.sp-browser .chrome i{ width:5px; height:5px; border-radius:50%; background:var(--rule); display:block; }
+.sp-browser .body{ padding:.6rem; background:var(--paper-hi); }
+.sp-browser .h{ font-size:.78rem; font-weight:600; margin-bottom:.35rem; }
+.sp-browser .btn{ display:inline-block; background:var(--t2-ink); color:#fff; font-size:.6rem; padding:.2rem .5rem; border-radius:3px; margin-top:.3rem; }
+
+.sp-react{ border:1px solid var(--rule); background:var(--paper-hi); padding:.6rem; }
+.sp-react .lab{ font-family:var(--mono); font-size:.55rem; text-transform:uppercase; letter-spacing:.1em; color:var(--ink-soft); }
+.sp-react .val{ font-family:var(--display); font-weight:800; font-size:1.4rem; line-height:1.1; color:var(--t3-ink); }
+.sp-react .ctl{ display:flex; gap:.3rem; margin-top:.4rem; }
+.sp-react .ctl span{ border:1px solid var(--rule); background:var(--paper); font-family:var(--mono); font-size:.68rem; width:20px; height:20px; display:grid; place-items:center; }
+.sp-react .spark{ display:flex; align-items:flex-end; gap:3px; height:22px; margin-top:.45rem; }
+.sp-react .spark i{ width:7px; background:var(--t3); display:block; }
+
+/* the not-artifacts boundary */
+.boundary{ border:2px solid var(--warn); background:var(--paper-hi); padding:var(--sp-3); margin-top:var(--sp-3); }
+.boundary .bt{ font-family:var(--mono); font-size:.62rem; font-weight:700; text-transform:uppercase; letter-spacing:.12em; color:var(--warn-ink); display:block; margin-bottom:.5rem; }
+.boundary h3{ margin-bottom:.5rem; }
+.boundary p{ font-size:.94rem; color:var(--ink-soft); }
+.boundary strong{ color:var(--ink); font-weight:600; }
+.formats{ display:flex; gap:.4rem; flex-wrap:wrap; margin-top:.7rem; }
+.formats span{ font-family:var(--mono); font-size:.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; border:1px solid var(--warn); color:var(--warn-ink); padding:.22rem .45rem; }
+
+/* ===================== the panel ===================== */
+.tools{ display:grid; grid-template-columns:1fr; gap:.6rem; margin-bottom:var(--sp-3); }
+.tool{ display:grid; grid-template-columns:auto 1fr; gap:.8rem; border-top:1px solid var(--rule); padding:.8rem 0; }
+.tool .tn{ font-family:var(--mono); font-size:.62rem; font-weight:700; color:#fff; background:var(--t3-ink); padding:.15rem .4rem; height:fit-content; }
+.tool b{ display:block; font-size:.97rem; }
+.tool span{ font-size:.91rem; color:var(--ink-soft); }
+
+.habit{ background:var(--paper-hi); border:1px solid var(--rule); border-left:6px solid var(--t3); padding:var(--sp-3); margin-bottom:var(--sp-2); }
+.habit .hn{ font-family:var(--mono); font-size:.62rem; font-weight:700; text-transform:uppercase; letter-spacing:.12em; color:var(--t3-ink); }
+.habit h3{ margin:.3rem 0 .5rem; }
+.habit p{ font-size:.93rem; color:var(--ink-soft); }
+.ba{ display:grid; grid-template-columns:1fr; gap:.6rem; margin-top:.8rem; }
+.ba > div{ border:1px solid var(--rule); background:var(--paper); padding:.8rem; }
+.ba .bl{ font-family:var(--mono); font-size:.58rem; font-weight:700; text-transform:uppercase; letter-spacing:.12em; display:block; margin-bottom:.35rem; }
+.ba .before{ border-left:4px solid var(--ink-soft); } .ba .before .bl{ color:var(--ink-soft); }
+.ba .after{ border-left:4px solid var(--t4); } .ba .after .bl{ color:var(--t4-ink); }
+.ba q{ quotes:none; font-size:.91rem; font-style:italic; }
+
+/* ==================== the audiences ==================== */
+.aud{ display:grid; grid-template-columns:1fr; gap:var(--sp-2); }
+.ac{ background:var(--paper-hi); border:1px solid var(--rule); border-top:6px solid var(--t4); padding:var(--sp-3); }
+.ac .who{
+  display:inline-block; font-family:var(--mono); font-size:.6rem; font-weight:700;
+  text-transform:uppercase; letter-spacing:.1em; color:#fff; background:var(--t4-ink);
+  padding:.24rem .5rem; margin-bottom:.6rem;
+}
+.ac h3{ margin-bottom:.5rem; }
+.ac p{ font-size:.92rem; color:var(--ink-soft); }
+.ac ul{ margin:.5rem 0 0; padding-left:1.05rem; }
+.ac li{ font-size:.9rem; color:var(--ink-soft); margin-bottom:.3rem; }
+.ac.wide{ border-top-color:var(--warn); }
+.ac.wide .who{ background:var(--warn-ink); }
+.ac .plan{ font-family:var(--mono); font-size:.58rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; background:var(--marker); color:var(--ink); padding:.15rem .4rem; margin-left:.35rem; }
+
+.correction{ border:2px solid var(--warn); background:var(--paper-hi); padding:var(--sp-3); margin-top:var(--sp-3); }
+.correction .ct{ font-family:var(--mono); font-size:.62rem; font-weight:700; text-transform:uppercase; letter-spacing:.12em; color:var(--warn-ink); display:block; margin-bottom:.5rem; }
+.correction h3{ margin-bottom:.6rem; font-size:1.12rem; }
+.correction p{ font-size:.94rem; }
+.correction ul{ margin:.6rem 0 0; padding-left:1.1rem; }
+.correction li{ font-size:.93rem; color:var(--ink-soft); margin-bottom:.4rem; }
+.correction li strong{ color:var(--ink); font-weight:600; }
+
+.keep{ background:var(--ink); color:#C6CDDE; padding:.9rem var(--sp-2); font-size:.95rem; font-style:italic; margin-top:var(--sp-2); }
+.keep b{ font-style:normal; color:var(--marker); font-weight:600; }
+
+footer{ border-top:1px solid var(--rule); padding:var(--sp-3) 0 var(--sp-5); margin-top:var(--sp-5); }
+footer p{ font-family:var(--mono); font-size:.66rem; text-transform:uppercase; letter-spacing:.1em; color:var(--ink-soft); }
+footer a{ color:var(--t2-ink); }
+
+/* ===================== breakpoints ===================== */
+@media (min-width:700px){
+  .gates{ grid-template-columns:1fr 1fr; }
+  .sheet{ grid-template-columns:1fr 1fr; }
+  .says{ grid-template-columns:1fr 1fr; }
+  .ba{ grid-template-columns:1fr 1.5fr; }
+  .aud{ grid-template-columns:repeat(3,1fr); }
+  .linechips{ grid-template-columns:repeat(4,1fr); }
+}
+@media (min-width:960px){
+  .sheet{ grid-template-columns:repeat(3,1fr); }
+  .linefig{ display:block; }
+  .linechips{ display:none; }
+}
+
+@media (prefers-reduced-motion:reduce){ html{ scroll-behavior:auto; } *{ transition:none !important; } }
+@media print{
+  .routebar,.linefig{ display:none; }
+  body::after{ display:none; }
+  .spc,.gate,.ac,.habit,.correction{ break-inside:avoid; }
+}
+</style>
+</head>
+<body>
+
+<div class="routebar">
+  <div class="wrap">
+    <span class="brand">Creating with artifacts<small>Lesson 06</small></span>
+    <nav aria-label="Sections">
+      <a class="pill" style="background:#16203C" href="index.html">Home</a>
+      <a class="pill" style="background:#0A6047" href="prompt-library.html">50 prompts</a>
+      <a class="pill" style="background:#573079" href="power-prompts.html">40 power</a>
+      <a class="pill p1" href="#trigger">01 Trigger</a>
+      <a class="pill p2" href="#types">02 Type</a>
+      <a class="pill p3" href="#panel">03 Panel</a>
+      <a class="pill p4" href="#share">04 Share</a>
+    </nav>
+  </div>
+</div>
+
+<header class="hero">
+  <div class="wrap">
+    <span class="tag eyebrow">Lesson 06 · Artifacts · read in ~6 minutes</span>
+    <h1>Made, not<br>described</h1>
+    <p class="deck">An artifact is a standalone, working output in its own window beside the conversation. <strong>Instead of a wall of code buried in the chat, you get the thing itself</strong> — rendered, runnable, downloadable.</p>
+    <p class="selfref"><b>You're looking at one right now.</b> This page is a single HTML file — type 03 on the specimen sheet below. Everything the lesson describes is what made it.</p>
+  </div>
+</header>
+
+<main>
+
+<!-- ================= THE PRODUCTION LINE ================= -->
+<section class="line">
+  <div class="wrap">
+    <figure class="linefig">
+      <svg viewBox="0 0 900 118" role="img" aria-label="Four stations: trigger, type, panel, share.">
+        <defs>
+          <marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse" markerUnits="userSpaceOnUse">
+            <path d="M0 0 L10 5 L0 10 z" fill="#16203C"/>
+          </marker>
+        </defs>
+        <g fill="#F4F2EA" stroke-width="3">
+          <rect x="20"  y="18" width="182" height="82" rx="5" stroke="#C9761A"/>
+          <rect x="244" y="18" width="182" height="82" rx="5" stroke="#1358A8"/>
+          <rect x="468" y="18" width="182" height="82" rx="5" stroke="#7B4BB0"/>
+          <rect x="692" y="18" width="182" height="82" rx="5" stroke="#0E8A63"/>
+        </g>
+        <g stroke="#16203C" stroke-width="3" fill="none">
+          <path d="M208 59 H238" marker-end="url(#ar)"/>
+          <path d="M432 59 H462" marker-end="url(#ar)"/>
+          <path d="M656 59 H686" marker-end="url(#ar)"/>
+        </g>
+        <g font-family="Space Mono, monospace" font-size="10" font-weight="700" letter-spacing="1.4">
+          <text x="42" y="44"  fill="#8A4A06">STATION 01</text>
+          <text x="266" y="44" fill="#0D4079">STATION 02</text>
+          <text x="490" y="44" fill="#573079">STATION 03</text>
+          <text x="714" y="44" fill="#0A6047">STATION 04</text>
+        </g>
+        <g font-family="Bricolage Grotesque, sans-serif" font-size="20" font-weight="800">
+          <text x="42" y="70"  fill="#8A4A06">TRIGGER</text>
+          <text x="266" y="70" fill="#0D4079">TYPE</text>
+          <text x="490" y="70" fill="#573079">PANEL</text>
+          <text x="714" y="70" fill="#0A6047">SHARE</text>
+        </g>
+        <g font-family="Public Sans, sans-serif" font-size="12.5" fill="#4A5470">
+          <text x="42" y="90">why one appears</text>
+          <text x="266" y="90">six shapes it takes</text>
+          <text x="490" y="90">the working window</text>
+          <text x="714" y="90">who gets to see it</text>
+        </g>
+      </svg>
+    </figure>
+
+    <div class="linechips" aria-hidden="true">
+      <div class="lc c1"><b>01 Trigger</b><span>why one appears</span></div>
+      <div class="lc c2"><b>02 Type</b><span>six shapes it takes</span></div>
+      <div class="lc c3"><b>03 Panel</b><span>the working window</span></div>
+      <div class="lc c4"><b>04 Share</b><span>who gets to see it</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 01 TRIGGER ==================== -->
+<section class="sect" id="trigger">
+  <div class="wrap">
+    <div class="shead"><span class="snum">Station 01</span><h2>Why one appears</h2></div>
+    <p class="slede">You don't switch artifacts on. Claude makes one when the content passes four tests — which is also the recipe for <strong>asking</strong> for one deliberately.</p>
+
+    <div class="gates">
+      <div class="gate">
+        <span class="gn">Test 01</span>
+        <h3>Substantial and self-contained</h3>
+        <p>Typically more than fifteen lines. Big enough that burying it in the chat would be doing it a disservice.</p>
+      </div>
+      <div class="gate">
+        <span class="gn">Test 02</span>
+        <h3>You'll want to change it</h3>
+        <p>Something you'll edit, iterate on or reuse — not a one-time answer you read and move past.</p>
+      </div>
+      <div class="gate">
+        <span class="gn">Test 03</span>
+        <h3>It stands alone</h3>
+        <p>Complex content that makes sense without the conversation wrapped around it.</p>
+      </div>
+      <div class="gate">
+        <span class="gn">Test 04</span>
+        <h3>You'll come back to it</h3>
+        <p>Content you'll reference or use later, somewhere other than this chat.</p>
+      </div>
+    </div>
+
+    <div class="says">
+      <div class="say"><b>Say this</b>"Create a flowchart showing our customer onboarding process."</div>
+      <div class="say"><b>Say this</b>"Build an interactive dashboard that lets me input monthly expenses and see a breakdown."</div>
+      <div class="say"><b>Say this</b>"Design a landing page for a productivity app with a hero section and feature list."</div>
+      <div class="say"><b>Say this</b>"Write a project brief template I can reuse for new initiatives."</div>
+    </div>
+
+    <div class="override">
+      <h3>When it doesn't happen</h3>
+      <p>Ask for something substantial and get a wall of text in the chat instead? You don't have to rephrase the whole request. Just say <em>"Create this as an artifact"</em> or <em>"Show me this in an artifact."</em> The override is one sentence.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 02 TYPE ==================== -->
+<section class="sect" id="types">
+  <div class="shead wrap"><span class="snum">Station 02</span><h2>The specimen sheet</h2></div>
+  <div class="wrap">
+    <p class="slede">Six forms an artifact can take. The previews below show the <strong>shape</strong> of each one, so you can recognise which you're asking for.</p>
+
+    <div class="sheet">
+
+      <article class="spc">
+        <span class="sl">Type 01</span>
+        <h3>Document</h3>
+        <p>Markdown or plain text, for anything text-heavy you'll export or keep editing.</p>
+        <div class="spec">
+          <div class="sp-h">Project brief — Q3 launch</div>
+          <div class="bar w90"></div><div class="bar w80"></div><div class="bar w60"></div>
+          <div class="sp-bul">• Scope &nbsp; • Owner &nbsp; • Deadline</div>
+        </div>
+        <p class="good"><b>Good for</b> meeting notes, reports, project plans, blog posts.</p>
+      </article>
+
+      <article class="spc">
+        <span class="sl">Type 02</span>
+        <h3>Code snippet</h3>
+        <p>Working code in any language. View it, copy it, or download it into your own project.</p>
+        <div class="spec">
+<pre class="sp-code"><span class="cm"># monthly totals</span>
+<span class="kw">def</span> <span class="fn">total</span>(items):
+    <span class="kw">return</span> sum(
+        i.price <span class="kw">for</span> i <span class="kw">in</span> items
+    )</pre>
+        </div>
+        <p class="good"><b>Good for</b> Python, JavaScript, C++ and everything else.</p>
+      </article>
+
+      <article class="spc">
+        <span class="sl">Type 03</span>
+        <h3>HTML page</h3>
+        <p>A complete web page — HTML, CSS and JavaScript in a single file.</p>
+        <div class="spec">
+          <div class="sp-browser">
+            <div class="chrome"><i></i><i></i><i></i></div>
+            <div class="body">
+              <div class="h">Focus — do less, finish more</div>
+              <div class="bar w90"></div><div class="bar w60"></div>
+              <span class="btn">Start free</span>
+            </div>
+          </div>
+        </div>
+        <p class="good"><b>Good for</b> landing pages, forms, demos, quick prototypes.</p>
+      </article>
+
+      <article class="spc">
+        <span class="sl">Type 04</span>
+        <h3>SVG image</h3>
+        <p>Scalable vector graphics that render right in the window, so you see exactly what you're getting.</p>
+        <div class="spec" style="display:grid;place-items:center;">
+          <svg width="86" height="86" viewBox="0 0 100 100" role="img" aria-label="An example vector mark: concentric arcs around a filled centre.">
+            <circle cx="50" cy="50" r="34" fill="none" stroke="#0D4079" stroke-width="4"/>
+            <path d="M50 8 A42 42 0 0 1 92 50" fill="none" stroke="#C9761A" stroke-width="6" stroke-linecap="round"/>
+            <path d="M8 50 A42 42 0 0 0 50 92" fill="none" stroke="#0E8A63" stroke-width="6" stroke-linecap="round"/>
+            <circle cx="50" cy="50" r="12" fill="#16203C"/>
+          </svg>
+        </div>
+        <p class="good"><b>Good for</b> logos, icons, illustrations, diagrams by hand.</p>
+      </article>
+
+      <article class="spc">
+        <span class="sl">Type 05</span>
+        <h3>Mermaid diagram</h3>
+        <p>Describe the relationships and Claude draws the diagram, which you can then refine.</p>
+        <div class="spec">
+          <svg viewBox="0 0 260 70" role="img" aria-label="A three-box flowchart: enquiry, qualify, onboard.">
+            <defs>
+              <marker id="mm" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse" markerUnits="userSpaceOnUse">
+                <path d="M0 0 L10 5 L0 10 z" fill="#4A5470"/>
+              </marker>
+            </defs>
+            <g fill="#F4F2EA" stroke="#0D4079" stroke-width="2">
+              <rect x="4"   y="22" width="66" height="28" rx="5"/>
+              <rect x="97"  y="22" width="66" height="28" rx="5"/>
+              <rect x="190" y="22" width="66" height="28" rx="5"/>
+            </g>
+            <g stroke="#4A5470" stroke-width="2" fill="none">
+              <path d="M72 36 H91" marker-end="url(#mm)"/>
+              <path d="M165 36 H184" marker-end="url(#mm)"/>
+            </g>
+            <g font-family="Public Sans, sans-serif" font-size="11" fill="#16203C" text-anchor="middle">
+              <text x="37" y="40">Enquiry</text>
+              <text x="130" y="40">Qualify</text>
+              <text x="223" y="40">Onboard</text>
+            </g>
+          </svg>
+        </div>
+        <p class="good"><b>Good for</b> flowcharts, sequence diagrams, Gantt charts, org charts. Note: flowcharts may now come back as an HTML visual rather than Mermaid code — same idea, different rendering.</p>
+      </article>
+
+      <article class="spc">
+        <span class="sl">Type 06</span>
+        <h3>React component</h3>
+        <p>Interactive UI with real logic — these aren't mockups, they respond to input.</p>
+        <div class="spec">
+          <div class="sp-react">
+            <span class="lab">Monthly spend</span>
+            <div class="val">£1,240</div>
+            <div class="spark"><i style="height:9px"></i><i style="height:15px"></i><i style="height:11px"></i><i style="height:20px"></i><i style="height:14px"></i></div>
+            <div class="ctl"><span>−</span><span>+</span></div>
+          </div>
+        </div>
+        <p class="good"><b>Good for</b> calculators, dashboards, games, data visualisations.</p>
+      </article>
+
+    </div>
+
+    <div class="boundary">
+      <span class="bt">Not artifacts — a common mix-up</span>
+      <h3>Office files come back a different way</h3>
+      <p>Word documents, Excel spreadsheets, PowerPoint decks and PDFs are made through a <strong>separate file-creation capability</strong>, not the artifact panel. Same conversation, different mechanism — Claude hands these back as files you download, so don't wait for them to appear in the window on the right.</p>
+      <div class="formats"><span>.docx</span><span>.xlsx</span><span>.pptx</span><span>.pdf</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 03 PANEL ==================== -->
+<section class="sect" id="panel">
+  <div class="wrap">
+    <div class="shead"><span class="snum">Station 03</span><h2>Working in the window</h2></div>
+    <p class="slede">The artifact opens in its own panel beside the conversation. Four things you can do there, and three habits that decide how good the result gets.</p>
+
+    <div class="tools">
+      <div class="tool"><span class="tn">01</span><div><b>Toggle preview and code</b><span>See how it looks, or see what it's made of. Switch freely between the two.</span></div></div>
+      <div class="tool"><span class="tn">02</span><div><b>Copy</b><span>Grab the contents to use somewhere else.</span></div></div>
+      <div class="tool"><span class="tn">03</span><div><b>Download</b><span>Save it to your computer as a file.</span></div></div>
+      <div class="tool"><span class="tn">04</span><div><b>View the code underneath</b><span>Exactly what Claude generated — useful for checking, learning, or taking it elsewhere.</span></div></div>
+    </div>
+
+    <div class="habit">
+      <span class="hn">Habit 01</span>
+      <h3>Be specific about what you want</h3>
+      <p>The vague version isn't wrong, it's just under-specified — so Claude fills the gaps with guesses instead of your requirements.</p>
+      <div class="ba">
+        <div class="before"><span class="bl">Good</span><q>"Build a budget tracker"</q></div>
+        <div class="after"><span class="bl">Better</span><q>"Build a monthly budget tracker where I can input expenses by category, see a pie chart breakdown, and get a warning when I'm over budget"</q></div>
+      </div>
+    </div>
+
+    <div class="habit">
+      <span class="hn">Habit 02</span>
+      <h3>Say who it's for</h3>
+      <p>The end user drives the design choices. <span class="marked">"This flowchart is for new employees" produces a different diagram to "this flowchart is for the engineering team"</span> — different labels, different assumed knowledge, different level of detail. One clause, big consequences.</p>
+    </div>
+
+    <div class="habit">
+      <span class="hn">Habit 03</span>
+      <h3>Change one thing at a time</h3>
+      <p>Ask for a single feature or a single fix per turn. When five changes arrive together and something breaks, you can't tell which one did it. Incremental iteration isn't slower — it's the only way to keep hold of what's working.</p>
+    </div>
+
+    <p class="keep"><b>The through-line from Lesson 03:</b> the first artifact is a draft, exactly like the first answer. The panel exists so you can keep working on it, not so you can admire it.</p>
+  </div>
+</section>
+
+<!-- ==================== 04 SHARE ==================== -->
+<section class="sect" id="share">
+  <div class="wrap">
+    <div class="shead"><span class="snum">Station 04</span><h2>Who gets to see it</h2></div>
+    <p class="slede">Three ways out, and they differ in exactly one respect that matters: <strong>the size of the audience you're handing it to.</strong> Pick by audience, not by convenience.</p>
+
+    <div class="aud">
+      <div class="ac">
+        <span class="who">Audience · you</span>
+        <h3>Copy or download</h3>
+        <p>Buttons in the lower right of the artifact window. The file goes to you, and travels only where you send it.</p>
+      </div>
+
+      <div class="ac">
+        <span class="who">Audience · your colleagues</span>
+        <h3>Share inside your organisation <span class="plan">Team &amp; Enterprise</span></h3>
+        <p>Stays within the organisation and requires team authentication to open. Nobody outside can reach it.</p>
+      </div>
+
+      <div class="ac wide">
+        <span class="who">Audience · anyone</span>
+        <h3>Publish publicly <span class="plan">Free, Pro, Max</span></h3>
+        <p>Use the Share or Publish button in the upper right. What that means:</p>
+        <ul>
+          <li>Only the version you select goes public — <strong>your chat stays private.</strong></li>
+          <li>Anyone can open and interact with it <strong>without a Claude account.</strong></li>
+          <li>Others can <strong>remix</strong> it — open it in their own conversation and build on it.</li>
+          <li>You can unpublish at any time by returning to the artifact and removing public access.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="correction">
+      <span class="ct">Read this before you publish anything</span>
+      <h3>"Not indexed by search engines" is not a guarantee</h3>
+      <p>Course material on artifacts often states flatly that published artifacts won't turn up in Google. The accurate version is narrower, and the difference matters.</p>
+      <ul>
+        <li><strong>What's true:</strong> Anthropic says it doesn't share chat directories or sitemaps with search engines like Google. Share URLs are long and random, so nobody guesses them.</li>
+        <li><strong>What doesn't follow:</strong> that they can't be found. A published artifact is a public web page with no login. Anthropic has said these pages become searchable on third-party search engines once the link has been shared somewhere a crawler can see it — a forum, a social post, a website.</li>
+        <li><strong>It has already happened.</strong> In late July 2026 people found that a simple site: search on claude.ai surfaced publicly shared conversations and artifacts — including material that plainly was never meant for strangers.</li>
+        <li><strong>Unpublishing isn't a time machine.</strong> Pages already indexed or cached can keep appearing until search engines refresh them.</li>
+      </ul>
+      <p style="margin-top:.8rem;font-size:.85rem;color:var(--ink-soft);">Sources: Anthropic statements reported by TechCrunch and Axios, 27 July 2026; incident coverage by Axios, Futurism and Cybernews. Check your own published links under Settings → Privacy → Shared Chats.</p>
+      <p style="margin-top:.8rem;"><strong>The working rule:</strong> treat "anyone with the link" as "anyone." If you wouldn't post it on a public website under your own name, don't publish it — share it inside your organisation, or send the downloaded file instead.</p>
+    </div>
+
+    <p class="keep"><b>The habit worth forming:</b> before you hit publish, read the artifact back once and ask what's in it that isn't yours to make public — a client name, a real figure, someone's contact details.</p>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>Lesson 06 · Creating with artifacts · Production line ·
+      <a href="lesson-05-projects.html">← Lesson 05</a> ·
+      <a href="lesson-07-skills.html">Lesson 07 →</a></p>
+  </div>
+</footer>
+
+
+
+<style>
+.pathnav{position:sticky;bottom:0;z-index:60;background:#16203C;border-top:2px solid #FFD84A;}
+.pathnav .inner{max-width:1160px;margin:0 auto;padding:.55rem 1.5rem;display:flex;align-items:center;gap:.8rem;flex-wrap:wrap;}
+.pathnav a{font-family:"Space Mono",monospace;font-size:.6rem;font-weight:700;text-transform:uppercase;
+letter-spacing:.1em;text-decoration:none;color:#E9E6DB;border:1.5px solid #4A5470;padding:.32rem .55rem;transition:all .15s ease;}
+.pathnav a:hover{border-color:#FFD84A;color:#FFD84A;}
+.pathnav a.next{border-color:#FFD84A;color:#FFD84A;margin-left:auto;}
+.pathnav .step{font-family:"Space Mono",monospace;font-size:.58rem;font-weight:700;letter-spacing:.12em;color:#8FA0C4;text-transform:uppercase;}
+@media print{.pathnav{display:none;}}
+</style>
+<div class="pathnav"><div class="inner"><a href="lesson-05-projects.html">← 05 Projects</a>
+<a href="learning-path.html">↑ Learning path</a>
+<span class="step">Step 9 of 16</span>
+<a class="next" href="lesson-07-skills.html">07 Skills →</a></div></div>
+</body>
+</html>

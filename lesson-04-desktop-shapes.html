@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How you'll work with Claude on your desktop — three shapes of work</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Public+Sans:ital,wght@0,400;0,600;1,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   LESSON 04 — HOW YOU'LL WORK WITH CLAUDE ON YOUR DESKTOP
+   The lesson's own thesis: you don't pick a tab, you notice the
+   work. So the page is built as a sorter — signals first, tabs
+   second — then three lanes with identical anatomy so you can
+   read across them. Same paper and inks as Lessons 01–03. No JS.
+   ============================================================ */
+
+:root{
+  --paper:#E9E6DB; --paper-hi:#F4F2EA; --ink:#16203C; --ink-soft:#4A5470; --rule:#C9C4B4;
+
+  --s1:#1358A8; --s1-ink:#0D4079;   /* turn by turn — Chat   */
+  --s2:#C9761A; --s2-ink:#8A4A06;   /* handing off  — Cowork */
+  --s3:#7B4BB0; --s3-ink:#573079;   /* building     — Code   */
+
+  --marker:#FFD84A;
+
+  --sp-1:.5rem; --sp-2:1rem; --sp-3:1.5rem; --sp-4:2.25rem; --sp-5:3.5rem;
+
+  --display:"Bricolage Grotesque","Trebuchet MS",system-ui,sans-serif;
+  --body:"Public Sans",-apple-system,"Segoe UI",Roboto,sans-serif;
+  --mono:"Space Mono",ui-monospace,"Courier New",monospace;
+}
+
+*,*::before,*::after{ box-sizing:border-box; }
+html{ scroll-behavior:smooth; }
+
+body{
+  margin:0; background:var(--paper); color:var(--ink);
+  font-family:var(--body); font-size:1rem; line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+}
+body::after{
+  content:""; position:fixed; inset:0; pointer-events:none; z-index:99;
+  background-image:radial-gradient(var(--ink) .5px, transparent .5px);
+  background-size:4px 4px; opacity:.055;
+}
+
+.wrap{ max-width:1160px; margin:0 auto; padding:0 var(--sp-3); }
+
+h1,h2,h3{ font-family:var(--display); font-weight:800; line-height:1.04; margin:0; letter-spacing:-.02em; }
+h1{ font-size:clamp(2.3rem,7.5vw,5rem); text-transform:uppercase; }
+h2{ font-size:clamp(1.45rem,3.8vw,2.3rem); }
+h3{ font-size:1.04rem; font-weight:600; letter-spacing:0; }
+p{ margin:0 0 var(--sp-2); } p:last-child{ margin-bottom:0; }
+
+.tag{ font-family:var(--mono); font-size:.68rem; font-weight:700; text-transform:uppercase; letter-spacing:.16em; }
+.marked{ background:linear-gradient(transparent 58%, var(--marker) 58%, var(--marker) 94%, transparent 94%); padding:0 .12em; }
+a{ color:inherit; }
+a:focus-visible{ outline:3px solid var(--s1); outline-offset:3px; border-radius:2px; }
+
+/* ===================== sticky bar ===================== */
+.routebar{ position:sticky; top:0; z-index:50; background:var(--paper); border-bottom:2px solid var(--ink); }
+.routebar .wrap{ display:flex; align-items:center; gap:var(--sp-2); flex-wrap:wrap; padding-top:.6rem; padding-bottom:.6rem; }
+.routebar .brand{ font-family:var(--display); font-weight:800; text-transform:uppercase; margin-right:auto; letter-spacing:-.01em; }
+.routebar .brand small{ font-family:var(--mono); font-weight:700; font-size:.6rem; letter-spacing:.16em; color:var(--ink-soft); display:block; text-transform:uppercase; }
+.routebar nav{ display:flex; gap:.35rem; flex-wrap:wrap; }
+.pill{
+  font-family:var(--mono); font-size:.63rem; font-weight:700; text-transform:uppercase;
+  letter-spacing:.1em; text-decoration:none; color:#fff;
+  padding:.32rem .58rem; border-radius:999px;
+  transition:transform .18s ease, filter .18s ease;
+}
+.pill:hover{ transform:translateY(-2px); filter:brightness(1.12); }
+.pill.p0{ background:var(--ink); } .pill.p1{ background:var(--s1-ink); }
+.pill.p2{ background:var(--s2-ink); } .pill.p3{ background:var(--s3-ink); }
+
+/* ======================== hero ======================== */
+.hero{ padding:var(--sp-5) 0 var(--sp-4); }
+.hero .eyebrow{ color:var(--ink-soft); display:block; margin-bottom:var(--sp-2); }
+.hero h1{ margin-bottom:var(--sp-3); }
+.hero .deck{ font-size:clamp(1.05rem,2.2vw,1.28rem); max-width:56ch; color:var(--ink-soft); }
+.hero .deck strong{ color:var(--ink); font-weight:600; }
+
+/* ==================== the sorter ==================== */
+.sorter{ padding:var(--sp-4) 0 var(--sp-5); scroll-margin-top:4.4rem; }
+.thesis{
+  background:var(--ink); color:var(--paper);
+  padding:var(--sp-3); margin-bottom:var(--sp-4); border-left:7px solid var(--marker);
+}
+.thesis .tag{ color:#8FA0C4; display:block; margin-bottom:.5rem; }
+.thesis .big{
+  font-family:var(--display); font-weight:800; letter-spacing:-.02em;
+  font-size:clamp(1.25rem,3.2vw,1.9rem); line-height:1.1; margin:0 0 .6rem;
+}
+.thesis .big em{ font-style:normal; color:var(--marker); }
+.thesis p{ color:#C6CDDE; font-size:.95rem; max-width:64ch; }
+
+.splitfig{ display:none; }
+.splitfig svg{ width:100%; height:auto; display:block; }
+
+.lanes3{ display:grid; grid-template-columns:1fr; gap:var(--sp-2); }
+.sig{ background:var(--paper-hi); border:1px solid var(--rule); border-top:6px solid; padding:var(--sp-3); }
+.sig .dest{
+  display:inline-block; color:#fff; font-family:var(--mono); font-size:.65rem; font-weight:700;
+  text-transform:uppercase; letter-spacing:.12em; padding:.28rem .55rem; border-radius:3px; margin-bottom:.7rem;
+}
+.sig h3{ margin-bottom:.6rem; }
+.sig ul{ margin:0; padding-left:1.05rem; }
+.sig li{ font-size:.93rem; color:var(--ink-soft); margin-bottom:.45rem; }
+.sig li:last-child{ margin-bottom:0; }
+.sig li strong{ color:var(--ink); font-weight:600; }
+.sig.g1{ border-top-color:var(--s1); } .sig.g1 .dest{ background:var(--s1-ink); } .sig.g1 h3{ color:var(--s1-ink); }
+.sig.g2{ border-top-color:var(--s2); } .sig.g2 .dest{ background:var(--s2-ink); } .sig.g2 h3{ color:var(--s2-ink); }
+.sig.g3{ border-top-color:var(--s3); } .sig.g3 .dest{ background:var(--s3-ink); } .sig.g3 h3{ color:var(--s3-ink); }
+
+/* ==================== the lanes ==================== */
+.lane{ padding:var(--sp-5) 0 var(--sp-2); border-top:1px solid var(--rule); scroll-margin-top:4.4rem; }
+.lhead{ display:flex; align-items:baseline; gap:var(--sp-2); flex-wrap:wrap; margin-bottom:.6rem; }
+.lno{ font-family:var(--display); font-weight:800; font-size:2.4rem; line-height:1; }
+.lives{
+  font-family:var(--mono); font-size:.64rem; font-weight:700; text-transform:uppercase;
+  letter-spacing:.12em; color:#fff; padding:.3rem .55rem; border-radius:3px;
+}
+.lwhat{ font-size:1.06rem; color:var(--ink-soft); max-width:62ch; margin-bottom:var(--sp-3); }
+.lwhat strong{ color:var(--ink); font-weight:600; }
+
+#l1 .lno,#l1 h2{ color:var(--s1-ink); } #l1 .lives{ background:var(--s1-ink); }
+#l2 .lno,#l2 h2{ color:var(--s2-ink); } #l2 .lives{ background:var(--s2-ink); }
+#l3 .lno,#l3 h2{ color:var(--s3-ink); } #l3 .lives{ background:var(--s3-ink); }
+
+.pair{ display:grid; grid-template-columns:1fr; gap:var(--sp-2); margin-bottom:var(--sp-2); }
+.pan{ background:var(--paper-hi); border:1px solid var(--rule); border-left:6px solid var(--rule); padding:var(--sp-3); }
+.pan .pt{
+  display:inline-block; color:#fff; font-family:var(--mono); font-size:.63rem; font-weight:700;
+  text-transform:uppercase; letter-spacing:.1em; padding:.24rem .5rem; border-radius:3px; margin-bottom:.7rem;
+}
+.pan ul{ margin:0; padding-left:1.05rem; }
+.pan li{ font-size:.93rem; color:var(--ink-soft); margin-bottom:.6rem; }
+.pan li:last-child{ margin-bottom:0; }
+.pan li strong{ color:var(--ink); font-weight:600; }
+.pan .say{ font-style:italic; color:var(--ink); }
+
+#l1 .pan{ border-left-color:var(--s1); } #l1 .pt{ background:var(--s1-ink); }
+#l2 .pan{ border-left-color:var(--s2); } #l2 .pt{ background:var(--s2-ink); }
+#l3 .pan{ border-left-color:var(--s3); } #l3 .pt{ background:var(--s3-ink); }
+
+/* feature chips: what the app adds */
+.adds{ border:1px solid var(--rule); background:var(--paper-hi); padding:var(--sp-3); }
+.adds > .at{ font-family:var(--mono); font-size:.63rem; font-weight:700; text-transform:uppercase; letter-spacing:.12em; color:var(--ink-soft); display:block; margin-bottom:.9rem; }
+.feats{ display:grid; grid-template-columns:1fr; gap:.85rem; }
+.feat{ border-left:3px solid var(--rule); padding-left:.8rem; }
+.feat b{ display:block; font-size:.95rem; }
+.feat span{ font-size:.9rem; color:var(--ink-soft); }
+.plat{
+  font-family:var(--mono); font-size:.58rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em;
+  background:var(--marker); color:var(--ink); padding:.12rem .35rem; margin-left:.35rem; white-space:nowrap;
+}
+#l1 .feat{ border-left-color:var(--s1); }
+#l2 .feat{ border-left-color:var(--s2); }
+#l3 .feat{ border-left-color:var(--s3); }
+
+/* the control band inside lane 02 */
+.control{ background:var(--ink); color:#C6CDDE; padding:var(--sp-3); margin-bottom:var(--sp-2); border-left:7px solid var(--marker); }
+.control h3{ color:var(--paper); font-family:var(--display); font-weight:800; text-transform:uppercase; font-size:1.15rem; margin-bottom:.7rem; }
+.control ol{ margin:0; padding-left:1.15rem; }
+.control li{ font-size:.94rem; margin-bottom:.5rem; }
+.control li:last-child{ margin-bottom:0; }
+.control li strong{ color:var(--paper); font-weight:600; }
+
+.keep{ background:var(--ink); color:#C6CDDE; padding:.85rem var(--sp-2); font-size:.95rem; font-style:italic; margin-top:var(--sp-2); }
+.keep b{ font-style:normal; color:var(--marker); font-weight:600; }
+
+.note{ font-size:.88rem; color:var(--ink-soft); border-left:3px solid var(--rule); padding-left:.8rem; margin-top:var(--sp-2); }
+.note b{ color:var(--ink); font-weight:600; }
+
+/* the dev-only flag on lane 03 */
+.devflag{
+  font-family:var(--mono); font-size:.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.1em;
+  background:var(--s3-ink); color:#fff; padding:.25rem .5rem;
+}
+.skipbox{ border:2px dashed var(--rule); padding:var(--sp-2) var(--sp-3); margin-bottom:var(--sp-3); font-size:.95rem; color:var(--ink-soft); }
+.skipbox b{ color:var(--ink); font-weight:600; }
+
+/* ============ the line between Chat and Cowork ============ */
+.divider{ padding:var(--sp-5) 0 var(--sp-2); border-top:1px solid var(--rule); scroll-margin-top:4.4rem; }
+.vs{ display:grid; grid-template-columns:1fr; gap:var(--sp-2); }
+.vsc{ background:var(--paper-hi); border:1px solid var(--rule); padding:var(--sp-3); border-top:6px solid; }
+.vsc .vt{ font-family:var(--mono); font-size:.63rem; font-weight:700; text-transform:uppercase; letter-spacing:.12em; display:block; margin-bottom:.5rem; }
+.vsc h3{ margin-bottom:.6rem; }
+.vsc p{ font-size:.93rem; color:var(--ink-soft); }
+.vsc.v1{ border-top-color:var(--s1); } .vsc.v1 .vt,.vsc.v1 h3{ color:var(--s1-ink); }
+.vsc.v2{ border-top-color:var(--s2); } .vsc.v2 .vt,.vsc.v2 h3{ color:var(--s2-ink); }
+
+/* ==================== the router ==================== */
+.router{ padding:var(--sp-5) 0 var(--sp-2); border-top:1px solid var(--rule); scroll-margin-top:4.4rem; }
+.rrow{
+  display:grid; grid-template-columns:1fr; gap:.6rem;
+  border:1px solid var(--rule); background:var(--paper-hi);
+  border-left:7px solid; padding:var(--sp-3); margin-bottom:var(--sp-2);
+}
+.rrow .rlab{ font-family:var(--mono); font-size:.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.12em; color:var(--ink-soft); display:block; margin-bottom:.15rem; }
+.rrow .rdo{ font-size:1rem; }
+.rrow .rshape{ font-family:var(--display); font-weight:800; font-size:1.05rem; text-transform:uppercase; letter-spacing:-.01em; }
+.rrow .rwhere{ font-size:.92rem; color:var(--ink-soft); }
+.rrow.q1{ border-left-color:var(--s1); } .rrow.q1 .rshape{ color:var(--s1-ink); }
+.rrow.q2{ border-left-color:var(--s2); } .rrow.q2 .rshape{ color:var(--s2-ink); }
+.rrow.q3{ border-left-color:var(--s3); } .rrow.q3 .rshape{ color:var(--s3-ink); }
+
+footer{ border-top:1px solid var(--rule); padding:var(--sp-3) 0 var(--sp-5); margin-top:var(--sp-5); }
+footer p{ font-family:var(--mono); font-size:.66rem; text-transform:uppercase; letter-spacing:.1em; color:var(--ink-soft); }
+footer a{ color:var(--s1-ink); }
+
+/* ===================== breakpoints ===================== */
+@media (min-width:700px){
+  .pair{ grid-template-columns:1fr 1fr; }
+  .feats{ grid-template-columns:1fr 1fr; }
+  .vs{ grid-template-columns:1fr 1fr; }
+  .rrow{ grid-template-columns:2.2fr 1.1fr 1.4fr; gap:1.4rem; align-items:start; }
+}
+@media (min-width:920px){
+  .lanes3{ grid-template-columns:repeat(3,1fr); }
+  .splitfig{ display:block; margin-bottom:-2px; }
+}
+
+@media (prefers-reduced-motion:reduce){
+  html{ scroll-behavior:auto; }
+  *{ transition:none !important; animation:none !important; }
+}
+@media print{
+  .routebar,.splitfig{ display:none; }
+  body::after{ display:none; }
+  .sig,.pan,.rrow,.adds,.control{ break-inside:avoid; }
+}
+</style>
+</head>
+<body>
+
+<div class="routebar">
+  <div class="wrap">
+    <span class="brand">Working on your desktop<small>Lesson 04</small></span>
+    <nav aria-label="Sections">
+      <a class="pill" style="background:#16203C" href="index.html">Home</a>
+      <a class="pill" style="background:#0A6047" href="prompt-library.html">50 prompts</a>
+      <a class="pill" style="background:#573079" href="power-prompts.html">40 power</a>
+      <a class="pill p0" href="#sorter">The sorter</a>
+      <a class="pill p1" href="#l1">01 Turn by turn</a>
+      <a class="pill p2" href="#l2">02 Handing off</a>
+      <a class="pill p3" href="#l3">03 Building</a>
+      <a class="pill p0" href="#router">The router</a>
+    </nav>
+  </div>
+</div>
+
+<header class="hero">
+  <div class="wrap">
+    <span class="tag eyebrow">Lesson 04 · The desktop app · read in ~7 minutes</span>
+    <h1>Three shapes<br>of work</h1>
+    <p class="deck">The desktop app is your home base — from a quick question mid-meeting to a report Claude assembles from six sources while you do something else. <strong>The work sorts into three shapes, and knowing which one you're in is the whole skill of this lesson.</strong></p>
+  </div>
+</header>
+
+<main>
+
+<!-- ==================== THE SORTER ==================== -->
+<section class="sorter" id="sorter">
+  <div class="wrap">
+
+    <div class="thesis">
+      <span class="tag">Start here</span>
+      <p class="big">You won't pick a tab first.<br>You'll notice <em>what kind of work</em> is in front of you — and the tab follows.</p>
+      <p>So read the signals below, not the product names. The first two shapes are where most knowledge workers spend the day; the third is the developer's workspace.</p>
+    </div>
+
+    <figure class="splitfig">
+      <svg viewBox="0 0 900 78" role="img" aria-label="One question splits three ways: turn by turn, handing off, and building software.">
+        <rect x="330" y="2" width="240" height="34" rx="4" fill="#16203C"/>
+        <text x="450" y="24" text-anchor="middle" fill="#E9E6DB" font-family="Bricolage Grotesque, sans-serif" font-size="14" font-weight="800">WHAT'S IN FRONT OF YOU?</text>
+        <g fill="none" stroke-width="3.5" stroke-linecap="round">
+          <path d="M450 38 V50 H150 V74" stroke="#1358A8"/>
+          <path d="M450 38 V74"          stroke="#C9761A"/>
+          <path d="M450 38 V50 H750 V74" stroke="#7B4BB0"/>
+        </g>
+        <g stroke-width="3.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M144 68 l6 7 6-7" stroke="#1358A8"/>
+          <path d="M444 68 l6 7 6-7" stroke="#C9761A"/>
+          <path d="M744 68 l6 7 6-7" stroke="#7B4BB0"/>
+        </g>
+      </svg>
+    </figure>
+
+    <div class="lanes3">
+      <div class="sig g1">
+        <span class="dest">Lives in Chat</span>
+        <h3>You notice…</h3>
+        <ul>
+          <li><strong>The answer changes what you ask next.</strong> You couldn't have written the whole request up front, because you didn't know yet.</li>
+          <li><strong>You want to stay in it.</strong> The point is your judgment on every turn, not a finished thing at the end.</li>
+          <li><strong>It's quick.</strong> A question, a rewrite, a "what does this mean?" — small enough that setting up a task would be overhead.</li>
+        </ul>
+      </div>
+
+      <div class="sig g2">
+        <span class="dest">Lives in Cowork</span>
+        <h3>You notice…</h3>
+        <ul>
+          <li><strong>Several steps you'd do in sequence.</strong> Pull the figures, compare, draft, format.</li>
+          <li><strong>The output is a real deliverable.</strong> A doc, a sheet, a deck — saved where you need it.</li>
+          <li><strong>The work spans your tools.</strong> Notes here, a Slack thread there, numbers in a spreadsheet.</li>
+          <li><strong>It should run on a schedule</strong>, or while you're doing something else.</li>
+        </ul>
+      </div>
+
+      <div class="sig g3">
+        <span class="dest">Lives in the Code tab</span>
+        <h3>You notice…</h3>
+        <ul>
+          <li><strong>The work is inside a codebase.</strong> Reading it, writing it, running it.</li>
+          <li><strong>You need the developer's instruments</strong> — diffs, a terminal, version history you can roll back.</li>
+          <li>Not a developer? This one is a separate tab and this course doesn't need it.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== LANE 01 ==================== -->
+<section class="lane" id="l1">
+  <div class="wrap">
+    <div class="lhead">
+      <span class="lno">01</span>
+      <h2>Working turn by turn</h2>
+      <span class="lives">Chat</span>
+    </div>
+    <p class="lwhat">Claude as a thinking partner: <strong>the value is in the exchange itself.</strong> You bring a half-formed idea, an unfamiliar dashboard, a paragraph that isn't landing — and you work it out together, one turn at a time.</p>
+
+    <div class="pair">
+      <div class="pan">
+        <span class="pt">Reach for it when</span>
+        <ul>
+          <li><strong>The answer changes what you ask next.</strong> You're brainstorming, and each response opens the next question.</li>
+          <li><strong>You want to stay in it.</strong> Drafting, editing, thinking out loud — your judgment on every turn.</li>
+          <li><strong>It's quick.</strong> A question, a rewrite, a "what does this mean?"</li>
+        </ul>
+      </div>
+      <div class="pan">
+        <span class="pt">Try it out when</span>
+        <ul>
+          <li><strong>An unfamiliar dashboard.</strong> Screenshot it, ask <span class="say">"what do these metrics mean?"</span> Claude explains while it stays in view, and <span class="say">"which of these should I actually worry about?"</span> is the next turn.</li>
+          <li><strong>Between meetings, structuring a talk.</strong> Say it out loud, Claude drafts an outline, you push back on section three, it revises. Four turns, done before your next call.</li>
+          <li><strong>Ideas scattered across weeks of notes.</strong> Ask Claude to pull the launch together, find what you left half-finished, check your other connected tools for gaps — then work the gaps together.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="adds">
+      <span class="at">What running on your own machine adds</span>
+      <div class="feats">
+        <div class="feat"><b>Quick entry <span class="plat">Mac</span></b><span>Double-tap the Option key to pull Claude up over whatever you're working on. It answers in a compact window that stays on top as you switch apps.</span></div>
+        <div class="feat"><b>Screenshots &amp; window sharing <span class="plat">Mac</span></b><span>Capture a screenshot or share a window so Claude sees what you see.</span></div>
+        <div class="feat"><b>Dictation <span class="plat">Mac</span></b><span>Talk through a problem instead of typing it.</span></div>
+        <div class="feat"><b>Desktop connectors</b><span>Connect local tools and services so Claude can work with what's already on your machine.</span></div>
+      </div>
+    </div>
+
+    <p class="keep"><b>The tell:</b> if you can't write the whole request up front, you're in this shape. Not knowing yet is the reason to stay here.</p>
+  </div>
+</section>
+
+<!-- ==================== LANE 02 ==================== -->
+<section class="lane" id="l2">
+  <div class="wrap">
+    <div class="lhead">
+      <span class="lno">02</span>
+      <h2>Handing work off</h2>
+      <span class="lives">Cowork</span>
+    </div>
+    <p class="lwhat">Instead of asking a question, you hand over the whole piece of work — gather the context, do the analysis, produce the finished thing — and it comes back done. <strong>You're delegating, not chatting.</strong> For most people this is a genuinely new way of working, which is why it feels unfamiliar before it feels obvious.</p>
+
+    <div class="pair">
+      <div class="pan">
+        <span class="pt">Reach for it when</span>
+        <ul>
+          <li><strong>Several steps you'd normally do in sequence.</strong> Handed off, that's one instruction — not four errands.</li>
+          <li><strong>The output is a real deliverable.</strong> A doc, spreadsheet, deck or formatted PDF, saved where you need it rather than pasted into a chat for you to reassemble.</li>
+          <li><strong>The work spans your tools.</strong> Set a Friday roll-up as a scheduled task and Claude gathers all the sources itself, every run — nothing for you to round up first.</li>
+          <li><strong>It should happen on a schedule</strong>, or while you're doing something else.</li>
+        </ul>
+      </div>
+      <div class="pan">
+        <span class="pt">Try it out when</span>
+        <ul>
+          <li><strong>You want to query your tools like a database.</strong> <span class="say">"Review what we decided about pricing last quarter across meeting notes, Slack and email, then update the Q3 deck with the findings."</span> Hand it off, keep working, check the result.</li>
+          <li><strong>A folder of 50+ documents</strong> — contracts, financial reports, transcripts. Ask for the ones relevant to your initiative plus a summary memo. It reads every page and finds the patterns that only show up across all of them. <span class="marked">Review fifty like you'd review five.</span></li>
+          <li><strong>The same Monday-morning routine.</strong> Set it up once as a scheduled task and start the week with answers instead of admin.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="control">
+      <h3>Handing off ≠ stepping back</h3>
+      <ol>
+        <li>Before it starts, Claude may <strong>ask a few questions</strong> to pin down scope and format.</li>
+        <li>It <strong>shows you the plan</strong> before doing the work.</li>
+        <li>As it runs you can <strong>watch it take shape</strong> — the sources it's drawing from, the files forming, its progress through the plan — and steer at any point.</li>
+        <li>Set to ask before acting, it <strong>stops for your approval</strong> on the things that matter, like sending an email or sharing a file. You stay in control of what leaves your desk.</li>
+      </ol>
+    </div>
+
+    <div class="adds">
+      <span class="at">What Cowork gives you today</span>
+      <div class="feats">
+        <div class="feat"><b>Local folder access</b><span>Point Claude at a folder; it reads what's there and saves finished work back to the same place.</span></div>
+        <div class="feat"><b>Scheduled tasks</b><span>Set a task once and it runs on your cadence. If your computer or the app was closed at the time, it catches up when you're back.</span></div>
+        <div class="feat"><b>Subagents</b><span>For a big job, Claude splits the work across background workers running in parallel, each with its own context, and hands you one finished deliverable.</span></div>
+        <div class="feat"><b>Projects</b><span>Group related tasks into a workspace with its own files, instructions and memory — like projects in Chat, but built around the tasks you run.</span></div>
+        <div class="feat"><b>Browser use</b><span>With Claude in Chrome, it navigates sites and pulls what it finds straight into the task — competitor pricing across ten sites, data from pages with no API.</span></div>
+        <div class="feat"><b>Computer use <span class="plat">Pro &amp; Max · research preview</span></b><span>When no connector exists, Claude can operate your computer directly — clicking, typing, opening apps — asking permission before each app it touches, with a blocklist for anything off-limits.</span></div>
+        <div class="feat"><b>Plugins</b><span>Ready-made bundles of skills, connectors and agents built for a kind of work — sales, finance, legal — so Claude works the way that role works. Add them under Customize → Plugins.</span></div>
+      </div>
+      <p class="note"><b>Availability:</b> Cowork is for Pro, Max, Team and Enterprise users, with new capabilities added regularly.</p>
+    </div>
+
+    <p class="keep"><b>The tell:</b> if what you want at the end is a <em>thing</em> rather than a conversation, you're in this shape.</p>
+  </div>
+</section>
+
+<!-- ==================== LANE 03 ==================== -->
+<section class="lane" id="l3">
+  <div class="wrap">
+    <div class="lhead">
+      <span class="lno">03</span>
+      <h2>Building software</h2>
+      <span class="lives">Code tab</span>
+      <span class="devflag">Developer's workspace</span>
+    </div>
+
+    <p class="skipbox"><b>Not a developer?</b> The takeaway is genuinely just this: it's a separate tab, and this course doesn't need it. Skip to <a href="#router">the router</a>. Knowing it exists is enough.</p>
+
+    <p class="lwhat">A full development environment. Claude works directly in your codebase — reading what's there, writing and modifying code, running commands. <strong>Visual diffs show what changed, a built-in terminal shows commands as they run, and git tracks every version</strong> so you can always roll back.</p>
+
+    <div class="pair">
+      <div class="pan">
+        <span class="pt">Where the work happens</span>
+        <ul>
+          <li><strong>Local.</strong> Select a folder and Claude works directly with those files — reading your project, using local tools, running a dev server you can preview in your browser.</li>
+          <li><strong>Cloud.</strong> Connect a GitHub repo and Claude works in a cloud environment. Sessions continue even if you close the app, so you can start a big refactor and check back later. Good for larger codebases, or keeping work off your machine.</li>
+        </ul>
+      </div>
+      <div class="pan">
+        <span class="pt">How much Claude does alone</span>
+        <ul>
+          <li><strong>Manually approve.</strong> Claude proposes every change and waits for you.</li>
+          <li><strong>Accept edits.</strong> Claude applies file edits automatically.</li>
+          <li><strong>Plan.</strong> Claude writes a plan before making any changes.</li>
+        </ul>
+      </div>
+    </div>
+
+    <p class="note"><b>In the product today:</b> the Code tab of the desktop app, on Pro, Max, Team and Enterprise plans. You can run multiple sessions across projects and filter them by environment (Local or Cloud) and status from the sidebar.</p>
+  </div>
+</section>
+
+<!-- ============ THE LINE BETWEEN 01 AND 02 ============ -->
+<section class="divider" id="line">
+  <div class="wrap">
+    <h2>The line people actually blur</h2>
+    <p class="lwhat">Shapes 01 and 02 are the two you'll switch between all day, and the boundary is easy to miss. One concrete difference settles it.</p>
+    <div class="vs">
+      <div class="vsc v1">
+        <span class="vt">Turn by turn · Chat</span>
+        <h3>Reads what you upload</h3>
+        <p>You give it a file, it works with the file — and it hands finished work back as a <strong>download</strong> for you to file yourself.</p>
+      </div>
+      <div class="vsc v2">
+        <span class="vt">Handing off · Cowork</span>
+        <h3>Works inside your folder</h3>
+        <p>You point it at a folder, it reads what's there, and it <strong>saves the finished work back into that same place</strong>. Nothing to move afterwards.</p>
+      </div>
+    </div>
+    <p class="keep"><b>One question decides it:</b> do you want to be in the exchange, or do you want the thing? Stay in Chat when the back-and-forth <em>is</em> the work. Move to Cowork when what you want is a finished artefact sitting where it belongs.</p>
+  </div>
+</section>
+
+<!-- ==================== THE ROUTER ==================== -->
+<section class="router" id="router">
+  <div class="wrap">
+    <h2>The whole lesson, routed</h2>
+    <p class="lwhat">Read the left column. It tells you the other two.</p>
+
+    <div class="rrow q1">
+      <div><span class="rlab">You're about to…</span><span class="rdo">Ask, brainstorm, draft, or think something through, turn by turn</span></div>
+      <div><span class="rlab">The shape</span><span class="rshape">Turn by turn</span></div>
+      <div><span class="rlab">Where it lives</span><span class="rwhere">Chat — quick entry, dictation, screenshots</span></div>
+    </div>
+
+    <div class="rrow q2">
+      <div><span class="rlab">You're about to…</span><span class="rdo">Hand off a multi-step task that ends in a finished deliverable, spans your tools, or runs on a schedule</span></div>
+      <div><span class="rlab">The shape</span><span class="rshape">Handing off</span></div>
+      <div><span class="rlab">Where it lives</span><span class="rwhere">Cowork — folder access, connectors, scheduled tasks, subagents</span></div>
+    </div>
+
+    <div class="rrow q3">
+      <div><span class="rlab">You're about to…</span><span class="rdo">Write, test, run and ship code in a codebase</span></div>
+      <div><span class="rlab">The shape</span><span class="rshape">Building software</span></div>
+      <div><span class="rlab">Where it lives</span><span class="rwhere">The Code tab — Local or Cloud</span></div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>Lesson 04 · How you'll work on your desktop · Work-shape sorter ·
+      <a href="lesson-03-better-results.html">← Lesson 03</a> ·
+      <a href="lesson-05-projects.html">Lesson 05 →</a></p>
+  </div>
+</footer>
+
+
+
+<style>
+.pathnav{position:sticky;bottom:0;z-index:60;background:#16203C;border-top:2px solid #FFD84A;}
+.pathnav .inner{max-width:1160px;margin:0 auto;padding:.55rem 1.5rem;display:flex;align-items:center;gap:.8rem;flex-wrap:wrap;}
+.pathnav a{font-family:"Space Mono",monospace;font-size:.6rem;font-weight:700;text-transform:uppercase;
+letter-spacing:.1em;text-decoration:none;color:#E9E6DB;border:1.5px solid #4A5470;padding:.32rem .55rem;transition:all .15s ease;}
+.pathnav a:hover{border-color:#FFD84A;color:#FFD84A;}
+.pathnav a.next{border-color:#FFD84A;color:#FFD84A;margin-left:auto;}
+.pathnav .step{font-family:"Space Mono",monospace;font-size:.58rem;font-weight:700;letter-spacing:.12em;color:#8FA0C4;text-transform:uppercase;}
+@media print{.pathnav{display:none;}}
+</style>
+<div class="pathnav"><div class="inner"><a href="prompt-library.html">← Practice · 50 pairs</a>
+<a href="learning-path.html">↑ Learning path</a>
+<span class="step">Step 7 of 16</span>
+<a class="next" href="lesson-05-projects.html">05 Projects →</a></div></div>
+</body>
+</html>

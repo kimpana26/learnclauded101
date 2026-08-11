@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Getting better results — the lesson as a fault chart</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Public+Sans:ital,wght@0,400;0,600;1,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   LESSON 03 — GETTING BETTER RESULTS
+   This lesson is diagnostic, so it's drawn as a workshop fault
+   chart: symptom, cause, fix. Then a quadrant for the four
+   competencies, and a loop for evals — because evals are a loop.
+   Same paper and inks as Lessons 01–02. Single file. No JS.
+   ============================================================ */
+
+:root{
+  --paper:    #E9E6DB;
+  --paper-hi: #F4F2EA;
+  --ink:      #16203C;
+  --ink-soft: #4A5470;
+  --rule:     #C9C4B4;
+
+  --b1:#DE4438; --b1-ink:#A22119;   /* faults      */
+  --b2:#1358A8; --b2-ink:#0D4079;   /* description */
+  --b3:#0E8A63; --b3-ink:#0A6047;   /* discernment / evals */
+  --b4:#7B4BB0; --b4-ink:#573079;   /* iteration / diligence */
+  --b5:#C9761A; --b5-ink:#8A4A06;   /* delegation  */
+
+  --marker:#FFD84A;
+
+  --sp-1:.5rem; --sp-2:1rem; --sp-3:1.5rem; --sp-4:2.25rem; --sp-5:3.5rem; --sp-6:5rem;
+
+  --display:"Bricolage Grotesque","Trebuchet MS",system-ui,sans-serif;
+  --body:"Public Sans",-apple-system,"Segoe UI",Roboto,sans-serif;
+  --mono:"Space Mono",ui-monospace,"Courier New",monospace;
+}
+
+*,*::before,*::after{ box-sizing:border-box; }
+html{ scroll-behavior:smooth; }
+
+body{
+  margin:0; background:var(--paper); color:var(--ink);
+  font-family:var(--body); font-size:1rem; line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+}
+body::after{
+  content:""; position:fixed; inset:0; pointer-events:none; z-index:99;
+  background-image:radial-gradient(var(--ink) .5px, transparent .5px);
+  background-size:4px 4px; opacity:.055;
+}
+
+.wrap{ max-width:1140px; margin:0 auto; padding:0 var(--sp-3); }
+
+h1,h2,h3{ font-family:var(--display); font-weight:800; line-height:1.04; margin:0; letter-spacing:-.02em; }
+h1{ font-size:clamp(2.5rem,8.5vw,5.4rem); text-transform:uppercase; }
+h2{ font-size:clamp(1.5rem,4vw,2.4rem); }
+h3{ font-size:1.06rem; font-weight:600; letter-spacing:0; }
+p{ margin:0 0 var(--sp-2); } p:last-child{ margin-bottom:0; }
+
+.tag{ font-family:var(--mono); font-size:.68rem; font-weight:700; text-transform:uppercase; letter-spacing:.16em; }
+.marked{ background:linear-gradient(transparent 58%, var(--marker) 58%, var(--marker) 94%, transparent 94%); padding:0 .12em; }
+
+a{ color:inherit; }
+a:focus-visible{ outline:3px solid var(--b2); outline-offset:3px; border-radius:2px; }
+
+/* ===================== sticky bar ===================== */
+.routebar{ position:sticky; top:0; z-index:50; background:var(--paper); border-bottom:2px solid var(--ink); }
+.routebar .wrap{ display:flex; align-items:center; gap:var(--sp-2); flex-wrap:wrap; padding-top:.6rem; padding-bottom:.6rem; }
+.routebar .brand{ font-family:var(--display); font-weight:800; text-transform:uppercase; margin-right:auto; letter-spacing:-.01em; }
+.routebar .brand small{ font-family:var(--mono); font-weight:700; font-size:.6rem; letter-spacing:.16em; color:var(--ink-soft); display:block; text-transform:uppercase; }
+.routebar nav{ display:flex; gap:.35rem; flex-wrap:wrap; }
+.pill{
+  font-family:var(--mono); font-size:.63rem; font-weight:700; text-transform:uppercase;
+  letter-spacing:.1em; text-decoration:none; color:#fff;
+  padding:.32rem .58rem; border-radius:999px;
+  transition:transform .18s ease, filter .18s ease;
+}
+.pill:hover{ transform:translateY(-2px); filter:brightness(1.12); }
+.pill.p1{ background:var(--b1-ink); } .pill.p2{ background:var(--b4-ink); }
+.pill.p3{ background:var(--b5-ink); } .pill.p4{ background:var(--b3-ink); }
+
+/* ======================== hero ======================== */
+.hero{ padding:var(--sp-5) 0 var(--sp-4); }
+.hero .eyebrow{ color:var(--ink-soft); display:block; margin-bottom:var(--sp-2); }
+.hero h1{ margin-bottom:var(--sp-3); }
+.hero .deck{ font-size:clamp(1.05rem,2.2vw,1.28rem); max-width:54ch; color:var(--ink-soft); }
+.hero .deck strong{ color:var(--ink); font-weight:600; }
+
+/* ====================== sections ====================== */
+.sect{ padding:var(--sp-5) 0 var(--sp-2); scroll-margin-top:4.4rem; }
+.sect + .sect{ border-top:1px solid var(--rule); }
+.shead{ display:flex; align-items:baseline; gap:var(--sp-2); flex-wrap:wrap; margin-bottom:.5rem; }
+.snum{ font-family:var(--mono); font-weight:700; font-size:.72rem; text-transform:uppercase; letter-spacing:.14em; color:#fff; padding:.28rem .55rem; border-radius:3px; }
+.slede{ color:var(--ink-soft); max-width:60ch; margin-bottom:var(--sp-4); font-size:1.02rem; }
+
+#faults  .snum{ background:var(--b1-ink); } #faults  h2{ color:var(--b1-ink); }
+#mindset .snum{ background:var(--b4-ink); } #mindset h2{ color:var(--b4-ink); }
+#fluency .snum{ background:var(--b5-ink); } #fluency h2{ color:var(--b5-ink); }
+#evals   .snum{ background:var(--b3-ink); } #evals   h2{ color:var(--b3-ink); }
+
+/* =================== 1 · the fault chart =================== */
+.fault{
+  background:var(--paper-hi); border:1px solid var(--rule);
+  border-left:7px solid var(--b1);
+  margin-bottom:var(--sp-2);
+}
+.fault .fhead{
+  display:flex; align-items:center; gap:.8rem;
+  padding:.75rem var(--sp-3); border-bottom:1px solid var(--rule);
+}
+.fault .fno{
+  font-family:var(--display); font-weight:800; font-size:1.5rem;
+  color:var(--b1-ink); line-height:1;
+}
+.fault .fhead h3{ margin:0; }
+.frow{ display:grid; grid-template-columns:1fr; gap:.2rem; padding:.85rem var(--sp-3); border-bottom:1px dashed var(--rule); }
+.frow:last-child{ border-bottom:none; }
+.flabel{ font-family:var(--mono); font-size:.62rem; font-weight:700; text-transform:uppercase; letter-spacing:.12em; color:var(--ink-soft); }
+.frow p{ margin:0; font-size:.96rem; }
+.frow ul{ margin:0; padding-left:1.05rem; }
+.frow li{ font-size:.96rem; margin-bottom:.35rem; }
+.frow li:last-child{ margin-bottom:0; }
+.say{ font-style:italic; }
+
+/* before / after */
+.ba{ display:grid; grid-template-columns:1fr; gap:.7rem; padding:0 var(--sp-3) var(--sp-3); }
+.ba > div{ border:1px solid var(--rule); background:var(--paper); padding:var(--sp-2); }
+.ba .balabel{ font-family:var(--mono); font-size:.62rem; font-weight:700; text-transform:uppercase; letter-spacing:.12em; display:block; margin-bottom:.4rem; }
+.ba .before{ border-left:4px solid var(--ink-soft); }
+.ba .before .balabel{ color:var(--ink-soft); }
+.ba .after{ border-left:4px solid var(--b3); }
+.ba .after .balabel{ color:var(--b3-ink); }
+.ba q{ quotes:none; font-size:.95rem; font-style:italic; }
+.bnote{ padding:0 var(--sp-3) var(--sp-3); font-size:.88rem; color:var(--ink-soft); }
+.bnote b{ color:var(--ink); font-weight:600; }
+
+/* the one you must not skim */
+.fault.critical{ background:var(--ink); border-color:var(--ink); border-left-color:var(--marker); color:#C6CDDE; }
+.fault.critical .fhead{ border-bottom-color:rgba(233,230,219,.25); }
+.fault.critical .fno{ color:var(--marker); }
+.fault.critical h3{ color:var(--paper); }
+.fault.critical .frow{ border-bottom-color:rgba(233,230,219,.18); }
+.fault.critical .flabel{ color:#8FA0C4; }
+.fault.critical .frow p, .fault.critical .frow li{ color:#C6CDDE; }
+.fault.critical strong{ color:var(--paper); font-weight:600; }
+.fault.critical .flag{
+  margin-left:auto; background:var(--marker); color:var(--ink);
+  font-family:var(--mono); font-size:.6rem; font-weight:700;
+  text-transform:uppercase; letter-spacing:.1em; padding:.24rem .5rem;
+}
+.fault.critical .keep{ margin:0; padding:.85rem var(--sp-3) var(--sp-3); font-style:italic; }
+.fault.critical .keep b{ font-style:normal; color:var(--marker); }
+
+/* =================== 2 · iteration mindset =================== */
+.strip{ display:grid; grid-template-columns:1fr; gap:var(--sp-2); }
+.pr{ background:var(--paper-hi); border:1px solid var(--rule); border-top:5px solid var(--b4); padding:var(--sp-3); }
+.pr .prn{ font-family:var(--mono); font-size:.68rem; font-weight:700; letter-spacing:.14em; color:var(--b4-ink); text-transform:uppercase; }
+.pr h3{ margin:.35rem 0 .5rem; }
+.pr p{ font-size:.94rem; color:var(--ink-soft); }
+.pr .say{ color:var(--ink); }
+
+/* =================== 3 · the four D's =================== */
+.quad{ position:relative; display:grid; grid-template-columns:1fr; gap:var(--sp-2); }
+.d{ background:var(--paper-hi); border:1px solid var(--rule); padding:var(--sp-3); }
+.d .dl{ font-family:var(--mono); font-size:.62rem; font-weight:700; text-transform:uppercase; letter-spacing:.14em; display:block; margin-bottom:.3rem; }
+.d h3{ font-size:1.35rem; font-family:var(--display); font-weight:800; text-transform:uppercase; letter-spacing:-.01em; margin-bottom:.5rem; }
+.d p{ font-size:.94rem; color:var(--ink-soft); }
+.d .link{
+  display:inline-block; margin-top:.7rem;
+  font-family:var(--mono); font-size:.6rem; font-weight:700;
+  text-transform:uppercase; letter-spacing:.1em;
+  background:var(--marker); color:var(--ink); padding:.25rem .5rem; text-decoration:none;
+}
+.d1{ border-top:5px solid var(--b5); } .d1 .dl,.d1 h3{ color:var(--b5-ink); }
+.d2{ border-top:5px solid var(--b2); } .d2 .dl,.d2 h3{ color:var(--b2-ink); }
+.d3{ border-top:5px solid var(--b3); } .d3 .dl,.d3 h3{ color:var(--b3-ink); }
+.d4{ border-top:5px solid var(--b4); } .d4 .dl,.d4 h3{ color:var(--b4-ink); }
+
+.medal{ display:none; }
+.attrib{ margin-top:var(--sp-3); font-size:.85rem; color:var(--ink-soft); border-left:3px solid var(--rule); padding-left:.8rem; }
+.attrib b{ color:var(--ink); font-weight:600; }
+
+/* =================== 4 · the eval loop =================== */
+.why{ background:var(--paper-hi); border:1px solid var(--rule); border-left:7px solid var(--b3); padding:var(--sp-3); margin-bottom:var(--sp-3); }
+.why .wt{ font-family:var(--mono); font-size:.63rem; font-weight:700; text-transform:uppercase; letter-spacing:.12em; color:var(--b3-ink); display:block; margin-bottom:.6rem; }
+.why ul{ margin:0; padding-left:1.05rem; }
+.why li{ font-size:.95rem; margin-bottom:.4rem; color:var(--ink-soft); }
+.why li:last-child{ margin-bottom:0; }
+
+.loopfig{ display:none; margin-bottom:var(--sp-3); }
+.loopfig svg{ width:100%; height:auto; display:block; }
+
+.steps{ display:grid; grid-template-columns:1fr; gap:var(--sp-2); }
+.step{ background:var(--paper-hi); border:1px solid var(--rule); padding:var(--sp-3); position:relative; }
+.step .sn{ font-family:var(--mono); font-size:.68rem; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--b3-ink); }
+.step h3{ margin:.35rem 0 .5rem; }
+.step p{ font-size:.94rem; color:var(--ink-soft); }
+.step.entry{ border-left:7px solid var(--ink); }
+.step.incycle{ border-left:7px solid var(--b3); }
+.step ul{ margin:.5rem 0 0; padding-left:1.05rem; }
+.step li{ font-size:.92rem; color:var(--ink-soft); margin-bottom:.3rem; }
+
+.loopback{
+  margin-top:var(--sp-2); background:var(--ink); color:#C6CDDE;
+  padding:.85rem var(--sp-2); font-size:.95rem; font-style:italic;
+}
+.loopback b{ font-style:normal; color:var(--marker); font-weight:600; }
+
+footer{ border-top:1px solid var(--rule); padding:var(--sp-3) 0 var(--sp-5); margin-top:var(--sp-5); }
+footer p{ font-family:var(--mono); font-size:.66rem; text-transform:uppercase; letter-spacing:.1em; color:var(--ink-soft); }
+footer a{ color:var(--b2-ink); }
+
+/* ===================== breakpoints ===================== */
+@media (min-width:680px){
+  .frow{ grid-template-columns:7.5rem 1fr; gap:1rem; align-items:start; }
+  .flabel{ padding-top:.15rem; }
+  .ba{ grid-template-columns:1fr 1.6fr; }
+  .strip{ grid-template-columns:repeat(3,1fr); }
+  .steps{ grid-template-columns:repeat(2,1fr); }
+}
+
+@media (min-width:900px){
+  .quad{ grid-template-columns:1fr 1fr; gap:3.6rem; }
+  .medal{
+    display:grid; place-items:center; text-align:center;
+    position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+    width:104px; height:104px; border-radius:50%;
+    background:var(--ink); color:var(--paper); pointer-events:none; z-index:3;
+    font-family:var(--display); font-weight:800; text-transform:uppercase;
+    font-size:.82rem; line-height:1.1; letter-spacing:-.01em;
+    box-shadow:0 0 0 8px var(--paper);
+  }
+  .loopfig{ display:block; }
+  .steps{ grid-template-columns:repeat(4,1fr); }
+}
+
+@media (prefers-reduced-motion:reduce){
+  html{ scroll-behavior:auto; }
+  *{ transition:none !important; animation:none !important; }
+}
+
+@media print{
+  .routebar,.loopfig{ display:none; }
+  body::after{ display:none; }
+  .fault,.step,.d,.pr{ break-inside:avoid; }
+}
+</style>
+</head>
+<body>
+
+<div class="routebar">
+  <div class="wrap">
+    <span class="brand">Getting better results<small>Lesson 03</small></span>
+    <nav aria-label="Sections">
+      <a class="pill" style="background:#16203C" href="index.html">Home</a>
+      <a class="pill" style="background:#0A6047" href="prompt-library.html">50 prompts</a>
+      <a class="pill" style="background:#573079" href="power-prompts.html">40 power</a>
+      <a class="pill p1" href="#faults">01 Fault chart</a>
+      <a class="pill p2" href="#mindset">02 Iteration</a>
+      <a class="pill p3" href="#fluency">03 The four D's</a>
+      <a class="pill p4" href="#evals">04 Evals</a>
+    </nav>
+  </div>
+</div>
+
+<header class="hero">
+  <div class="wrap">
+    <span class="tag eyebrow">Lesson 03 · Foundations · read in ~6 minutes</span>
+    <h1>Getting<br>better results</h1>
+    <p class="deck"><strong>A disappointing answer is a diagnosable fault, not a verdict on the tool.</strong> Below: the five faults you'll actually hit, the habit that prevents most of them, the four competencies underneath all of it, and a way to test whether Claude is any good at <em>your</em> work.</p>
+  </div>
+</header>
+
+<main>
+
+<!-- ==================== 1 · FAULT CHART ==================== -->
+<section class="sect" id="faults">
+  <div class="wrap">
+    <div class="shead"><span class="snum">Part 01</span><h2>The fault chart</h2></div>
+    <p class="slede">Five things that go wrong, what's causing each one, and the sentence that fixes it. Read the symptom line first — that's the part you'll recognise from your own chats.</p>
+
+    <!-- 01 -->
+    <article class="fault">
+      <div class="fhead"><span class="fno">01</span><h3>The answer is too generic</h3></div>
+      <div class="frow"><span class="flabel">Symptom</span><p>It reads like it could have been written for anyone. Nothing in it is about your situation.</p></div>
+      <div class="frow"><span class="flabel">Cause</span><p>Your prompt didn't carry enough context about your specific situation.</p></div>
+      <div class="frow"><span class="flabel">The fix</span><p>Add your audience, your role and your constraints. Name who's reading it and what they already know.</p></div>
+      <div class="ba">
+        <div class="before">
+          <span class="balabel">Instead of</span>
+          <q>Write an email about the project delay</q>
+        </div>
+        <div class="after">
+          <span class="balabel">Try</span>
+          <q>Write an email to our enterprise client explaining that the software integration will be delayed by two weeks. They've been patient so far but this is the second delay. Keep it professional but apologetic.</q>
+        </div>
+      </div>
+      <p class="bnote"><b>What actually changed:</b> the second version names the reader, the specific fact, the history, and the tone. <span class="marked">Four pieces of information you already had</span> — you just hadn't written them down.</p>
+    </article>
+
+    <!-- 02 -->
+    <article class="fault">
+      <div class="fhead"><span class="fno">02</span><h3>The response is too long, or too short</h3></div>
+      <div class="frow"><span class="flabel">Symptom</span><p>Six paragraphs when you wanted three lines. Or three lines when you needed the full analysis.</p></div>
+      <div class="frow"><span class="flabel">Cause</span><p>Claude is guessing at the right length, because nothing in the prompt told it.</p></div>
+      <div class="frow"><span class="flabel">The fix</span>
+        <ul>
+          <li><span class="say">"Give me a two-paragraph summary."</span></li>
+          <li><span class="say">"Keep this under 100 words."</span></li>
+          <li><span class="say">"I need a comprehensive analysis — length isn't a concern."</span></li>
+        </ul>
+      </div>
+    </article>
+
+    <!-- 03 -->
+    <article class="fault">
+      <div class="fhead"><span class="fno">03</span><h3>It didn't follow my format</h3></div>
+      <div class="frow"><span class="flabel">Symptom</span><p>Right content, wrong shape. Prose where you wanted a table; a wall of text where you wanted headers.</p></div>
+      <div class="frow"><span class="flabel">Cause</span><p>Claude understood <em>what</em> you want, but not <em>how</em> you want it presented.</p></div>
+      <div class="frow"><span class="flabel">The fix</span><p>Show, don't just tell. Paste an example of the format you want — or describe the structure outright: <span class="say">"Use bullet points with bold headers for each section."</span></p></div>
+    </article>
+
+    <!-- 04 — the critical one -->
+    <article class="fault critical">
+      <div class="fhead"><span class="fno">04</span><h3>Confident-sounding information that was wrong</h3><span class="flag">Don't skim this one</span></div>
+      <div class="frow"><span class="flabel">Symptom</span><p>A fact, figure or citation delivered with total assurance — that turns out to be false.</p></div>
+      <div class="frow"><span class="flabel">Cause</span><p>Claude can generate <strong>plausible but incorrect</strong> information, and it happens most on specific facts and niche topics.</p></div>
+      <div class="frow"><span class="flabel">The fix</span>
+        <ul>
+          <li>For high-stakes work, <strong>verify key facts independently.</strong></li>
+          <li>Ask Claude to <strong>cite sources</strong>, or to say how confident it is.</li>
+          <li>Turn on <strong>web search</strong> so answers are grounded in current information.</li>
+        </ul>
+      </div>
+      <p class="keep"><b>Keep this:</b> fluent prose is not evidence. The more specific and the more niche the claim, the harder you should check it.</p>
+    </article>
+
+    <!-- 05 -->
+    <article class="fault">
+      <div class="fhead"><span class="fno">05</span><h3>The tone isn't right</h3></div>
+      <div class="frow"><span class="flabel">Symptom</span><p>Technically correct, socially wrong. Too stiff for a teammate, too breezy for a board.</p></div>
+      <div class="frow"><span class="flabel">Cause</span><p>Claude defaults to helpful and professional, which won't match every situation you're in.</p></div>
+      <div class="frow"><span class="flabel">The fix</span><p>Describe the tone in plain language — <span class="say">"Make this more conversational,"</span> or <span class="say">"This should sound authoritative and formal."</span> Better still, paste a paragraph written in the voice you're after.</p></div>
+    </article>
+  </div>
+</section>
+
+<!-- ==================== 2 · ITERATION ==================== -->
+<section class="sect" id="mindset">
+  <div class="wrap">
+    <div class="shead"><span class="snum">Part 02</span><h2>The iteration mindset</h2></div>
+    <p class="slede">Your first prompt rarely produces a perfect result — and that isn't a failure state, it's how this is meant to work. The opening prompt starts a conversation; it isn't a one-shot request.</p>
+
+    <div class="strip">
+      <div class="pr">
+        <span class="prn">Habit 01</span>
+        <h3>First drafts are starting points</h3>
+        <p>Read what came back and name it: what's working, what isn't. Then refine. Judging beats rewriting from scratch.</p>
+      </div>
+      <div class="pr">
+        <span class="prn">Habit 02</span>
+        <h3>Give specific feedback</h3>
+        <p><span class="say">"Make it shorter"</span> works. <span class="say">"Cut the first two paragraphs and make the conclusion more action-oriented"</span> works far better — because it names the edit, not the mood.</p>
+      </div>
+      <div class="pr">
+        <span class="prn">Habit 03</span>
+        <h3>Know when to start fresh</h3>
+        <p>If a conversation has gone off track, a new chat with a clearer prompt is often faster than steering the old one back.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 3 · THE FOUR D'S ==================== -->
+<section class="sect" id="fluency">
+  <div class="wrap">
+    <div class="shead"><span class="snum">Part 03</span><h2>AI Fluency: the four D's</h2></div>
+    <p class="slede">AI Fluency is the ability to collaborate well with AI — not knowing which buttons to click, but having the judgement to use it well across different situations. Four competencies, and the point is that they work <em>combined</em>.</p>
+
+    <div class="quad">
+      <span class="medal" aria-hidden="true">AI<br>Fluency</span>
+
+      <div class="d d1">
+        <span class="dl">Competency 01</span>
+        <h3>Delegation</h3>
+        <p>Deciding what the human should do, what the AI should do, and how to split the work between them. It rests on knowing your own goals and knowing what AI can actually do — then choosing deliberately.</p>
+      </div>
+
+      <div class="d d2">
+        <span class="dl">Competency 02</span>
+        <h3>Description</h3>
+        <p>Communicating well with the system: saying clearly what output you want, guiding how it gets there, and specifying the behaviour you expect.</p>
+        <a class="link" href="lesson-02-first-conversation.html#b2">You practised this in Lesson 02</a>
+      </div>
+
+      <div class="d d3">
+        <span class="dl">Competency 03</span>
+        <h3>Discernment</h3>
+        <p>Evaluating what comes back — critically, not passively. Judging quality, accuracy and appropriateness, and working out where it needs to improve.</p>
+        <a class="link" href="#faults">You practised this in the fault chart</a>
+      </div>
+
+      <div class="d d4">
+        <span class="dl">Competency 04</span>
+        <h3>Diligence</h3>
+        <p>Using AI responsibly and ethically: choosing thoughtfully, staying transparent about where AI was involved, and owning the result of AI-assisted work.</p>
+        <a class="link" href="#faults">Fault 04 is this competency</a>
+      </div>
+    </div>
+
+    <p class="attrib"><b>Where this comes from:</b> the 4D Framework for AI Fluency was developed through research collaboration between Prof. Rick Dakan (Ringling College of Art and Design) and Prof. Joseph Feller (University College Cork). Anthropic publishes a free AI Fluency course covering all four competencies in depth.</p>
+  </div>
+</section>
+
+<!-- ==================== 4 · EVALS ==================== -->
+<section class="sect" id="evals">
+  <div class="wrap">
+    <div class="shead"><span class="snum">Part 04</span><h2>The eval loop</h2></div>
+    <p class="slede">"Is Claude actually good at this?" is a question you can answer rather than guess at. Evals are a systematic way to test how Claude performs on the tasks that matter to you — and you need no infrastructure at all to run one.</p>
+
+    <div class="why">
+      <span class="wt">Why bother</span>
+      <ul>
+        <li>Find where Claude adds the most value in your particular workflow.</li>
+        <li>Spot the tasks where you'll need to supply more context or examples.</li>
+        <li>Build <strong>justified</strong> confidence in the outputs you lean on repeatedly.</li>
+      </ul>
+    </div>
+
+    <figure class="loopfig">
+      <svg viewBox="0 0 730 270" role="img" aria-label="Step one, gather examples, feeds into a repeating loop of step two create test prompts, step three compare outputs, step four refine, which returns to step two.">
+        <defs>
+          <marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse" markerUnits="userSpaceOnUse">
+            <path d="M0 0 L10 5 L0 10 z" fill="#0A6047"/>
+          </marker>
+          <marker id="ahd" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse" markerUnits="userSpaceOnUse">
+            <path d="M0 0 L10 5 L0 10 z" fill="#16203C"/>
+          </marker>
+        </defs>
+
+        <!-- entry -->
+        <rect x="30" y="17" width="200" height="56" rx="5" fill="#16203C"/>
+        <text x="130" y="41" text-anchor="middle" fill="#FFD84A" font-family="Space Mono, monospace" font-size="11" font-weight="700">STEP 01 · ONCE</text>
+        <text x="130" y="60" text-anchor="middle" fill="#E9E6DB" font-family="Bricolage Grotesque, sans-serif" font-size="15" font-weight="800">GATHER EXAMPLES</text>
+        <path d="M238 45 H498" stroke="#16203C" stroke-width="3" fill="none" marker-end="url(#ahd)" stroke-dasharray="7 5"/>
+
+        <!-- cycle arrows -->
+        <g stroke="#0E8A63" stroke-width="4" fill="none">
+          <path d="M588 91 L623 152" marker-end="url(#ah)"/>
+          <path d="M597 198 L523 198" marker-end="url(#ah)"/>
+          <path d="M497 152 L532 91"  marker-end="url(#ah)"/>
+        </g>
+
+        <!-- nodes -->
+        <g fill="#F4F2EA" stroke="#0E8A63" stroke-width="4">
+          <circle cx="560" cy="45" r="46"/>
+          <circle cx="651" cy="198" r="46"/>
+          <circle cx="469" cy="198" r="46"/>
+        </g>
+        <g text-anchor="middle" font-family="Space Mono, monospace" font-size="10" font-weight="700" fill="#0A6047">
+          <text x="560" y="31">02</text><text x="651" y="184">03</text><text x="469" y="184">04</text>
+        </g>
+        <g text-anchor="middle" font-family="Bricolage Grotesque, sans-serif" font-size="14" font-weight="800" fill="#16203C">
+          <text x="560" y="49">CREATE</text><text x="560" y="65">PROMPTS</text>
+          <text x="651" y="202">COMPARE</text><text x="651" y="218">OUTPUTS</text>
+          <text x="469" y="210">REFINE</text>
+        </g>
+
+        <text x="560" y="155" text-anchor="middle" fill="#4A5470" font-family="Space Mono, monospace" font-size="11" font-weight="700" letter-spacing="1.5">REPEAT</text>
+      </svg>
+    </figure>
+
+    <div class="steps">
+      <div class="step entry">
+        <span class="sn">Step 01 · once</span>
+        <h3>Gather examples</h3>
+        <p>Collect 5–10 examples of a task you do regularly: emails you've written, reports you've built, analyses you've run.</p>
+      </div>
+      <div class="step incycle">
+        <span class="sn">Step 02 · loop</span>
+        <h3>Create test prompts</h3>
+        <p>Write prompts that would produce similar outputs — and include the context you'd naturally have when doing this work for real.</p>
+      </div>
+      <div class="step incycle">
+        <span class="sn">Step 03 · loop</span>
+        <h3>Compare outputs</h3>
+        <p>Run them, then hold Claude's answers next to your own and ask:</p>
+        <ul>
+          <li>Does it capture the key information?</li>
+          <li>Is the tone and style appropriate?</li>
+          <li>What's missing, or could be better?</li>
+        </ul>
+      </div>
+      <div class="step incycle">
+        <span class="sn">Step 04 · loop</span>
+        <h3>Refine your approach</h3>
+        <p>Adjust the prompts, add examples showing what good looks like, or mark the places where human review is non-negotiable. Then go back to step 02.</p>
+      </div>
+    </div>
+
+    <p class="loopback"><b>Read the shape, not just the steps:</b> step 01 happens once. Steps 02–04 repeat. The loop <em>is</em> the eval — running it a single time tells you almost nothing.</p>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>Lesson 03 · Getting better results · Fault chart ·
+       <a href="lesson-02-first-conversation.html">← Lesson 02</a> ·
+       <a href="lesson-04-desktop-shapes.html">Lesson 04 →</a></p>
+  </div>
+</footer>
+
+
+
+<style>
+.pathnav{position:sticky;bottom:0;z-index:60;background:#16203C;border-top:2px solid #FFD84A;}
+.pathnav .inner{max-width:1160px;margin:0 auto;padding:.55rem 1.5rem;display:flex;align-items:center;gap:.8rem;flex-wrap:wrap;}
+.pathnav a{font-family:"Space Mono",monospace;font-size:.6rem;font-weight:700;text-transform:uppercase;
+letter-spacing:.1em;text-decoration:none;color:#E9E6DB;border:1.5px solid #4A5470;padding:.32rem .55rem;transition:all .15s ease;}
+.pathnav a:hover{border-color:#FFD84A;color:#FFD84A;}
+.pathnav a.next{border-color:#FFD84A;color:#FFD84A;margin-left:auto;}
+.pathnav .step{font-family:"Space Mono",monospace;font-size:.58rem;font-weight:700;letter-spacing:.12em;color:#8FA0C4;text-transform:uppercase;}
+@media print{.pathnav{display:none;}}
+</style>
+<div class="pathnav"><div class="inner"><a href="lesson-02-first-conversation.html">← 02 First conversation</a>
+<a href="learning-path.html">↑ Learning path</a>
+<span class="step">Step 4 of 16</span>
+<a class="next" href="lesson-13-twelve-mistakes.html">13 The 12 mistakes →</a></div></div>
+</body>
+</html>

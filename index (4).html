@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Working with Claude — a 14-lesson course</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Public+Sans:ital,wght@0,400;0,600;1,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#E9E6DB; --paper-hi:#F4F2EA; --ink:#16203C; --ink-soft:#4A5470; --rule:#C9C4B4;
+  --r1:#DE4438; --r2:#1358A8; --r3:#0E8A63; --r4:#7B4BB0; --r5:#C9761A;
+  --marker:#FFD84A;
+  --display:"Bricolage Grotesque","Trebuchet MS",system-ui,sans-serif;
+  --body:"Public Sans",-apple-system,"Segoe UI",Roboto,sans-serif;
+  --mono:"Space Mono",ui-monospace,"Courier New",monospace;
+}
+*,*::before,*::after{ box-sizing:border-box; }
+html{ scroll-behavior:smooth; }
+body{ margin:0; background:var(--paper); color:var(--ink); font-family:var(--body); font-size:1rem; line-height:1.6; -webkit-font-smoothing:antialiased; }
+body::after{ content:""; position:fixed; inset:0; pointer-events:none; z-index:99;
+  background-image:radial-gradient(var(--ink) .5px, transparent .5px); background-size:4px 4px; opacity:.05; }
+.wrap{ max-width:1080px; margin:0 auto; padding:0 1.5rem; }
+h1,h2,h3{ font-family:var(--display); font-weight:800; line-height:1.04; margin:0; letter-spacing:-.02em; }
+h1{ font-size:clamp(2.6rem,9vw,6rem); text-transform:uppercase; }
+h2{ font-size:clamp(1.4rem,3.6vw,2.1rem); text-transform:uppercase; }
+p{ margin:0 0 1rem; } p:last-child{ margin-bottom:0; }
+a{ color:inherit; }
+:focus-visible{ outline:3px solid var(--r2); outline-offset:3px; border-radius:3px; }
+.tag{ font-family:var(--mono); font-size:.66rem; font-weight:700; text-transform:uppercase; letter-spacing:.16em; }
+
+.hero{ padding:4rem 0 2rem; }
+.hero .eyebrow{ color:var(--ink-soft); display:block; margin-bottom:1.2rem; }
+.hero h1{ margin-bottom:1.4rem; }
+.hero .deck{ font-size:clamp(1.05rem,2.2vw,1.3rem); color:var(--ink-soft); max-width:56ch; }
+.hero .deck strong{ color:var(--ink); font-weight:600; }
+
+.start{ display:grid; grid-template-columns:1fr; gap:.8rem; margin-top:2rem; }
+.startbtn{
+  display:block; text-decoration:none; background:var(--ink); color:var(--paper);
+  padding:1.2rem 1.4rem; border-left:6px solid var(--marker);
+  transition:transform .18s ease;
+}
+.startbtn:hover{ transform:translateY(-3px); }
+.startbtn b{ display:block; font-family:var(--display); font-weight:800; text-transform:uppercase; font-size:1.1rem; letter-spacing:-.01em; }
+.startbtn span{ font-size:.92rem; color:#C6CDDE; }
+.startbtn.alt{ background:var(--paper-hi); color:var(--ink); border:1px solid var(--rule); border-left:6px solid var(--r3); }
+.startbtn.alt span{ color:var(--ink-soft); }
+
+.sect{ padding:3.5rem 0 1rem; border-top:1px solid var(--rule); margin-top:3rem; }
+.slede{ color:var(--ink-soft); max-width:60ch; margin-bottom:2rem; }
+
+.grid{ display:grid; grid-template-columns:1fr; gap:.8rem; }
+.les{
+  display:grid; grid-template-columns:auto 1fr; gap:1rem; align-items:start;
+  text-decoration:none; background:var(--paper-hi); border:1px solid var(--rule);
+  border-left:6px solid; padding:1.2rem 1.3rem;
+  transition:transform .18s ease, box-shadow .18s ease;
+}
+.les:hover{ transform:translateY(-3px); box-shadow:5px 6px 0 rgba(22,32,60,.12); }
+.les .no{ font-family:var(--display); font-weight:800; font-size:1.5rem; line-height:1; }
+.les h3{ font-size:1.05rem; font-weight:800; margin-bottom:.25rem; letter-spacing:-.01em; }
+.les p{ font-size:.9rem; color:var(--ink-soft); margin:0 0 .5rem; }
+.les .form{ font-family:var(--mono); font-size:.55rem; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:var(--ink-soft); border:1px solid var(--rule); padding:.16rem .4rem; display:inline-block; }
+.les .live{ background:var(--marker); border-color:var(--marker); color:var(--ink); margin-left:.3rem; }
+.c1{ border-left-color:var(--r1); } .c1 .no,.c1 h3{ color:var(--r1); }
+.c2{ border-left-color:var(--r2); } .c2 .no,.c2 h3{ color:var(--r2); }
+.c3{ border-left-color:var(--r3); } .c3 .no,.c3 h3{ color:var(--r3); }
+.c4{ border-left-color:var(--r4); } .c4 .no,.c4 h3{ color:var(--r4); }
+.c5{ border-left-color:var(--r5); } .c5 .no,.c5 h3{ color:var(--r5); }
+
+.howto{ background:var(--ink); color:#C6CDDE; padding:2rem 1.5rem; margin-top:3rem; }
+.howto .t{ font-family:var(--mono); font-size:.62rem; font-weight:700; text-transform:uppercase; letter-spacing:.14em; color:#8FA0C4; display:block; margin-bottom:1rem; }
+.howto h2{ color:var(--paper); margin-bottom:1rem; }
+.howto ol{ margin:0; padding-left:1.2rem; }
+.howto li{ font-size:.98rem; margin-bottom:.6rem; }
+.howto li:last-child{ margin-bottom:0; }
+.howto li b{ color:var(--marker); font-weight:600; }
+
+footer{ border-top:1px solid var(--rule); margin-top:3.5rem; padding:1.5rem 0 3.5rem; }
+footer p{ font-family:var(--mono); font-size:.64rem; text-transform:uppercase; letter-spacing:.1em; color:var(--ink-soft); }
+
+@media (min-width:640px){ .start{ grid-template-columns:1fr 1fr; } }
+@media (min-width:860px){ .grid{ grid-template-columns:1fr 1fr; } .howto{ padding:2.6rem; } }
+@media (prefers-reduced-motion:reduce){ html{ scroll-behavior:auto; } *{ transition:none !important; } }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <span class="tag eyebrow">13 lessons + 90 copy-paste prompts · about 80 minutes end to end</span>
+    <h1>Working<br>with Claude</h1>
+    <p class="deck">Thirteen lessons, each drawn as a different kind of map — a route, a fault chart, a floor plan — because <strong>the shape of a diagram should tell you something true about the thing it explains.</strong> Two of them you can click. All of them print.</p>
+
+    <div class="start">
+      <a class="startbtn" href="lesson-00-setup.html"><b>Start with the setup →</b><span>15 minutes once. Everything after works better.</span></a>
+      <a class="startbtn alt" href="prompt-library.html"><b>Or grab the prompts →</b><span>50 quick fixes + 40 power prompts, all copyable</span></a>
+    </div>
+  </div>
+</header>
+
+<main>
+<section class="sect">
+  <div class="wrap">
+    <h2>The lessons</h2>
+    <p class="slede">In order, but not rigidly — 00 is setup, 01 to 03 are the foundations, 04 to 09 are the machinery, 10 to 12 are what you do with it.</p>
+
+    <div class="grid">
+      <a class="les c3" href="lesson-00-setup.html">
+        <span class="no">00</span>
+        <div><h3>Set yourself up once</h3><p>Five things you do a single time so every later conversation starts ahead.</p><span class="form">Checklist</span><span class="form live">Copy-paste</span></div>
+      </a>
+      <a class="les c1" href="what-is-claude-map.html">
+        <span class="no">01</span>
+        <div><h3>What is Claude?</h3><p>The four ideas, and the sorting exercise that teaches when a search box is enough.</p><span class="form">Route map</span><span class="form live">Click to reveal</span></div>
+      </a>
+      <a class="les c2" href="lesson-02-first-conversation.html">
+        <span class="no">02</span>
+        <div><h3>Your first conversation</h3><p>Stage, task, rules — with one real prompt cut into its three jobs.</p><span class="form">Branch map</span></div>
+      </a>
+      <a class="les c1" href="lesson-03-better-results.html">
+        <span class="no">03</span>
+        <div><h3>Getting better results</h3><p>Five faults, their causes and their fixes. Plus the eval loop.</p><span class="form">Fault chart</span></div>
+      </a>
+      <a class="les c4" href="lesson-04-desktop-shapes.html">
+        <span class="no">04</span>
+        <div><h3>Working on your desktop</h3><p>Three shapes of work, and the line between Chat and Cowork that everyone blurs.</p><span class="form">Work sorter</span></div>
+      </a>
+      <a class="les c3" href="lesson-05-projects.html">
+        <span class="no">05</span>
+        <div><h3>Introduction to Projects</h3><p>Instructions, knowledge, chats — and what a project does <em>not</em> share.</p><span class="form">Anatomy</span></div>
+      </a>
+      <a class="les c4" href="lesson-06-artifacts.html">
+        <span class="no">06</span>
+        <div><h3>Creating with artifacts</h3><p>Six types on a specimen sheet, and what "publish" actually exposes.</p><span class="form">Production line</span></div>
+      </a>
+      <a class="les c4" href="lesson-07-skills.html">
+        <span class="no">07</span>
+        <div><h3>Working with Skills</h3><p>You've been using them for months. Now build your own by being interviewed.</p><span class="form">The shelf</span></div>
+      </a>
+      <a class="les c2" href="lesson-08-connectors.html">
+        <span class="no">08</span>
+        <div><h3>Connecting your tools</h3><p>Switch a source off and watch the request lose a limb.</p><span class="form">Port board</span><span class="form live">Interactive</span></div>
+      </a>
+      <a class="les c5" href="lesson-09-enterprise-search.html">
+        <span class="no">09</span>
+        <div><h3>Enterprise Search</h3><p>Ask the whole organisation one question. Owner-only setup — not admin.</p><span class="form">The funnel</span></div>
+      </a>
+      <a class="les c3" href="lesson-10-research.html">
+        <span class="no">10</span>
+        <div><h3>Research for deep dives</h3><p>Seven-question quiz. Route all five right and something fires.</p><span class="form">The tree</span><span class="form live">Quiz</span></div>
+      </a>
+      <a class="les c3" href="lesson-11-use-cases.html">
+        <span class="no">11</span>
+        <div><h3>Claude in action</h3><p>Fifteen guides, sorted by the shape of the work rather than your job title.</p><span class="form">Catalogue</span></div>
+      </a>
+      <a class="les c2" href="lesson-12-other-surfaces.html">
+        <span class="no">12</span>
+        <div><h3>Other ways to work</h3><p>Eight rooms Claude turns up in — and the permission setting nobody mentions.</p><span class="form">Floor plan</span></div>
+      </a>
+      <a class="les c1" href="lesson-13-twelve-mistakes.html">
+        <span class="no">13</span>
+        <div><h3>The 12 mistakes</h3><p>Where quality leaks between what you meant and what you got. Two source claims corrected.</p><span class="form">Leak chart</span></div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<section class="sect">
+  <div class="wrap">
+    <h2>The two prompt libraries</h2>
+    <p class="slede">The lessons teach the thinking. These are the things you copy and paste while the thinking sinks in.</p>
+    <div class="grid">
+      <a class="les c3" href="prompt-library.html">
+        <span class="no">50</span>
+        <div><h3>Quick fixes</h3><p>Fifty "instead of this — try this" pairs. For the prompt you're about to type badly.</p><span class="form">Search · filter · copy</span></div>
+      </a>
+      <a class="les c4" href="power-prompts.html">
+        <span class="no">40</span>
+        <div><h3>Power prompts</h3><p>Forty long ones with role, context slots and rules. For when you have a real situation and ten minutes.</p><span class="form">Search · filter · copy</span></div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<section class="sect">
+  <div class="wrap">
+    <h2>The prompt library</h2>
+    <p class="slede">114 prompts in two volumes, both searchable with a copy button on every one. <strong>They sit late in the path on purpose</strong> — copy-paste before you understand the shape leaves you with a library instead of a skill.</p>
+    <div class="grid">
+      <a class="les c3" href="prompt-library.html">
+        <span class="no">V1</span>
+        <div><h3>Practice · 50 before-and-after pairs</h3><p>The vague prompt you'd type beside the one that works. Read it after the foundations and you're diagnosing your own habits, not collecting recipes.</p><span class="form">Step 6 of 16</span><span class="form live">Copy buttons</span></div>
+      </a>
+      <a class="les c5" href="power-prompts.html">
+        <span class="no">V2</span>
+        <div><h3>Toolkit · 64 power prompts</h3><p>Role, context and rules, ready to paste whole — plus a blank scaffold to write your own. Deliberately the last thing in the course.</p><span class="form">Step 16 of 16</span><span class="form live">Copy buttons</span></div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<div class="wrap">
+  <div class="howto">
+    <span class="t">If you're teaching someone else with this</span>
+    <h2>Four things that make it land</h2>
+    <ol>
+      <li><b>Make them guess first.</b> Lessons 01 and 10 hide their answers behind a click for a reason — reading the answer teaches almost nothing, getting it wrong teaches a lot.</li>
+      <li><b>Start with the prompt library, not Lesson 01.</b> People believe the "instead of / try this" pairs immediately, because they recognise their own bad prompt. Then the lessons explain why.</li>
+      <li><b>One lesson per sitting.</b> They're short on purpose. Twelve in a row is a lecture; one a day is a habit.</li>
+      <li><b>Have them run one thing.</b> Reading about a capability and using it once are different kinds of knowing. Lesson 11 exists to get them to do exactly one real task.</li>
+    </ol>
+  </div>
+</div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>Working with Claude · 13 lessons + 90 prompts · Keep every file in one folder so the links work</p>
+  </div>
+</footer>
+
+</body>
+</html>

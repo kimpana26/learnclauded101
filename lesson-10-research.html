@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Research for deep dives — route the question</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Public+Sans:ital,wght@0,400;0,600;1,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   LESSON 10 — RESEARCH FOR DEEP DIVES
+   The source buried a seven-question exercise inside screenshots.
+   Here it's playable: real radios, real verdicts, a 5-of-5 reveal
+   that only fires when every route is right. No JavaScript — the
+   whole quiz is sibling selectors. Same inks as Lessons 01–09.
+   ============================================================ */
+
+:root{
+  --paper:#E9E6DB; --paper-hi:#F4F2EA; --ink:#16203C; --ink-soft:#4A5470; --rule:#C9C4B4;
+
+  --res:#0E8A63; --res-ink:#0A6047;   /* Research          */
+  --web:#1358A8; --web-ink:#0D4079;   /* Quick web search  */
+  --thk:#7B4BB0; --thk-ink:#573079;   /* Thinking          */
+  --ent:#C9761A; --ent-ink:#8A4A06;   /* Enterprise search */
+  --warn:#DE4438; --warn-ink:#A22119;
+
+  --marker:#FFD84A;
+  --sp-1:.5rem; --sp-2:1rem; --sp-3:1.5rem; --sp-4:2.25rem; --sp-5:3.5rem;
+
+  --display:"Bricolage Grotesque","Trebuchet MS",system-ui,sans-serif;
+  --body:"Public Sans",-apple-system,"Segoe UI",Roboto,sans-serif;
+  --mono:"Space Mono",ui-monospace,"Courier New",monospace;
+}
+
+*,*::before,*::after{ box-sizing:border-box; }
+html{ scroll-behavior:smooth; }
+body{
+  margin:0; background:var(--paper); color:var(--ink);
+  font-family:var(--body); font-size:1rem; line-height:1.6; -webkit-font-smoothing:antialiased;
+}
+body::after{
+  content:""; position:fixed; inset:0; pointer-events:none; z-index:99;
+  background-image:radial-gradient(var(--ink) .5px, transparent .5px);
+  background-size:4px 4px; opacity:.055;
+}
+.wrap{ max-width:1160px; margin:0 auto; padding:0 var(--sp-3); }
+
+h1,h2,h3{ font-family:var(--display); font-weight:800; line-height:1.04; margin:0; letter-spacing:-.02em; }
+h1{ font-size:clamp(2.4rem,8vw,5.2rem); text-transform:uppercase; }
+h2{ font-size:clamp(1.45rem,3.8vw,2.3rem); }
+h3{ font-size:1.04rem; font-weight:600; letter-spacing:0; }
+p{ margin:0 0 var(--sp-2); } p:last-child{ margin-bottom:0; }
+
+.tag{ font-family:var(--mono); font-size:.68rem; font-weight:700; text-transform:uppercase; letter-spacing:.16em; }
+.marked{ background:linear-gradient(transparent 58%, var(--marker) 58%, var(--marker) 94%, transparent 94%); padding:0 .12em; }
+a{ color:inherit; }
+a:focus-visible{ outline:3px solid var(--web); outline-offset:3px; border-radius:2px; }
+
+/* ===================== sticky bar ===================== */
+.routebar{ position:sticky; top:0; z-index:50; background:var(--paper); border-bottom:2px solid var(--ink); }
+.routebar .wrap{ display:flex; align-items:center; gap:var(--sp-2); flex-wrap:wrap; padding-top:.6rem; padding-bottom:.6rem; }
+.routebar .brand{ font-family:var(--display); font-weight:800; text-transform:uppercase; margin-right:auto; letter-spacing:-.01em; }
+.routebar .brand small{ font-family:var(--mono); font-weight:700; font-size:.6rem; letter-spacing:.16em; color:var(--ink-soft); display:block; text-transform:uppercase; }
+.routebar nav{ display:flex; gap:.35rem; flex-wrap:wrap; }
+.pill{
+  font-family:var(--mono); font-size:.63rem; font-weight:700; text-transform:uppercase;
+  letter-spacing:.1em; text-decoration:none; color:#fff;
+  padding:.32rem .58rem; border-radius:999px; transition:transform .18s ease, filter .18s ease;
+}
+.pill:hover{ transform:translateY(-2px); filter:brightness(1.12); }
+.pill.p0{ background:var(--ink); } .pill.p1{ background:var(--res-ink); }
+.pill.p2{ background:var(--web-ink); } .pill.p3{ background:var(--thk-ink); }
+
+/* ======================== hero ======================== */
+.hero{ padding:var(--sp-5) 0 var(--sp-3); }
+.hero .eyebrow{ color:var(--ink-soft); display:block; margin-bottom:var(--sp-2); }
+.hero h1{ margin-bottom:var(--sp-3); }
+.hero .deck{ font-size:clamp(1.05rem,2.2vw,1.28rem); max-width:56ch; color:var(--ink-soft); }
+.hero .deck strong{ color:var(--ink); font-weight:600; }
+.gatebox{ border:2px solid var(--warn); background:var(--paper-hi); padding:var(--sp-2) var(--sp-3); margin-top:var(--sp-3); max-width:60ch; }
+.gatebox .gt{ font-family:var(--mono); font-size:.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.12em; color:var(--warn-ink); display:block; margin-bottom:.35rem; }
+.gatebox p{ font-size:.92rem; }
+.gatebox strong{ font-weight:600; }
+
+/* ====================== sections ====================== */
+.sect{ padding:var(--sp-5) 0 var(--sp-2); border-top:1px solid var(--rule); scroll-margin-top:4.4rem; }
+.shead{ display:flex; align-items:baseline; gap:var(--sp-2); flex-wrap:wrap; margin-bottom:.5rem; }
+.snum{ font-family:var(--mono); font-weight:700; font-size:.72rem; text-transform:uppercase; letter-spacing:.14em; color:#fff; padding:.28rem .55rem; border-radius:3px; background:var(--ink); }
+.slede{ color:var(--ink-soft); max-width:62ch; margin-bottom:var(--sp-4); font-size:1.02rem; }
+.slede strong{ color:var(--ink); font-weight:600; }
+#doors h2{ color:var(--ink); } #how h2,#run h2{ color:var(--res-ink); }
+#how .snum,#run .snum{ background:var(--res-ink); }
+
+/* ======================== THE QUIZ ======================== */
+.quiz{ position:relative; }
+.rb{ position:absolute; opacity:0; width:1px; height:1px; margin:0; }
+
+.qpart{ font-family:var(--mono); font-size:.62rem; font-weight:700; text-transform:uppercase; letter-spacing:.14em; color:var(--ink-soft); display:block; margin-bottom:var(--sp-2); }
+
+.q{ background:var(--paper-hi); border:1px solid var(--rule); border-left:7px solid var(--ink); padding:var(--sp-3); margin-bottom:var(--sp-2); }
+.q .qn{ font-family:var(--mono); font-size:.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.12em; color:var(--ink-soft); }
+.q .ask{ font-size:1.05rem; margin:.45rem 0 var(--sp-2); font-style:italic; }
+.opts{ display:grid; grid-template-columns:1fr; gap:.45rem; }
+.opts label{
+  display:block; cursor:pointer; user-select:none;
+  border:2px solid var(--rule); background:var(--paper);
+  padding:.6rem .8rem; font-family:var(--display); font-weight:800;
+  text-transform:uppercase; font-size:.88rem; letter-spacing:-.01em; color:var(--ink-soft);
+  transition:border-color .15s ease, background .15s ease, color .15s ease;
+}
+.opts label:hover{ border-color:var(--ink); color:var(--ink); }
+
+.verdicts{ margin-top:var(--sp-2); }
+.v{ display:none; padding:.9rem var(--sp-2); font-size:.94rem; }
+.v.ok{ background:var(--ink); color:#C6CDDE; border-left:5px solid var(--marker); }
+.v.ok b{ color:var(--marker); font-weight:600; }
+.v.no{ background:var(--paper); border:1px dashed var(--warn); color:var(--ink-soft); }
+.v.no b{ color:var(--warn-ink); font-weight:600; }
+
+/* --- correct picks --- */
+#q1a:checked ~ .qbody label[for="q1a"],
+#q2b:checked ~ .qbody label[for="q2b"],
+#q3c:checked ~ .qbody label[for="q3c"],
+#q4a:checked ~ .qbody label[for="q4a"],
+#q5d:checked ~ .qbody label[for="q5d"]{ background:var(--ink); border-color:var(--ink); color:var(--marker); }
+
+/* --- wrong picks --- */
+#q1b:checked ~ .qbody label[for="q1b"], #q1c:checked ~ .qbody label[for="q1c"], #q1d:checked ~ .qbody label[for="q1d"],
+#q2a:checked ~ .qbody label[for="q2a"], #q2c:checked ~ .qbody label[for="q2c"], #q2d:checked ~ .qbody label[for="q2d"],
+#q3a:checked ~ .qbody label[for="q3a"], #q3b:checked ~ .qbody label[for="q3b"], #q3d:checked ~ .qbody label[for="q3d"],
+#q4b:checked ~ .qbody label[for="q4b"], #q4c:checked ~ .qbody label[for="q4c"], #q4d:checked ~ .qbody label[for="q4d"],
+#q5a:checked ~ .qbody label[for="q5a"], #q5b:checked ~ .qbody label[for="q5b"], #q5c:checked ~ .qbody label[for="q5c"]{
+  background:var(--paper); border-color:var(--warn); color:var(--warn-ink); border-style:dashed;
+}
+
+/* --- focus --- */
+#q1a:focus-visible ~ .qbody label[for="q1a"], #q1b:focus-visible ~ .qbody label[for="q1b"],
+#q1c:focus-visible ~ .qbody label[for="q1c"], #q1d:focus-visible ~ .qbody label[for="q1d"],
+#q2a:focus-visible ~ .qbody label[for="q2a"], #q2b:focus-visible ~ .qbody label[for="q2b"],
+#q2c:focus-visible ~ .qbody label[for="q2c"], #q2d:focus-visible ~ .qbody label[for="q2d"],
+#q3a:focus-visible ~ .qbody label[for="q3a"], #q3b:focus-visible ~ .qbody label[for="q3b"],
+#q3c:focus-visible ~ .qbody label[for="q3c"], #q3d:focus-visible ~ .qbody label[for="q3d"],
+#q4a:focus-visible ~ .qbody label[for="q4a"], #q4b:focus-visible ~ .qbody label[for="q4b"],
+#q4c:focus-visible ~ .qbody label[for="q4c"], #q4d:focus-visible ~ .qbody label[for="q4d"],
+#q5a:focus-visible ~ .qbody label[for="q5a"], #q5b:focus-visible ~ .qbody label[for="q5b"],
+#q5c:focus-visible ~ .qbody label[for="q5c"], #q5d:focus-visible ~ .qbody label[for="q5d"]{
+  outline:3px solid var(--web); outline-offset:3px;
+}
+
+/* --- verdict reveals --- */
+#q1a:checked ~ .qbody .qq1 .va, #q1b:checked ~ .qbody .qq1 .vb, #q1c:checked ~ .qbody .qq1 .vc, #q1d:checked ~ .qbody .qq1 .vd,
+#q2a:checked ~ .qbody .qq2 .va, #q2b:checked ~ .qbody .qq2 .vb, #q2c:checked ~ .qbody .qq2 .vc, #q2d:checked ~ .qbody .qq2 .vd,
+#q3a:checked ~ .qbody .qq3 .va, #q3b:checked ~ .qbody .qq3 .vb, #q3c:checked ~ .qbody .qq3 .vc, #q3d:checked ~ .qbody .qq3 .vd,
+#q4a:checked ~ .qbody .qq4 .va, #q4b:checked ~ .qbody .qq4 .vb, #q4c:checked ~ .qbody .qq4 .vc, #q4d:checked ~ .qbody .qq4 .vd,
+#q5a:checked ~ .qbody .qq5 .va, #q5b:checked ~ .qbody .qq5 .vb, #q5c:checked ~ .qbody .qq5 .vc, #q5d:checked ~ .qbody .qq5 .vd{
+  display:block;
+}
+
+/* --- the 5 of 5 reveal --- */
+.allright{ display:none; background:var(--res-ink); color:#fff; padding:var(--sp-3); border-left:7px solid var(--marker); margin-bottom:var(--sp-3); }
+.allright .big{ font-family:var(--display); font-weight:800; text-transform:uppercase; font-size:clamp(1.3rem,3.4vw,2rem); line-height:1.08; margin:0 0 .5rem; letter-spacing:-.02em; }
+.allright .big em{ font-style:normal; color:var(--marker); }
+.allright p{ font-size:.95rem; opacity:.92; }
+#q1a:checked ~ #q2b:checked ~ #q3c:checked ~ #q4a:checked ~ #q5d:checked ~ .qbody .allright{ display:block; }
+
+/* --- part 2: prompt upgrade --- */
+.move{ background:var(--paper-hi); border:1px solid var(--rule); border-left:7px solid var(--res); padding:var(--sp-3); margin-bottom:var(--sp-2); }
+.move .mn{ font-family:var(--mono); font-size:.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.12em; color:var(--res-ink); }
+.move h3{ margin:.35rem 0 .5rem; font-family:var(--display); font-weight:800; font-size:1.12rem; letter-spacing:-.01em; }
+.move > p{ font-size:.95rem; color:var(--ink-soft); margin-bottom:var(--sp-2); }
+.picks{ display:grid; grid-template-columns:1fr; gap:.5rem; }
+.picks label{
+  display:block; cursor:pointer; border:2px solid var(--rule); background:var(--paper);
+  padding:.8rem .9rem; font-size:.93rem; font-style:italic; color:var(--ink-soft);
+  transition:border-color .15s ease, color .15s ease;
+}
+.picks label:hover{ border-color:var(--ink); color:var(--ink); }
+#m1b:checked ~ .qbody label[for="m1b"], #m2a:checked ~ .qbody label[for="m2a"]{ border-color:var(--res); color:var(--ink); background:var(--paper-hi); }
+#m1a:checked ~ .qbody label[for="m1a"], #m2b:checked ~ .qbody label[for="m2b"]{ border-color:var(--warn); border-style:dashed; color:var(--warn-ink); }
+#m1a:focus-visible ~ .qbody label[for="m1a"], #m1b:focus-visible ~ .qbody label[for="m1b"],
+#m2a:focus-visible ~ .qbody label[for="m2a"], #m2b:focus-visible ~ .qbody label[for="m2b"]{ outline:3px solid var(--web); outline-offset:3px; }
+#m1a:checked ~ .qbody .mm1 .va, #m1b:checked ~ .qbody .mm1 .vb,
+#m2a:checked ~ .qbody .mm2 .va, #m2b:checked ~ .qbody .mm2 .vb{ display:block; }
+
+/* the pattern card */
+.pattern{ background:var(--ink); color:var(--paper); padding:var(--sp-4) var(--sp-3); margin-top:var(--sp-3); }
+.pattern .pt{ font-family:var(--mono); font-size:.62rem; font-weight:700; text-transform:uppercase; letter-spacing:.14em; color:#8FA0C4; display:block; margin-bottom:var(--sp-2); }
+.pgrid{ display:grid; grid-template-columns:1fr; gap:.6rem; }
+.pgrid div{ display:grid; grid-template-columns:1fr auto; gap:.8rem; align-items:baseline; border-top:1px solid rgba(233,230,219,.2); padding-top:.6rem; }
+.pgrid span{ font-size:.97rem; color:#C6CDDE; }
+.pgrid b{ font-family:var(--display); font-weight:800; text-transform:uppercase; font-size:.95rem; white-space:nowrap; }
+.pgrid .g1 b{ color:#5FD3A8; } .pgrid .g2 b{ color:#7FB0EA; }
+.pgrid .g3 b{ color:#C6A3E8; } .pgrid .g4 b{ color:var(--marker); }
+
+/* ==================== four doors ==================== */
+.doors{ display:grid; grid-template-columns:1fr; gap:var(--sp-2); }
+.door{ background:var(--paper-hi); border:1px solid var(--rule); border-top:6px solid; padding:var(--sp-3); }
+.door .dl{ font-family:var(--mono); font-size:.58rem; font-weight:700; text-transform:uppercase; letter-spacing:.12em; display:block; margin-bottom:.3rem; }
+.door h3{ font-family:var(--display); font-weight:800; text-transform:uppercase; font-size:1.15rem; margin-bottom:.6rem; letter-spacing:-.01em; }
+.door ul{ margin:0; padding-left:1.05rem; }
+.door li{ font-size:.91rem; color:var(--ink-soft); margin-bottom:.4rem; }
+.door li:last-child{ margin-bottom:0; }
+.door.d1{ border-top-color:var(--res); } .door.d1 .dl,.door.d1 h3{ color:var(--res-ink); }
+.door.d2{ border-top-color:var(--web); } .door.d2 .dl,.door.d2 h3{ color:var(--web-ink); }
+.door.d3{ border-top-color:var(--thk); } .door.d3 .dl,.door.d3 h3{ color:var(--thk-ink); }
+.door.d4{ border-top-color:var(--ent); } .door.d4 .dl,.door.d4 h3{ color:var(--ent-ink); }
+
+.tasks{ border:1px solid var(--rule); background:var(--paper); padding:var(--sp-3); margin-top:var(--sp-2); }
+.tasks .tt{ font-family:var(--mono); font-size:.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.12em; color:var(--res-ink); display:block; margin-bottom:.6rem; }
+.tasks ul{ margin:0; padding-left:1.05rem; columns:1; }
+.tasks li{ font-size:.92rem; color:var(--ink-soft); margin-bottom:.35rem; }
+
+/* ==================== how it works ==================== */
+.treefig{ display:none; margin-bottom:var(--sp-3); }
+.treefig svg{ width:100%; height:auto; display:block; }
+.steps{ display:grid; grid-template-columns:1fr; gap:var(--sp-2); }
+.st{ background:var(--paper-hi); border:1px solid var(--rule); border-left:6px solid var(--res); padding:var(--sp-3); }
+.st .sn{ font-family:var(--mono); font-size:.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.12em; color:var(--res-ink); }
+.st h3{ margin:.3rem 0 .45rem; }
+.st p{ font-size:.92rem; color:var(--ink-soft); }
+
+.addition{ border:2px solid var(--marker); background:var(--paper-hi); padding:var(--sp-3); margin-top:var(--sp-3); }
+.addition .at{ font-family:var(--mono); font-size:.62rem; font-weight:700; text-transform:uppercase; letter-spacing:.12em; color:var(--ent-ink); display:block; margin-bottom:.5rem; }
+.addition h3{ margin-bottom:.6rem; font-size:1.1rem; }
+.addition p{ font-size:.94rem; }
+.addition strong{ font-weight:600; }
+.addition .src{ margin-top:.7rem; font-size:.82rem; color:var(--ink-soft); }
+
+/* ==================== running one ==================== */
+.run{ display:grid; grid-template-columns:auto 1fr; gap:.9rem; border-top:1px solid var(--rule); padding:.85rem 0; }
+.run .rn{ font-family:var(--mono); font-size:.62rem; font-weight:700; color:#fff; background:var(--res-ink); padding:.15rem .4rem; height:fit-content; }
+.run b{ display:block; font-size:.97rem; }
+.run span{ font-size:.91rem; color:var(--ink-soft); }
+.prereq{ border:2px solid var(--warn); background:var(--paper-hi); padding:var(--sp-2) var(--sp-3); margin:var(--sp-2) 0 var(--sp-3); }
+.prereq b{ font-weight:600; color:var(--warn-ink); }
+.prereq p{ font-size:.93rem; }
+
+.tips{ display:grid; grid-template-columns:1fr; gap:var(--sp-2); }
+.tip{ background:var(--paper-hi); border:1px solid var(--rule); border-left:6px solid var(--web); padding:var(--sp-3); }
+.tip .tn{ font-family:var(--mono); font-size:.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.12em; color:var(--web-ink); }
+.tip h3{ margin:.3rem 0 .45rem; }
+.tip p{ font-size:.92rem; color:var(--ink-soft); }
+.ba{ display:grid; grid-template-columns:1fr; gap:.5rem; margin-top:.7rem; }
+.ba > div{ border:1px solid var(--rule); background:var(--paper); padding:.7rem .8rem; }
+.ba .bl{ font-family:var(--mono); font-size:.55rem; font-weight:700; text-transform:uppercase; letter-spacing:.12em; display:block; margin-bottom:.3rem; }
+.ba .before{ border-left:4px solid var(--ink-soft); } .ba .before .bl{ color:var(--ink-soft); }
+.ba .after{ border-left:4px solid var(--res); } .ba .after .bl{ color:var(--res-ink); }
+.ba q{ quotes:none; font-size:.9rem; font-style:italic; }
+
+.integ{ background:var(--paper-hi); border:1px solid var(--rule); border-left:6px solid var(--ent); padding:var(--sp-3); margin-top:var(--sp-3); }
+.integ .il{ font-family:var(--mono); font-size:.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.12em; color:var(--ent-ink); display:block; margin-bottom:.5rem; }
+.integ ul{ margin:.6rem 0 0; padding:0; list-style:none; }
+.integ li{ font-size:.92rem; font-style:italic; border-top:1px dashed var(--rule); padding:.5rem 0; }
+.integ li:first-of-type{ border-top:none; }
+
+.keep{ background:var(--ink); color:#C6CDDE; padding:.9rem var(--sp-2); font-size:.95rem; font-style:italic; margin-top:var(--sp-2); }
+.keep b{ font-style:normal; color:var(--marker); font-weight:600; }
+
+footer{ border-top:1px solid var(--rule); padding:var(--sp-3) 0 var(--sp-5); margin-top:var(--sp-5); }
+footer p{ font-family:var(--mono); font-size:.66rem; text-transform:uppercase; letter-spacing:.1em; color:var(--ink-soft); }
+footer a{ color:var(--web-ink); }
+
+/* ===================== breakpoints ===================== */
+@media (min-width:640px){
+  .opts{ grid-template-columns:1fr 1fr; }
+  .steps{ grid-template-columns:1fr 1fr; }
+  .tips{ grid-template-columns:1fr 1fr; }
+  .ba{ grid-template-columns:1fr 1.4fr; }
+  .tasks ul{ columns:2; column-gap:2rem; }
+}
+@media (min-width:900px){
+  .doors{ grid-template-columns:repeat(2,1fr); }
+  .pgrid{ grid-template-columns:1fr 1fr; gap:.6rem 2.5rem; }
+  .treefig{ display:block; }
+  .steps{ grid-template-columns:repeat(4,1fr); }
+}
+
+@media (prefers-reduced-motion:reduce){ html{ scroll-behavior:auto; } *{ transition:none !important; } }
+@media print{
+  .routebar,.treefig{ display:none; }
+  body::after{ display:none; }
+  .v{ display:block !important; }
+  .q,.door,.st,.tip,.move{ break-inside:avoid; }
+}
+</style>
+</head>
+<body>
+
+<div class="routebar">
+  <div class="wrap">
+    <span class="brand">Research for deep dives<small>Lesson 10</small></span>
+    <nav aria-label="Sections">
+      <a class="pill" style="background:#16203C" href="index.html">Home</a>
+      <a class="pill" style="background:#0A6047" href="prompt-library.html">50 prompts</a>
+      <a class="pill" style="background:#573079" href="power-prompts.html">40 power</a>
+      <a class="pill p0" href="#quiz">Route the question</a>
+      <a class="pill p1" href="#doors">Four doors</a>
+      <a class="pill p2" href="#how">How it works</a>
+      <a class="pill p3" href="#run">Running one</a>
+    </nav>
+  </div>
+</div>
+
+<header class="hero">
+  <div class="wrap">
+    <span class="tag eyebrow">Lesson 10 · Research · ~8 minutes, and one quiz</span>
+    <h1>Send out<br>an investigator</h1>
+    <p class="deck">Research turns Claude from a conversational assistant into a systematic investigator: it plans, runs many searches that build on each other, decides what to chase next, and comes back with a cited report. <strong>It takes minutes, not seconds — which is exactly why the prompt matters.</strong></p>
+
+    <div class="gatebox">
+      <span class="gt">One thing the lesson doesn't tell you</span>
+      <p>Research is <strong>paid plans only</strong> — Pro, Max, Team or Enterprise — on web, desktop and mobile. It isn't on Free. Worth knowing before you go hunting the menu for it.</p>
+    </div>
+  </div>
+</header>
+
+<main>
+
+<!-- ======================= THE QUIZ ======================= -->
+<section class="sect" id="quiz" style="border-top:none;">
+  <div class="wrap quiz">
+    <input type="radio" name="q1" id="q1a" class="rb"><input type="radio" name="q1" id="q1b" class="rb"><input type="radio" name="q1" id="q1c" class="rb"><input type="radio" name="q1" id="q1d" class="rb">
+    <input type="radio" name="q2" id="q2a" class="rb"><input type="radio" name="q2" id="q2b" class="rb"><input type="radio" name="q2" id="q2c" class="rb"><input type="radio" name="q2" id="q2d" class="rb">
+    <input type="radio" name="q3" id="q3a" class="rb"><input type="radio" name="q3" id="q3b" class="rb"><input type="radio" name="q3" id="q3c" class="rb"><input type="radio" name="q3" id="q3d" class="rb">
+    <input type="radio" name="q4" id="q4a" class="rb"><input type="radio" name="q4" id="q4b" class="rb"><input type="radio" name="q4" id="q4c" class="rb"><input type="radio" name="q4" id="q4d" class="rb">
+    <input type="radio" name="q5" id="q5a" class="rb"><input type="radio" name="q5" id="q5b" class="rb"><input type="radio" name="q5" id="q5c" class="rb"><input type="radio" name="q5" id="q5d" class="rb">
+    <input type="radio" name="m1" id="m1a" class="rb"><input type="radio" name="m1" id="m1b" class="rb">
+    <input type="radio" name="m2" id="m2a" class="rb"><input type="radio" name="m2" id="m2b" class="rb">
+
+    <div class="qbody">
+      <div class="shead"><span class="snum">Part 01</span><h2>Route the question</h2></div>
+      <p class="slede">Five real requests. Four places each could go. <strong>Decide before you click</strong> — the answer appears the moment you choose, and guessing first is what makes the boundary stick.</p>
+
+      <!-- Q1 -->
+      <article class="q qq1">
+        <span class="qn">Question 1 of 5</span>
+        <p class="ask">"Compare the three payroll providers we're considering — pricing, implementation time, and support quality — and give me sources I can check."</p>
+        <div class="opts">
+          <label for="q1a">Research</label><label for="q1b">Quick web search</label>
+          <label for="q1c">Thinking</label><label for="q1d">Enterprise search</label>
+        </div>
+        <div class="verdicts">
+          <p class="v ok va"><b>Research. Right call.</b> A comparative analysis needing information from multiple sources, synthesised into one answer, with citations you can verify — all four signals at once. A single search can't compare three vendors on three criteria.</p>
+          <p class="v no vb"><b>Not this one.</b> One search returns one page. Three vendors judged on three criteria is nine cells to fill.</p>
+          <p class="v no vc"><b>Not this one.</b> There's nothing here to reason out — every fact you need is outside the question.</p>
+          <p class="v no vd"><b>Not this one.</b> Vendor pricing lives on the public web, not in your company's documents.</p>
+        </div>
+      </article>
+
+      <!-- Q2 -->
+      <article class="q qq2">
+        <span class="qn">Question 2 of 5</span>
+        <p class="ask">"I'm prepping the quarterly investor update — what's our biggest competitor's current stock price?"</p>
+        <div class="opts">
+          <label for="q2a">Research</label><label for="q2b">Quick web search</label>
+          <label for="q2c">Thinking</label><label for="q2d">Enterprise search</label>
+        </div>
+        <div class="verdicts">
+          <p class="v no va"><b>Understandable, but no.</b> Research would spend minutes gathering breadth this question doesn't need. The size of the project isn't the size of the question.</p>
+          <p class="v ok vb"><b>Quick web search. Right call.</b> The investor update sounds big, but the question itself is a single fact with one authoritative source. When you need a quick, specific answer and speed matters more than comprehensiveness, web search is the right size.</p>
+          <p class="v no vc"><b>Not this one.</b> No amount of reasoning produces today's share price.</p>
+          <p class="v no vd"><b>Not this one.</b> It's a public market figure, not something sitting in your company's files.</p>
+        </div>
+      </article>
+
+      <!-- Q3 -->
+      <article class="q qq3">
+        <span class="qn">Question 3 of 5</span>
+        <p class="ask">"This SQL query keeps returning duplicate rows and I can't see why. Walk through the logic and find the bug."</p>
+        <div class="opts">
+          <label for="q3a">Research</label><label for="q3b">Quick web search</label>
+          <label for="q3c">Thinking</label><label for="q3d">Enterprise search</label>
+        </div>
+        <div class="verdicts">
+          <p class="v no va"><b>Not this one.</b> There's nothing to gather. The bug is already in the text you pasted.</p>
+          <p class="v no vb"><b>Close, but no.</b> You could look up how JOINs behave — but the fault is in <em>this</em> specific query, and no page on the internet has seen it.</p>
+          <p class="v ok vc"><b>Thinking. Right call.</b> Everything needed to answer is already in the question — the answer comes from reasoning carefully through the query's logic, not from gathering outside information. Code debugging, maths and logical analysis are Thinking's home ground.</p>
+          <p class="v no vd"><b>Not this one.</b> Your colleagues haven't written up this particular bug.</p>
+        </div>
+      </article>
+
+      <!-- Q4 -->
+      <article class="q qq4">
+        <span class="qn">Question 4 of 5</span>
+        <p class="ask">"Plan our 20-person team offsite: compare two or three city options with venues, rough costs, and travel logistics."</p>
+        <div class="opts">
+          <label for="q4a">Research</label><label for="q4b">Quick web search</label>
+          <label for="q4c">Thinking</label><label for="q4d">Enterprise search</label>
+        </div>
+        <div class="verdicts">
+          <p class="v ok va"><b>Research. Right call.</b> Planning a complex project means pulling together many sources — venues, prices, logistics — and synthesising them into something you can act on. That's thorough-investigation territory: the kind of work that would otherwise take hours by hand.</p>
+          <p class="v no vb"><b>Not this one.</b> Venues, costs and travel across three cities is not one lookup.</p>
+          <p class="v no vc"><b>Not this one.</b> You can't reason your way to a venue's catering price.</p>
+          <p class="v no vd"><b>Not this one.</b> Unless your company owns the venues, all of this lives outside.</p>
+        </div>
+      </article>
+
+      <!-- Q5 -->
+      <article class="q qq5">
+        <span class="qn">Question 5 of 5</span>
+        <p class="ask">"What's our travel reimbursement policy for international trips?"</p>
+        <div class="opts">
+          <label for="q5a">Research</label><label for="q5b">Quick web search</label>
+          <label for="q5c">Thinking</label><label for="q5d">Enterprise search</label>
+        </div>
+        <div class="verdicts">
+          <p class="v no va"><b>Not this one.</b> Research investigates the outside world. Your policy isn't out there.</p>
+          <p class="v no vb"><b>Not this one.</b> The public web has other companies' policies — not yours.</p>
+          <p class="v no vc"><b>Not this one.</b> There's nothing to deduce. The document either says it or it doesn't.</p>
+          <p class="v ok vd"><b>Enterprise search. Right call.</b> The answer lives in your organisation's own documents, not on the public web. Company-specific questions are exactly what enterprise search draws from — Research investigates the outside world; your policies live inside.</p>
+        </div>
+      </article>
+
+      <div class="allright">
+        <p class="big">Five of five. <em>Right call every time.</em></p>
+        <p>That's the whole routing skill. Now the harder half — you've picked the right tool, but a Research run takes minutes, so the prompt you send it with decides whether those minutes were worth spending.</p>
+      </div>
+
+      <!-- ---------- PART 2 ---------- -->
+      <div class="shead" style="margin-top:var(--sp-5);"><span class="snum">Part 02</span><h2>Upgrade the prompt</h2></div>
+      <p class="slede">Take the payroll comparison — the kind of question Research is for — and make it worth the run. Both versions in each pair are polished and about the same length. Only one does more work.</p>
+
+      <article class="move mm1">
+        <span class="mn">First move · the goal</span>
+        <h3>Both are specific. Both ask for sources. Which steers the report better?</h3>
+        <div class="picks">
+          <label for="m1a">"Research the payroll provider market: the leading vendors, their reputations, and where the market is heading. Include sources I can check."</label>
+          <label for="m1b">"Compare payroll providers that could serve our 200-person company: pricing, implementation time, and support quality. Include sources I can check."</label>
+        </div>
+        <div class="verdicts">
+          <p class="v no va"><b>The other one does more work.</b> This version aims at the <em>topic</em>. "The payroll provider market" gets you an industry overview — thorough, well-sourced, and not the thing you have to decide.</p>
+          <p class="v ok vb"><b>Right. Scope to your decision, not the topic.</b> The first scopes to the payroll market, so Research writes an industry overview. This one scopes to the choice you're actually making: which provider fits a 200-person company, judged on the three criteria you'll weigh. A report can only aim at the decision if the prompt names it.</p>
+        </div>
+      </article>
+
+      <article class="move mm2">
+        <span class="mn">Second move · one more line</span>
+        <h3>One line before you send it. Which addition does more work?</h3>
+        <div class="picks">
+          <label for="m2a">"Prioritise vendor pricing pages and customer reviews from the last twelve months — payroll pricing changes fast, and we'll need to verify anything we act on."</label>
+          <label for="m2b">"Also cover each provider's company history, leadership team, and market reputation, so the comparison feels complete and well-rounded."</label>
+        </div>
+        <div class="verdicts">
+          <p class="v ok va"><b>Right. Constrain the sources and the timeframe.</b> Naming which sources count and how recent they must be changes what Research actually gathers: current, verifiable pricing instead of stale summaries.</p>
+          <p class="v no vb"><b>It reads thorough — that's the trap.</b> None of history, leadership or reputation feeds the decision, and breadth you won't use dilutes the report you will. <span class="marked">More sections isn't more signal.</span></p>
+        </div>
+      </article>
+
+      <div class="pattern">
+        <span class="pt">The pattern to remember</span>
+        <div class="pgrid">
+          <div class="g1"><span>Multi-source synthesis</span><b>Research</b></div>
+          <div class="g2"><span>Single facts</span><b>Web search</b></div>
+          <div class="g3"><span>Pure reasoning</span><b>Thinking</b></div>
+          <div class="g4"><span>Company questions</span><b>Enterprise search</b></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= FOUR DOORS ======================= -->
+<section class="sect" id="doors">
+  <div class="wrap">
+    <div class="shead"><span class="snum">Reference</span><h2>The four doors, in full</h2></div>
+    <p class="slede">The quiz taught the boundaries by example. Here they are as a list you can come back to.</p>
+
+    <div class="doors">
+      <div class="door d1">
+        <span class="dl">Door 01</span>
+        <h3>Use Research when</h3>
+        <ul>
+          <li>You need a comprehensive report that synthesises multiple sources</li>
+          <li>You want in-depth analysis across the web <em>and</em> your connected integrations</li>
+          <li>The investigation would otherwise take hours of manual work</li>
+          <li>It's comparative — competitors, vendor options, alternatives</li>
+          <li>You need citations you can actually verify</li>
+        </ul>
+      </div>
+      <div class="door d2">
+        <span class="dl">Door 02</span>
+        <h3>Use web search when</h3>
+        <ul>
+          <li>You need one quick, specific fact — a stock price, an address</li>
+          <li>One or two sources will settle it</li>
+          <li>Speed matters more than comprehensiveness</li>
+        </ul>
+      </div>
+      <div class="door d3">
+        <span class="dl">Door 03</span>
+        <h3>Use Thinking when</h3>
+        <ul>
+          <li>The problem is complex but needs no outside information</li>
+          <li>It's maths, code debugging or logical analysis</li>
+          <li>The answer comes from reasoning through, not gathering up</li>
+        </ul>
+      </div>
+      <div class="door d4">
+        <span class="dl">Door 04</span>
+        <h3>Use enterprise search when</h3>
+        <ul>
+          <li>The answer is in your organisation's documents, Slack threads, emails or meeting notes</li>
+          <li>You're onboarding and need to know how <em>your</em> company does something</li>
+          <li>The question is company-specific, not about the public web</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="tasks">
+      <span class="tt">Research is ideal for tasks like</span>
+      <ul>
+        <li>Market analysis and competitive research</li>
+        <li>Planning complex projects — team offsites, product launches</li>
+        <li>Synthesising your email, calendar and documents</li>
+        <li>Technical documentation drawing on several sources</li>
+        <li>Briefings that need current, verified information</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= HOW IT WORKS ======================= -->
+<section class="sect" id="how">
+  <div class="wrap">
+    <div class="shead"><span class="snum">Part 03</span><h2>What happens while you wait</h2></div>
+    <p class="slede">Not one long search. <strong>A tree that grows as it goes</strong> — Claude decides what to look at next based on what the last look turned up, which is why it takes minutes and why it can cover ground you'd never have thought to name.</p>
+
+    <figure class="treefig">
+      <svg viewBox="0 0 900 340" role="img" aria-label="A question branches into planned angles, each spawning further searches, all converging into one cited report.">
+        <g font-family="Space Mono, monospace" font-size="10" font-weight="700" fill="#4A5470" letter-spacing="1.2">
+          <text x="230" y="24">STEP 1 · PLANS THE ANGLES</text>
+          <text x="444" y="24">STEP 2 · PARALLEL AGENTS</text>
+          <text x="658" y="24">STEPS 3–4 · SYNTHESISE + CITE</text>
+        </g>
+
+        <rect x="16" y="148" width="150" height="64" rx="6" fill="#16203C"/>
+        <text x="91" y="174" text-anchor="middle" fill="#FFD84A" font-family="Space Mono, monospace" font-size="9" font-weight="700" letter-spacing="1.2">YOUR QUESTION</text>
+        <text x="91" y="194" text-anchor="middle" fill="#E9E6DB" font-family="Public Sans, sans-serif" font-size="12">compare 3 vendors</text>
+
+        <g stroke="#0E8A63" stroke-width="2.5" fill="none">
+          <path d="M166 180 C200 180 200 89 230 89"/>
+          <path d="M166 180 H230"/>
+          <path d="M166 180 C200 180 200 271 230 271"/>
+        </g>
+
+        <g fill="#F4F2EA" stroke="#0E8A63" stroke-width="2.5">
+          <rect x="230" y="66" width="150" height="46" rx="5"/>
+          <rect x="230" y="157" width="150" height="46" rx="5"/>
+          <rect x="230" y="248" width="150" height="46" rx="5"/>
+        </g>
+        <g text-anchor="middle" font-family="Bricolage Grotesque, sans-serif" font-size="13" font-weight="800" fill="#0A6047">
+          <text x="305" y="94">PRICING</text><text x="305" y="185">IMPLEMENTATION</text><text x="305" y="276">SUPPORT QUALITY</text>
+        </g>
+
+        <g stroke="#0E8A63" stroke-width="2" fill="none" opacity="0.8">
+          <path d="M380 89 C412 89 412 61 444 61"/><path d="M380 89 C412 89 412 111 444 111"/>
+          <path d="M380 180 C412 180 412 152 444 152"/><path d="M380 180 C412 180 412 202 444 202"/>
+          <path d="M380 271 C412 271 412 243 444 243"/><path d="M380 271 C412 271 412 293 444 293"/>
+        </g>
+
+        <g fill="#E9E6DB" stroke="#0E8A63" stroke-width="2" stroke-dasharray="5 4">
+          <rect x="444" y="44" width="150" height="34" rx="4"/><rect x="444" y="94" width="150" height="34" rx="4"/>
+          <rect x="444" y="135" width="150" height="34" rx="4"/><rect x="444" y="185" width="150" height="34" rx="4"/>
+          <rect x="444" y="226" width="150" height="34" rx="4"/><rect x="444" y="276" width="150" height="34" rx="4"/>
+        </g>
+        <g text-anchor="middle" font-family="Space Mono, monospace" font-size="9" fill="#16203C" letter-spacing="0.5">
+          <text x="519" y="65">VENDOR PRICING PAGES</text><text x="519" y="115">REVIEWS, 12 MONTHS</text>
+          <text x="519" y="156">ONBOARDING TIMES</text><text x="519" y="206">CASE STUDIES</text>
+          <text x="519" y="247">SUPPORT SLAS</text><text x="519" y="297">USER FORUMS</text>
+        </g>
+
+        <g stroke="#0E8A63" stroke-width="1.8" fill="none" opacity="0.65">
+          <path d="M594 61 C626 61 626 180 658 180"/><path d="M594 111 C626 111 626 180 658 180"/>
+          <path d="M594 152 C626 152 626 180 658 180"/><path d="M594 202 C626 202 626 180 658 180"/>
+          <path d="M594 243 C626 243 626 180 658 180"/><path d="M594 293 C626 293 626 180 658 180"/>
+        </g>
+
+        <rect x="658" y="110" width="228" height="140" rx="6" fill="#F4F2EA" stroke="#0E8A63" stroke-width="3.5"/>
+        <text x="772" y="152" text-anchor="middle" fill="#0A6047" font-family="Bricolage Grotesque, sans-serif" font-size="19" font-weight="800">ONE REPORT</text>
+        <text x="772" y="174" text-anchor="middle" fill="#4A5470" font-family="Public Sans, sans-serif" font-size="12">every claim linked</text>
+        <text x="772" y="190" text-anchor="middle" fill="#4A5470" font-family="Public Sans, sans-serif" font-size="12">back to its source</text>
+        <g fill="#16203C">
+          <rect x="690" y="206" width="52" height="20" rx="3"/><rect x="746" y="206" width="52" height="20" rx="3"/><rect x="802" y="206" width="52" height="20" rx="3"/>
+        </g>
+        <g text-anchor="middle" font-family="Space Mono, monospace" font-size="8.5" font-weight="700" fill="#FFD84A">
+          <text x="716" y="220">[1]</text><text x="772" y="220">[2]</text><text x="828" y="220">[3]</text>
+        </g>
+      </svg>
+    </figure>
+
+    <div class="steps">
+      <div class="st"><span class="sn">Step 01</span><h3>It plans first</h3><p>Claude thinks through its approach before searching anything: breaks down your request, works out what information it needs, and plans how to investigate each angle.</p></div>
+      <div class="st"><span class="sn">Step 02</span><h3>It searches, then re-decides</h3><p>Many searches that build on each other. What it finds determines what it looks for next — chasing promising leads, filling gaps you never specified.</p></div>
+      <div class="st"><span class="sn">Step 03</span><h3>It synthesises</h3><p>Everything gathered — from the web and any connected integrations like Gmail, Calendar or Drive — is compiled into one organised report.</p></div>
+      <div class="st"><span class="sn">Step 04</span><h3>It cites</h3><p>Every claim links back to its source, so verifying a number or digging further takes one click rather than a second investigation.</p></div>
+    </div>
+
+    <div class="addition">
+      <span class="at">Worth knowing, and not in the lesson</span>
+      <h3>Those branches are separate agents, running at the same time</h3>
+      <p>Anthropic's engineering team has described Research as a <strong>multi-agent system</strong>: a lead agent plans the approach, then spawns parallel subagents that search simultaneously, each with its own context. That's why a run takes minutes and can touch hundreds of sources — and it explains exactly where Research beats everything else. Their evaluations found the multi-agent setup excels on <strong>breadth-first questions</strong>: the ones with several independent directions worth pursuing at once.</p>
+      <p style="margin-top:.7rem;"><strong>The practical upshot:</strong> when you write the prompt, name the independent angles. "Pricing, implementation time and support quality" isn't just clearer — it's three directions that can be chased in parallel.</p>
+      <p class="src">Source: Anthropic Engineering, "How we built our multi-agent research system".</p>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= RUNNING ONE ======================= -->
+<section class="sect" id="run">
+  <div class="wrap">
+    <div class="shead"><span class="snum">Part 04</span><h2>Running one well</h2></div>
+    <p class="slede">Four clicks to start it. The rest of this section is about the prompt — because a run takes minutes rather than seconds, <strong>time spent on the prompt is the cheapest time in the whole exercise.</strong></p>
+
+    <div class="run"><span class="rn">01</span><div><b>Click the + button</b><span>Bottom left of your chat interface.</span></div></div>
+    <div class="run"><span class="rn">02</span><div><b>Select Research</b><span>It highlights once active — you'll see an indicator at the bottom of the chat window.</span></div></div>
+    <div class="run"><span class="rn">03</span><div><b>Enter your prompt and submit</b><span>This is the part worth slowing down for.</span></div></div>
+    <div class="run"><span class="rn">04</span><div><b>Leave it running</b><span>Claude works in the background with progress indicators as it searches and analyses. Go and do something else.</span></div></div>
+
+    <div class="prereq">
+      <p><b>Prerequisite:</b> web search must be turned on for Research to function at all. If you haven't enabled it, it's in the same <strong>+</strong> menu. This is the single most common reason the option seems to do nothing.</p>
+    </div>
+
+    <div class="tips">
+      <div class="tip">
+        <span class="tn">Tip 01</span>
+        <h3>Be specific about the goal</h3>
+        <p>Name the decision, not the subject.</p>
+        <div class="ba">
+          <div class="before"><span class="bl">Instead of</span><q>"Tell me about the EV market"</q></div>
+          <div class="after"><span class="bl">Try</span><q>"Analyse the electric vehicle battery market — identify key players, technology trends, and supply chain challenges that might affect investment decisions."</q></div>
+        </div>
+      </div>
+      <div class="tip">
+        <span class="tn">Tip 02</span>
+        <h3>Ask for the sections you want</h3>
+        <p>Claude organises its findings around whatever structure you give it. <em>"Compare venue options for a team offsite including: location and accessibility, meeting space and amenities, catering options, and pricing considerations."</em> Name the sections and you get the report you can actually use.</p>
+      </div>
+      <div class="tip">
+        <span class="tn">Tip 03</span>
+        <h3>Include your constraints</h3>
+        <p>Budget ranges, timelines, geographic requirements, company size. Every constraint narrows what counts as a relevant option — and narrowing is what turns an overview into an answer.</p>
+      </div>
+      <div class="tip">
+        <span class="tn">Tip 04</span>
+        <h3>Ask Claude to write the prompt</h3>
+        <p>If you're not sure how to frame the question, ask Claude to help you write a better Research prompt <em>before</em> you enable the feature. Two minutes in a normal chat beats a ten-minute run pointed at the wrong thing.</p>
+      </div>
+    </div>
+
+    <div class="integ">
+      <span class="il">With your connected tools</span>
+      <p style="font-size:.94rem;color:var(--ink-soft);">With Google Workspace or other integrations connected, Research pulls from your emails, calendar and documents <em>alongside</em> the web — which is where it stops being a search tool and starts being a briefing service.</p>
+      <ul>
+        <li>"Summarise what's been discussed about Project X across my emails and Slack, then research industry best practices for similar initiatives."</li>
+        <li>"Review my calendar commitments for next week and research each company I'm meeting with."</li>
+        <li>"Find all internal documents about our pricing strategy and compare to how competitors are positioning themselves."</li>
+      </ul>
+      <p style="margin-top:.8rem;font-size:.93rem;">You can steer it mid-request too: <em>"Pull relevant context from my Google Drive"</em> or <em>"Include insights from my recent emails on this topic."</em></p>
+    </div>
+
+    <p class="keep"><b>The one habit that pays:</b> before you send a Research prompt, read it back and ask what decision it's aimed at. If you can't name one, you'll get an overview — and you'll have waited ten minutes for it.</p>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>Lesson 10 · Research for deep dives · Route the question ·
+      <a href="lesson-09-enterprise-search.html">← Lesson 09</a> ·
+      <a href="lesson-11-use-cases.html">Lesson 11 →</a></p>
+  </div>
+</footer>
+
+
+
+<style>
+.pathnav{position:sticky;bottom:0;z-index:60;background:#16203C;border-top:2px solid #FFD84A;}
+.pathnav .inner{max-width:1160px;margin:0 auto;padding:.55rem 1.5rem;display:flex;align-items:center;gap:.8rem;flex-wrap:wrap;}
+.pathnav a{font-family:"Space Mono",monospace;font-size:.6rem;font-weight:700;text-transform:uppercase;
+letter-spacing:.1em;text-decoration:none;color:#E9E6DB;border:1.5px solid #4A5470;padding:.32rem .55rem;transition:all .15s ease;}
+.pathnav a:hover{border-color:#FFD84A;color:#FFD84A;}
+.pathnav a.next{border-color:#FFD84A;color:#FFD84A;margin-left:auto;}
+.pathnav .step{font-family:"Space Mono",monospace;font-size:.58rem;font-weight:700;letter-spacing:.12em;color:#8FA0C4;text-transform:uppercase;}
+@media print{.pathnav{display:none;}}
+</style>
+<div class="pathnav"><div class="inner"><a href="lesson-09-enterprise-search.html">← 09 Enterprise search</a>
+<a href="learning-path.html">↑ Learning path</a>
+<span class="step">Step 13 of 16</span>
+<a class="next" href="lesson-12-other-surfaces.html">12 Other surfaces →</a></div></div>
+</body>
+</html>

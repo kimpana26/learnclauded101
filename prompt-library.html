@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Prompt Library — 50 before-and-after prompts</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Public+Sans:ital,wght@0,400;0,600;1,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   THE PROMPT LIBRARY — 50 pairs, every one copyable.
+   The only file in this course with JavaScript, because a copy
+   button genuinely needs it. Everything else is CSS.
+   ============================================================ */
+
+:root{
+  --paper:#E9E6DB; --paper-hi:#F4F2EA; --ink:#16203C; --ink-soft:#4A5470; --rule:#C9C4B4;
+  --good:#0E8A63; --good-ink:#0A6047;
+  --bad:#A8A296;
+  --accent:#1358A8; --accent-ink:#0D4079;
+  --marker:#FFD84A;
+  --display:"Bricolage Grotesque","Trebuchet MS",system-ui,sans-serif;
+  --body:"Public Sans",-apple-system,"Segoe UI",Roboto,sans-serif;
+  --mono:"Space Mono",ui-monospace,"Courier New",monospace;
+}
+*,*::before,*::after{ box-sizing:border-box; }
+html{ scroll-behavior:smooth; }
+body{
+  margin:0; background:var(--paper); color:var(--ink);
+  font-family:var(--body); font-size:1rem; line-height:1.6; -webkit-font-smoothing:antialiased;
+}
+body::after{
+  content:""; position:fixed; inset:0; pointer-events:none; z-index:200;
+  background-image:radial-gradient(var(--ink) .5px, transparent .5px);
+  background-size:4px 4px; opacity:.05;
+}
+.wrap{ max-width:960px; margin:0 auto; padding:0 var(--sp,1.5rem); }
+
+h1,h2,h3{ font-family:var(--display); font-weight:800; line-height:1.05; margin:0; letter-spacing:-.02em; }
+h1{ font-size:clamp(2.2rem,7vw,4.2rem); text-transform:uppercase; }
+p{ margin:0 0 1rem; } p:last-child{ margin-bottom:0; }
+a{ color:var(--accent-ink); }
+:focus-visible{ outline:3px solid var(--accent); outline-offset:3px; border-radius:3px; }
+
+/* ---------------- hero ---------------- */
+.hero{ padding:3.5rem 0 1.5rem; }
+.hero .eyebrow{ font-family:var(--mono); font-size:.66rem; font-weight:700; text-transform:uppercase; letter-spacing:.16em; color:var(--ink-soft); display:block; margin-bottom:1rem; }
+.hero h1{ margin-bottom:1.2rem; }
+.hero .deck{ font-size:1.08rem; color:var(--ink-soft); max-width:56ch; }
+.hero .deck strong{ color:var(--ink); font-weight:600; }
+
+.rule3{ background:var(--ink); color:#C6CDDE; padding:1.4rem; margin-top:1.6rem; border-left:6px solid var(--marker); }
+.rule3 .t{ font-family:var(--mono); font-size:.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.14em; color:#8FA0C4; display:block; margin-bottom:.6rem; }
+.rule3 ol{ margin:0; padding-left:1.2rem; }
+.rule3 li{ font-size:.95rem; margin-bottom:.35rem; }
+.rule3 li b{ color:var(--marker); font-weight:600; }
+.rule3 li:last-child{ margin-bottom:0; }
+
+/* ---------------- control bar ---------------- */
+.controls{ position:sticky; top:0; z-index:100; background:var(--paper); border-bottom:2px solid var(--ink); padding:.8rem 0; margin-top:2rem; }
+.ctop{ display:flex; gap:.7rem; align-items:center; flex-wrap:wrap; margin-bottom:.7rem; }
+.searchwrap{ flex:1 1 240px; position:relative; }
+#q{
+  width:100%; font-family:var(--body); font-size:.95rem; color:var(--ink);
+  background:var(--paper-hi); border:2px solid var(--ink); padding:.6rem .8rem .6rem 2.1rem; border-radius:0;
+}
+#q::placeholder{ color:var(--ink-soft); }
+.searchwrap svg{ position:absolute; left:.65rem; top:50%; transform:translateY(-50%); width:16px; height:16px; color:var(--ink-soft); pointer-events:none; }
+.tally{ font-family:var(--mono); font-size:.66rem; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:var(--ink-soft); white-space:nowrap; }
+.tally b{ color:var(--ink); }
+
+.cats{ display:flex; gap:.35rem; flex-wrap:wrap; }
+.cats button{
+  font-family:var(--mono); font-size:.62rem; font-weight:700; text-transform:uppercase; letter-spacing:.09em;
+  background:transparent; color:var(--ink-soft); border:1.5px solid var(--rule);
+  padding:.32rem .55rem; cursor:pointer; border-radius:999px;
+  transition:background .15s ease, color .15s ease, border-color .15s ease;
+}
+.cats button:hover{ border-color:var(--ink); color:var(--ink); }
+.cats button[aria-pressed="true"]{ background:var(--ink); border-color:var(--ink); color:var(--marker); }
+
+/* ---------------- groups + cards ---------------- */
+.grp{ padding-top:2.6rem; }
+.grp > h2{ font-size:clamp(1.25rem,3.4vw,1.8rem); text-transform:uppercase; color:var(--ink); margin-bottom:.3rem; }
+.grp > .gsub{ font-family:var(--mono); font-size:.62rem; font-weight:700; text-transform:uppercase; letter-spacing:.12em; color:var(--ink-soft); border-bottom:2px solid var(--ink); padding-bottom:.6rem; margin-bottom:1.2rem; display:block; }
+
+.card{ background:var(--paper-hi); border:1px solid var(--rule); padding:1.4rem; margin-bottom:1rem; }
+.card[hidden]{ display:none; }
+.chead{ display:flex; align-items:baseline; gap:.6rem; margin-bottom:.5rem; }
+.chead .num{ font-family:var(--mono); font-size:.62rem; font-weight:700; color:#fff; background:var(--ink); padding:.15rem .38rem; }
+.chead .cat{ font-family:var(--mono); font-size:.58rem; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:var(--ink-soft); }
+.card h3{ font-size:1.08rem; font-weight:800; margin-bottom:1rem; letter-spacing:-.01em; }
+
+.bad{ border-left:4px solid var(--bad); padding:.5rem 0 .5rem .85rem; margin-bottom:.9rem; }
+.bad .lbl{ font-family:var(--mono); font-size:.55rem; font-weight:700; text-transform:uppercase; letter-spacing:.12em; color:var(--bad); display:block; margin-bottom:.25rem; }
+.bad p{ margin:0; font-size:.93rem; color:var(--ink-soft); font-style:italic; text-decoration:line-through; text-decoration-color:var(--bad); text-decoration-thickness:1px; }
+
+.good{ border:1.5px solid var(--good); background:var(--paper); }
+.ghead{ display:flex; align-items:center; gap:.6rem; background:var(--good-ink); padding:.4rem .7rem; }
+.ghead .lbl{ font-family:var(--mono); font-size:.58rem; font-weight:700; text-transform:uppercase; letter-spacing:.12em; color:#fff; }
+.copy{
+  margin-left:auto; font-family:var(--mono); font-size:.58rem; font-weight:700;
+  text-transform:uppercase; letter-spacing:.1em; cursor:pointer;
+  background:var(--marker); color:var(--ink); border:none; padding:.3rem .6rem;
+  display:inline-flex; align-items:center; gap:.3rem; transition:background .15s ease;
+}
+.copy:hover{ background:#fff; }
+.copy.done{ background:#fff; color:var(--good-ink); }
+.prompt{ margin:0; padding:.9rem; font-size:.94rem; line-height:1.62; white-space:pre-wrap; }
+.fill{ background:var(--marker); font-weight:600; padding:0 .15em; border-radius:2px; }
+
+.why{ margin:.9rem 0 0; font-size:.87rem; color:var(--ink-soft); border-top:1px dashed var(--rule); padding-top:.7rem; }
+.why b{ color:var(--ink); font-weight:600; font-family:var(--mono); font-size:.58rem; text-transform:uppercase; letter-spacing:.1em; }
+
+.empty{ display:none; text-align:center; padding:4rem 1rem; color:var(--ink-soft); }
+.empty.on{ display:block; }
+.empty b{ display:block; font-family:var(--display); font-weight:800; font-size:1.3rem; color:var(--ink); margin-bottom:.4rem; }
+
+footer{ border-top:1px solid var(--rule); margin-top:3.5rem; padding:1.5rem 0 3.5rem; }
+footer p{ font-family:var(--mono); font-size:.64rem; text-transform:uppercase; letter-spacing:.1em; color:var(--ink-soft); }
+
+@media (min-width:720px){ .card{ padding:1.6rem; } }
+@media (prefers-reduced-motion:reduce){ html{ scroll-behavior:auto; } *{ transition:none !important; } }
+@media print{ .controls{ display:none; } body::after{ display:none; } .card{ break-inside:avoid; } }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <span class="eyebrow">Practice · after Lessons 01–03 and 13 · 50 pairs</span>
+    <h1>Instead of<br>this — try this</h1>
+    <p class="deck">Fifty real situations, each with the prompt most people type and the prompt that actually works. <strong>Don't read this as a catalogue.</strong> Go down the left column and find the three that are things <em>you</em> actually type — those are your habits, and fixing three beats skimming fifty. Nothing here is clever — every good version just says out loud what the bad one left in your head.</p>
+
+    <div class="rule3">
+      <span class="t">If you only remember three things</span>
+      <ol>
+        <li><b>Set the stage.</b> Who you are, who it's for, what's already happened.</li>
+        <li><b>Define the task.</b> A verb, and the actual thing you want back.</li>
+        <li><b>Specify the rules.</b> Length, tone, format, and what to leave out.</li>
+      </ol>
+    </div>
+    <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-top:1.5rem;">
+      <a href="prompt-library.html" style="font-family:var(--mono);font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;text-decoration:none;padding:.45rem .7rem;border:2px solid var(--ink);background:var(--ink);color:var(--marker);">Vol 1 · 50 short pairs</a>
+      <a href="power-prompts.html" style="font-family:var(--mono);font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;text-decoration:none;padding:.45rem .7rem;border:2px solid var(--ink);color:var(--ink);">Vol 2 · 64 power prompts</a>
+      <a href="index.html" style="font-family:var(--mono);font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;text-decoration:none;padding:.45rem .7rem;border:2px solid var(--ink);color:var(--ink);">The course</a>
+    </div>
+  </div>
+</header>
+
+<div class="controls">
+  <div class="wrap">
+    <div class="ctop">
+      <div class="searchwrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input id="q" type="search" placeholder="Search all 50 — try 'email', 'deck', 'feedback'…" aria-label="Search prompts">
+      </div>
+      <span class="tally"><b id="count">50</b> shown</span>
+    </div>
+    <div class="cats" role="group" aria-label="Filter by category">
+      <button type="button" data-cat="all" aria-pressed="true">All 50</button>
+      <button type="button" data-cat="email" aria-pressed="false">Email</button>
+      <button type="button" data-cat="meetings" aria-pressed="false">Meetings</button>
+      <button type="button" data-cat="docs" aria-pressed="false">Docs &amp; decks</button>
+      <button type="button" data-cat="data" aria-pressed="false">Data</button>
+      <button type="button" data-cat="research" aria-pressed="false">Research</button>
+      <button type="button" data-cat="thinking" aria-pressed="false">Thinking</button>
+      <button type="button" data-cat="learning" aria-pressed="false">Learning</button>
+      <button type="button" data-cat="projects" aria-pressed="false">Projects</button>
+      <button type="button" data-cat="skills" aria-pressed="false">Skills</button>
+      <button type="button" data-cat="personal" aria-pressed="false">Career</button>
+    </div>
+  </div>
+</div>
+
+<main class="wrap" id="lib">
+
+<!-- ══════════════ EMAIL ══════════════ -->
+<section class="grp" data-grp="email">
+  <h2>Email &amp; messages</h2><span class="gsub">01–05 · the ones you write every week</span>
+
+  <article class="card" data-cat="email">
+    <div class="chead"><span class="num">01</span><span class="cat">Email</span></div>
+    <h3>Telling a client the deadline slipped</h3>
+    <div class="bad"><span class="lbl">Instead of</span><p>"Write an email about the project delay"</p></div>
+    <div class="good"><div class="ghead"><span class="lbl">Try this</span><button class="copy" type="button">Copy</button></div>
+    <p class="prompt">Write an email to <b class="fill">[client name]</b>, our enterprise customer, explaining that <b class="fill">[the integration]</b> will be delayed by <b class="fill">[two weeks]</b>. This is the second delay and they've been patient so far. Lead with the new date, keep it professional but genuinely apologetic, and end with one concrete thing we're doing to prevent a third. Under 150 words.</p></div>
+    <p class="why"><b>Why</b> It names the reader, the history, the tone and the length — four facts you already had and hadn't written down.</p>
+  </article>
+
+  <article class="card" data-cat="email">
+    <div class="chead"><span class="num">02</span><span class="cat">Email</span></div>
+    <h3>Saying no without burning the bridge</h3>
+    <div class="bad"><span class="lbl">Instead of</span><p>"Help me decline this request politely"</p></div>
+    <div class="good"><div class="ghead"><span class="lbl">Try this</span><button class="copy" type="button">Copy</button></div>
+    <p class="prompt">I need to decline <b class="fill">[request]</b> from <b class="fill">[who they are to me]</b>. I want to keep the relationship warm because <b class="fill">[reason]</b>. Write three versions: a clean no, a no-with-an-alternative, and a not-right-now. Under 80 words each. Don't over-apologise — one apology maximum per version.</p></div>
+    <p class="why"><b>Why</b> Asking for three options costs nothing and lets you pick by feel instead of re-prompting.</p>
+  </article>
+
+  <article class="card" data-cat="email">
+    <div class="chead"><span class="num">03</span><span class="cat">Email</span></div>
+    <h3>Chasing someone who hasn't replied</h3>
+    <div class="bad"><span class="lbl">Instead of</span><p>"Write a follow up email"</p></div>
+    <div class="good"><div class="ghead"><span class="lbl">Try this</span><button class="copy" type="button">Copy</button></div>
+    <p class="prompt">I emailed <b class="fill">[name]</b> on <b class="fill">[date]</b> about <b class="fill">[topic]</b> and heard nothing. This is my second nudge. Write something short that gives them an easy way out, doesn't guilt them, and turns the ask into a yes/no question they can answer in one line. Three sentences maximum.</p></div>
+    <p class="why"><b>Why</b> "Turn the ask into a yes/no question" is the move that actually gets replies.</p>
+  </article>
+
+  <article class="card" data-cat="email">
+    <div class="chead"><span class="num">04</span><span class="cat">Email</span></div>
+    <h3>Bad news to your own team</h3>
+    <div class="bad"><span class="lbl">Instead of</span><p>"Tell my team about the budget cut"</p></div>
+    <div class="good"><div class="ghead"><span class="lbl">Try this</span><button class="copy" type="button">Copy</button></div>
+    <p class="prompt">Write a message to my <b class="fill">[8-person design team]</b> about <b class="fill">[a 20% budget cut]</b> taking effect <b class="fill">[next quarter]</b>. They will immediately worry about <b class="fill">[headcount]</b> — address that directly rather than talking around it. Cover what I know, what I don't know yet, and when I'll update them. Plain language, no corporate softening.</p></div>
+    <p class="why"><b>Why</b> Naming the fear your audience actually has is what separates a real message from a memo.</p>
+  </article>
+
+  <article class="card" data-cat="email">
+    <div class="chead"><span class="num">05</span><span class="cat">Email</span></div>
+    <h3>Introducing two people</h3>
+    <div class="bad"><span class="lbl">Instead of</span><p>"Write an intro email"</p></div>
+    <div class="good"><div class="ghead"><span class="lbl">Try this</span><button class="copy" type="button">Copy</button></div>
+    <p class="prompt">Write an introduction connecting <b class="fill">[person A — role, why they're interesting]</b> with <b class="fill">[person B — role, why they're interesting]</b>. Give one line on why each should care about the other, suggest a concrete first step, then get out of the way. Under 120 words, warm but not gushing.</p></div>
+    <p class="why"><b>Why</b> A good intro does the thinking for both parties. That only works if you supply both sides.</p>
+  </article>
+</section>
+
+<!-- ══════════════ MEETINGS ══════════════ -->
+<section class="grp" data-grp="meetings">
+  <h2>Meetings &amp; notes</h2><span class="gsub">06–10 · before, during and after the calendar invite</span>
+
+  <article class="card" data-cat="meetings">
+    <div class="chead"><span class="num">06</span><span class="cat">Meetings</span></div>
+    <h3>Turning a transcript into something useful</h3>
+    <div class="bad"><span class="lbl">Instead of</span><p>"Summarize this meeting"</p></div>
+    <div class="good"><div class="ghead"><span class="lbl">Try this</span><button class="copy" type="button">Copy</button></div>
+    <p class="prompt">Here's the transcript from <b class="fill">[meeting]</b>. Give me four sections: (1) decisions actually made, (2) open questions with who owns each, (3) action items with owner and date, (4) anything someone volunteered to do that nobody wrote down. Ignore the small talk and don't invent owners — mark them unassigned if it wasn't said.</p></div>
+    <p class="why"><b>Why</b> Section four is the one that saves you, and no default summary will ever include it.</p>
+  </article>
+
+  <article class="card" data-cat="meetings">
+    <div class="chead"><span class="num">07</span><span class="cat">Meetings</span></div>
+    <h3>Preparing for a 1:1 you're nervous about</h3>
+    <div class="bad"><span class="lbl">Instead of</span><p>"Help me prepare for my 1:1"</p></div>
+    <div class="good"><div class="ghead"><span class="lbl">Try this</span><button class="copy" type="button">Copy</button></div>
+    <p class="prompt">I have a 1:1 with <b class="fill">[my manager]</b> on <b class="fill">[day]</b>. My goals this quarter are <b class="fill">[X]</b>. I want to raise <b class="fill">[topic]</b> but I'm worried it will sound like complaining. Help me plan: what to open with, how to frame that topic as a problem to solve rather than a grievance, and two questions I should ask them.</p></div>
+    <p class="why"><b>Why</b> Say the anxiety out loud and Claude can solve for it. Leave it out and you get generic advice.</p>
+  </article>
+
+  <article class="card" data-cat="meetings">
+    <div class="chead"><span class="num">08</span><span class="cat">Meetings</span></div>
+    <h3>Building an agenda that cuts things</h3>
+    <div class="bad"><span class="lbl">Instead of</span><p>"Make an agenda for this meeting"</p></div>
+    <div class="good"><div class="ghead"><span class="lbl">Try this</span><button class="copy" type="button">Copy</button></div>
+    <p class="prompt">Here are my notes for <b class="fill">[meeting]</b> with <b class="fill">[attendees]</b>. Build a <b class="fill">[45]</b>-minute agenda: minutes allocated per item, decision items before update items, and a clear owner for each. Then flag anything on this list that doesn't need a meeting at all and could be an email.</p></div>
+    <p class="why"><b>Why</b> The last sentence is the valuable one — you asked it to shorten your day, not just format it.</p>
+  </article>
+
+  <article class="card" data-cat="meetings">
+    <div class="chead"><span class="num">09</span><span class="cat">Meetings</span></div>
+    <h3>Catching up after time off</h3>
+    <div class="bad"><span class="lbl">Instead of</span><p>"What did I miss?"</p></div>
+    <div class="good"><div class="ghead"><span class="lbl">Try this</span><button class="copy" type="button">Copy</button></div>
+    <p class="prompt">I was out from <b class="fill">[date]</b> to <b class="fill">[date]</b>. From my connected threads and documents, tell me: decisions made that affect <b class="fill">[my project]</b>, anything with my name on it, and the two or three things I have to act on this week. Skip anything already resolved without me.</p></div>
+    <p class="why"><b>Why</b> Filters by what matters to <em>you</em> rather than by what happened most recently.</p>
+  </article>
+
+  <article class="card" data-cat="meetings">
+    <div class="chead"><span class="num">10</span><span class="cat">Meetings</span></div>
+    <h3>A post-mortem that finds real causes</h3>
+    <div class="bad"><span class="lbl">Instead of</span><p>"Write a post mortem for this project"</p></div>
+    <div class="good"><div class="ghead"><span class="lbl">Try this</span><button class="copy" type="button">Copy</button></div>
+    <p class="prompt">Here's what happened on <b class="fill">[project]</b>. Write a blameless post-mortem: timeline, what went well, what went wrong, root causes, and three specific changes. For each root cause, keep asking "and why did that happen" until you reach something structural rather than a person's mistake. Name no individuals.</p></div>
+    <p class="why"><b>Why</b> You specified the <em>method</em>, not just the template. That's what stops it stopping at symptoms.</p>
+  </article>
+</section>
+
+<!-- ══════════════ DOCS ══════════════ -->
+<section class="grp" data-grp="docs">
+  <h2>Documents &amp; decks</h2><span class="gsub">11–15 · things other people have to read</span>
+
+  <article class="card" data-cat="docs">
+    <div class="chead"><span class="num">11</span><span class="cat">Docs &amp; decks</span></div>
+    <h3>A deck from a pile of notes</h3>
+    <div class="bad"><span class="lbl">Instead of</span><p>"Make a presentation about our Q3 results"</p></div>
+    <div class="good"><div class="ghead"><span class="lbl">Try this</span><button class="copy" type="button">Copy</button></div>
+    <p class="prompt">Turn these notes into a <b class="fill">[10]</b>-slide deck for <b class="fill">[our board]</b>. One idea per slide. Titles must state the takeaway, not the topic — "Churn is concentrated in one segment", never "Churn analysis". Speaker notes under each. Slide 1 is the single thing I want them to remember if they forget everything else.</p></div>
+    <p class="why"><b>Why</b> Takeaway titles are the difference between a deck that argues and a deck that lists.</p>
+  </article>
+
+  <article class="card" data-cat="docs">
+    <div class="chead"><span class="num">12</span><span class="cat">Docs &amp; decks</span></div>
+    <h3>Cutting something in half</h3>
+    <div class="bad"><span class="lbl">Instead of</span><p>"Make this shorter"</p></div>
+    <div class="good"><div class="ghead"><span class="lbl">Try this</span><button class="copy" type="button">Copy</button></div>
+    <p class="prompt">Cut this <b class="fill">[two-page memo]</b> to <b class="fill">[one page]</b>. Keep every number and every commitment I've made. Remove throat-clearing, hedging, and anything that repeats a point already made. At the end, list what you cut so I can object to any of it.</p></div>
+    <p class="why"><b>Why</b> Saying what must survive is more useful than saying how short. The cut-list keeps you in control.</p>
+  </article>
+
+  <article class="card" data-cat="docs">
+    <div class="chead"><span class="num">13</span><span class="cat">Docs &amp; decks</span></div>
+    <h3>A template you'll use fifty times</h3>
+    <div class="bad"><span class="lbl">Instead of</span><p>"Write a project brief"</p></div>
+    <div class="good"><div class="ghead"><span class="lbl">Try this</span><button class="copy" type="button">Copy</button></div>
+    <p class="prompt">Write a reusable project brief template for <b class="fill">[my team]</b>. Include the sections we always end up arguing about later: success criteria, who decides, what's explicitly out of scope. Use square-bracket placeholders I fill in each time, and put a one-line note under each heading explaining what belongs there.</p></div>
+    <p class="why"><b>Why</b> Building for the fiftieth use rather than the first is the whole idea behind Skills.</p>
+  </article>
+
+  <article class="card" data-cat="docs">
+    <div class="chead"><span class="num">14</span><span class="cat">Docs &amp; decks</span></div>
+    <h3>One piece, three channels</h3>
+    <div class="bad"><span class="lbl">Instead of</span><p>"Make social posts from this"</p></div>
+    <div class="good"><div class="ghead"><span class="lbl">Try this</span><button class="copy" type="button">Copy</button></div>
+    <p class="prompt">Take this <b class="fill">[blog post]</b> and adapt it for three places: LinkedIn (professional, ~200 words, one insight), a short thread (punchy, 5 posts), and an internal announcement (casual, 3 sentences). The core claim must stay identical in all three — change only register and length, never the substance.</p></div>
+    <p class="why"><b>Why</b> Naming what must stay constant is what stops three versions becoming three different arguments.</p>
+  </article>
+
+  <article class="card" data-cat="docs">
+    <div class="chead"><span class="num">15</span><span class="cat">Docs &amp; decks</span></div>
+    <h3>An executive summary that survives skimming</h3>
+    <div class="bad"><span class="lbl">Instead of</span><p>"Summarize this report"</p></div>
+    <div class="good"><div class="ghead"><span class="lbl">Try this</span><button class="copy" type="button">Copy</button></div>
+    <p class="prompt">Write a 150-word executive summary of this report for <b class="fill">[a CFO with 90 seconds]</b>. Lead with the recommendation. Then the two numbers that justify it. Then the biggest risk. No background section, no methodology, no throat-clearing.</p></div>
+    <p class="why"><b>Why</b> Forbidding the sections they'd skip is faster than describing the ones they'd read.</p>
+  </article>
+</section>
+
+<!-- ══════════════ DATA ══════════════ -->
+<section class="grp" data-grp="data">
+  <h2>Data &amp; spreadsheets</h2><span class="gsub">16–20 · numbers you have to trust</span>
+
+  <article class="card" data-cat="data">
+    <div class="chead"><span class="num">16</span><span class="cat">Data</span></div>
+    <h3>Making sense of a dataset</h3>
+    <div class="bad"><span class="lbl">Instead of</span><p>"Analyze this data"</p></div>
+    <div class="good"><div class="ghead"><span class="lbl">Try this</span><button class="copy" type="button">Copy</button></div>
+    <p class="prompt">Here's <b class="fill">[our monthly sales data for two years]</b>. Tell me the three clearest trends, anything that looks like a data error rather than a real signal, and the one question this raises that I should investigate next. Show your working for any number you quote so I can check it.</p></div>
+    <p class="why"><b>Why</b> "Error rather than signal" catches the thing that would otherwise become a slide.</p>
+  </article>
+
+  <article class="card" data-cat="data">
+    <div class="chead"><span class="num">17</span><span class="cat">Data</span></div>
+    <h3>The spreadsheet you inherited</h3>
+    <div class="bad"><span class="lbl">Instead of</span><p>"Explain this spreadsheet"</p></div>
+    <div class="good"><div class="ghead"><span class="lbl">Try this</span><button class="copy" type="button">Copy</button></div>
+    <p class="prompt">I inherited this workbook and don't know how it works. Map it: what each tab does, which cells are inputs versus calculations, how dependencies flow between sheets, and — most importantly — anything fragile that would silently break if someone typed over it.</p></div>
+    <p class="why"><b>Why</b> The fragility is what bites you. Nobody thinks to ask for it.</p>
+  </article>
+
+  <article class="card" data-cat="data">
+    <div class="chead"><span class="num">18</span><span class="cat">Data</span></div>
+    <h3>Building a model you can defend</h3>
+    <div class="bad"><span class="lbl">Instead of</span><p>"Build a financial model"</p></div>
+    <div class="good"><div class="ghead"><span class="lbl">Try this</span><button class="copy" type="button">Copy</button></div>
+    <p class="prompt">Build a <b class="fill">[three-year revenue model]</b> for <b class="fill">[a 200-person B2B SaaS company]</b>. Put every assumption in one clearly labelled tab and have all formulas reference it — never hard-code a number inside a formula. Add a scenario toggle for conservative / base / aggressive. Then list every assumption you made that I should challenge.</p></div>
+    <p class="why"><b>Why</b> The last sentence turns a black box into something you can actually argue with.</p>
+  </article>
+
+  <article class="card" data-cat="data">
+    <div class="chead"><span class="num">19</span><span class="cat">Data</span></div>
+    <h3>Choosing the right chart</h3>
+    <div class="bad"><span class="lbl">Instead of</span><p>"Make a chart of this"</p></div>
+    <div class="good"><div class="ghead"><span class="lbl">Try this</span><button class="copy" type="button">Copy</button></div>
+    <p class="prompt">I want to show <b class="fill">[that churn is concentrated in one customer segment]</b> to <b class="fill">[a non-technical audience]</b>. Suggest the chart type that makes that point fastest and explain why, then build it. If the data doesn't actually support that claim, tell me instead of drawing it anyway.</p></div>
+    <p class="why"><b>Why</b> That final clause is a safeguard against making a beautiful chart of a wrong idea.</p>
+  </article>
+
+  <article class="card" data-cat="data">
+    <div class="chead"><span class="num">20</span><span class="cat">Data</span></div>
+    <h3>Checking someone else's numbers</h3>
+    <div class="bad"><span class="lbl">Instead of</span><p>"Is this analysis right?"</p></div>
+    <div class="good"><div class="ghead"><span class="lbl">Try this</span><button class="copy" type="button">Copy</button></div>
+    <p class="prompt">Check this analysis against the raw data. Recompute each headline figure independently rather than following their method, flag any that don't reconcile, and tell me which conclusions would change if the discrepancies are real. Don't assume the original is correct.</p></div>
+    <p class="why"><b>Why</b> "Recompute independently" is a different instruction from "review", and gets a different answer.</p>
+  </article>
+</section>
+
+<!-- ══════════════ RESEARCH ══════════════ -->
+<section class="grp" data-grp="research">
+  <h2>Research &amp; competitive</h2><span class="gsub">21–25 · worth turning Research mode on for</span>
+
+  <article class="card" data-cat="research">
+    <div class="chead"><span class="num">21</span><span class="cat">Research</span></div>
+    <h3>Comparing vendors properly</h3>
+    <div class="bad"><span class="lbl">Instead of</span><p>"Compare these vendors"</p></div>
+    <div class="good"><div class="ghead"><span class="lbl">Try this</span><button class="copy" type="button">Copy</button></div>
+    <p class="prompt">Compare <b class="fill">[vendor A, B and C]</b> for <b class="fill">[a 200-person company choosing a payroll provider]</b>. Judge on pricing, implementation time and support quality only. Prioritise vendor pricing pages and customer reviews from the last twelve months. Include sources I can check. End with which you'd pick and what evidence would change your mind.</p></div>
+    <p class="why"><b>Why</b> Scoped to the decision, not the topic — and the source constraint keeps it from quoting stale summaries.</p>
+  </article>
+
+  <article class="card" data-cat="research">
+    <div class="chead"><span class="num">22</span><span class="cat">Research</span></div>
+    <h3>Understanding a market</h3>
+    <div class="bad"><span class="lbl">Instead of</span><p>"Tell me about the EV market"</p></div>
+    <div class="good"><div class="ghead"><span class="lbl">Try this</span><button class="copy" type="button">Copy</button></div>
+    <p class="prompt">Analyse the <b class="fill">[electric vehicle battery]</b> market: key players, technology trends, and supply chain challenges that might affect <b class="fill">[an investment decision in the next 18 months]</b>. Cite sources. Where the evidence is thin or contested, say so rather than filling the gap with a confident sentence.</p></div>
+    <p class="why"><b>Why</b> Explicitly inviting "I don't know" is the cheapest defence against confident-sounding nonsense.</p>
+  </article>
+
+  <article class="card" data-cat="research">
+    <div class="chead"><span class="num">23</span><span class="cat">Research</span></div>
+    <h3>Prepping for a meeting with a company</h3>
+    <div class="bad"><span class="lbl">Instead of</span><p>"Research this company"</p></div>
+    <div class="good"><div class="ghead"><span class="lbl">Try this</span><button class="copy" type="button">Copy</button></div>
+    <p class="prompt">I'm meeting <b class="fill">[company]</b> on <b class="fill">[date]</b> to discuss <b class="fill">[what]</b>. Research: recent news, anything they've publicly said about <b class="fill">[our problem space]</b>, who's likely in the room and what each of them cares about, and three questions that would show I've done my homework. Also flag anything I should avoid raising.</p></div>
+    <p class="why"><b>Why</b> Asking for the landmines is as valuable as asking for the talking points.</p>
+  </article>
+
+  <article class="card" data-cat="research">
+    <div class="chead"><span class="num">24</span><span class="cat">Research</span></div>
+    <h3>Planning a literature review</h3>
+    <div class="bad"><span class="lbl">Instead of</span><p>"Help me with my literature review"</p></div>
+    <div class="good"><div class="ghead"><span class="lbl">Try this</span><button class="copy" type="button">Copy</button></div>
+    <p class="prompt">I'm reviewing the literature on <b class="fill">[topic]</b> for <b class="fill">[a thesis chapter]</b>. Before I read anything, help me plan: the main schools of thought, the seminal papers, where the live disagreements are, and search terms I'd probably miss. Tell me what order to read in and why that order.</p></div>
+    <p class="why"><b>Why</b> Planning the search beats running a bad one and reading two hundred abstracts.</p>
+  </article>
+
+  <article class="card" data-cat="research">
+    <div class="chead"><span class="num">25</span><span class="cat">Research</span></div>
+    <h3>Checking a claim you've seen repeated</h3>
+    <div class="bad"><span class="lbl">Instead of</span><p>"Is this true?"</p></div>
+    <div class="good"><div class="ghead"><span class="lbl">Try this</span><button class="copy" type="button">Copy</button></div>
+    <p class="prompt">Check this claim: <b class="fill">[paste the claim]</b>. Find the primary source if one exists. Tell me what it actually says versus how it's being reported, who benefits from the claim being repeated, and give me a confidence level with your reasoning for it.</p></div>
+    <p class="why"><b>Why</b> Separating the source from the reporting of it is where most viral claims fall apart.</p>
+  </article>
+</section>
+
+<!-- ══════════════ THINKING ══════════════ -->
+<section class="grp" data-grp="thinking">
+  <h2>Thinking &amp; decisions</h2><span class="gsub">26–30 · where a thinking partner beats a search box</span>
+
+  <article class="card" data-cat="thinking">
+    <div class="chead"><span class="num">26</span><span class="cat">Thinking</span></div>
+    <h3>Stress-testing a plan</h3>
+    <div class="bad"><span class="lbl">Instead of</span><p>"What do you think of my plan?"</p></div>
+    <div class="good"><div class="ghead"><span class="lbl">Try this</span><button class="copy" type="button">Copy</button></div>
+    <p class="prompt">Here's my plan: <b class="fill">[plan]</b>. Your job is to destroy it. Find every assumption I'm making that could be wrong and every way this fails. Don't be polite and don't add qualifications. Then steelman it — build the strongest case that I'm right. Then tell me what you actually think and name the single biggest risk.</p></div>
+    <p class="why"><b>Why</b> Ask "what do you think" and you get agreement. Ask for an attack and you get information.</p>
+  </article>
+
+  <article class="card" data-cat="thinking">
+    <div class="chead"><span class="num">27</span><span class="cat">Thinking</span></div>
+    <h3>Finding the blind spot</h3>
+    <div class="bad"><span class="lbl">Instead of</span><p>"Any risks I'm missing?"</p></div>
+    <div class="good"><div class="ghead"><span class="lbl">Try this</span><button class="copy" type="button">Copy</button></div>
+    <p class="prompt">Here's my situation: <b class="fill">[situation]</b>. I'm confident about <b class="fill">[A]</b>. I'm already worried about <b class="fill">[B]</b>. Don't cover either of those. Tell me what someone who has watched this fail before would notice immediately, and which unstated assumption would do the most damage if it turned out to be wrong.</p></div>
+    <p class="why"><b>Why</b> Ruling out what you already know forces it past the obvious answers.</p>
+  </article>
+
+  <article class="card" data-cat="thinking">
+    <div class="chead"><span class="num">28</span><span class="cat">Thinking</span></div>
+    <h3>A decision you keep going round on</h3>
+    <div class="bad"><span class="lbl">Instead of</span><p>"Should I take this job?"</p></div>
+    <div class="good"><div class="ghead"><span class="lbl">Try this</span><button class="copy" type="button">Copy</button></div>
+    <p class="prompt">I'm deciding between <b class="fill">[option A]</b> and <b class="fill">[option B]</b>. What matters to me: <b class="fill">[list]</b>. Don't recommend anything yet. First ask me the questions that would actually change my answer, one at a time. Then reflect back what you're hearing underneath what I said. Only then give your honest view — including anything I might not want to hear.</p></div>
+    <p class="why"><b>Why</b> Sequencing the conversation means the advice arrives after the understanding, not before it.</p>
+  </article>
+
+  <article class="card" data-cat="thinking">
+    <div class="chead"><span class="num">29</span><span class="cat">Thinking</span></div>
+    <h3>Seeing through an argument</h3>
+    <div class="bad"><span class="lbl">Instead of</span><p>"Summarize this article"</p></div>
+    <div class="good"><div class="ghead"><span class="lbl">Try this</span><button class="copy" type="button">Copy</button></div>
+    <p class="prompt">Expose the skeleton of this argument: the main conclusion, the premises it rests on, the assumptions it never states, the weakest link, and what evidence would actually settle it. Quote the exact lines you're analysing. Don't tell me whether you agree — end with the one question that most undermines it.</p></div>
+    <p class="why"><b>Why</b> Withholding the verdict keeps you doing the judging, which is the point.</p>
+  </article>
+
+  <article class="card" data-cat="thinking">
+    <div class="chead"><span class="num">30</span><span class="cat">Thinking</span></div>
+    <h3>Untangling your own half-formed idea</h3>
+    <div class="bad"><span class="lbl">Instead of</span><p>"Help me organize my thoughts"</p></div>
+    <div class="good"><div class="ghead"><span class="lbl">Try this</span><button class="copy" type="button">Copy</button></div>
+    <p class="prompt">Here are my messy notes on <b class="fill">[topic]</b>. Build the argument that's already inside them — do not add ideas I don't have. Give me: the clearest version of my core claim, the three strongest supporting points drawn only from what I wrote, the order they should appear in, and what's missing. Flag anything where I contradict myself.</p></div>
+    <p class="why"><b>Why</b> "Don't add ideas I don't have" is what keeps the finished piece recognisably yours.</p>
+  </article>
+</section>
+
+<!-- ══════════════ LEARNING ══════════════ -->
+<section class="grp" data-grp="learning">
+  <h2>Learning something new</h2><span class="gsub">31–35 · the ones that build skill rather than deliver answers</span>
+
+  <article class="card" data-cat="learning">
+    <div class="chead"><span class="num">31</span><span class="cat">Learning</span></div>
+    <h3>Understanding a concept properly</h3>
+    <div class="bad"><span class="lbl">Instead of</span><p>"Explain [topic]"</p></div>
+    <div class="good"><div class="ghead"><span class="lbl">Try this</span><button class="copy" type="button">Copy</button></div>
+    <p class="prompt">Explain <b class="fill">[topic]</b> to me. I already understand <b class="fill">[related thing]</b>, so build from there. Use one concrete example all the way through rather than a new one for each point. After each section, stop and ask me a question that checks whether I've actually understood it before continuing.</p></div>
+    <p class="why"><b>Why</b> Anchoring to what you know plus a check question turns reading into learning.</p>
+  </article>
+
+  <article class="card" data-cat="learning">
+    <div class="chead"><span class="num">32</span><span class="cat">Learning</span></div>
+    <h3>Getting something out of a book</h3>
+    <div class="bad"><span class="lbl">Instead of</span><p>"Summarize this book"</p></div>
+    <div class="good"><div class="ghead"><span class="lbl">Try this</span><button class="copy" type="button">Copy</button></div>
+    <p class="prompt">Don't summarise <b class="fill">[book title and author]</b>. Extract the one framework the author is really teaching, stripped of stories and examples, in under 200 words. Then apply it to my situation: <b class="fill">[situation]</b>. End with the single thing I should do differently because of it.</p></div>
+    <p class="why"><b>Why</b> A summary you forget; a framework applied to your own problem, you keep.</p>
+  </article>
+
+  <article class="card" data-cat="learning">
+    <div class="chead"><span class="num">33</span><span class="cat">Learning</span></div>
+    <h3>Getting up to speed in a new field</h3>
+    <div class="bad"><span class="lbl">Instead of</span><p>"Teach me about [field]"</p></div>
+    <div class="good"><div class="ghead"><span class="lbl">Try this</span><button class="copy" type="button">Copy</button></div>
+    <p class="prompt">I need working knowledge of <b class="fill">[field]</b> within <b class="fill">[two weeks]</b> so I can <b class="fill">[do what]</b>. Give me a learning path: what to learn first because everything else depends on it, what I can safely skip for now, the vocabulary I need to not sound lost, and a way to test myself at the end of each stage.</p></div>
+    <p class="why"><b>Why</b> "What can I skip" is the question that makes a syllabus into a plan.</p>
+  </article>
+
+  <article class="card" data-cat="learning">
+    <div class="chead"><span class="num">34</span><span class="cat">Learning</span></div>
+    <h3>Practising until it sticks</h3>
+    <div class="bad"><span class="lbl">Instead of</span><p>"Quiz me on this"</p></div>
+    <div class="good"><div class="ghead"><span class="lbl">Try this</span><button class="copy" type="button">Copy</button></div>
+    <p class="prompt">Quiz me on <b class="fill">[topic]</b>. One question at a time and wait for my answer. If I'm wrong, don't give me the answer — ask a smaller question that leads me to it. Get harder as I get things right. At the end, tell me what I kept missing and what to review.</p></div>
+    <p class="why"><b>Why</b> "Don't give me the answer" is the instruction that turns testing into tutoring.</p>
+  </article>
+
+  <article class="card" data-cat="learning">
+    <div class="chead"><span class="num">35</span><span class="cat">Learning</span></div>
+    <h3>Explaining it to someone else</h3>
+    <div class="bad"><span class="lbl">Instead of</span><p>"How do I explain this simply?"</p></div>
+    <div class="good"><div class="ghead"><span class="lbl">Try this</span><button class="copy" type="button">Copy</button></div>
+    <p class="prompt">I need to explain <b class="fill">[topic]</b> to <b class="fill">[a non-technical stakeholder who mainly cares about cost]</b>. Give me: one analogy that survives being poked at, the two things they will most likely misunderstand, and how to answer "so why does this cost so much?". Keep the whole thing under two minutes spoken.</p></div>
+    <p class="why"><b>Why</b> Designing for the specific objection beats designing for "simple".</p>
+  </article>
+</section>
+
+<!-- ══════════════ PROJECTS ══════════════ -->
+<section class="grp" data-grp="projects">
+  <h2>Projects &amp; instructions</h2><span class="gsub">36–40 · set it up once, benefit forever</span>
+
+  <article class="card" data-cat="projects">
+    <div class="chead"><span class="num">36</span><span class="cat">Projects</span></div>
+    <h3>Writing project instructions</h3>
+    <div class="bad"><span class="lbl">Instead of</span><p>"Remember that I work in marketing"</p></div>
+    <div class="good"><div class="ghead"><span class="lbl">Try this</span><button class="copy" type="button">Copy</button></div>
+    <p class="prompt">Write project instructions for this workspace. I'm <b class="fill">[role]</b> at <b class="fill">[company type]</b> and we produce <b class="fill">[what]</b>. Always: <b class="fill">[rules]</b>. Never: <b class="fill">[rules]</b>. When I upload <b class="fill">[type of file]</b>, automatically <b class="fill">[do what]</b>. Write it in second person as rules for you to follow, under 400 words, no generic advice.</p></div>
+    <p class="why"><b>Why</b> Instructions are a program, not a fact about you. Write them as commands.</p>
+  </article>
+
+  <article class="card" data-cat="projects">
+    <div class="chead"><span class="num">37</span><span class="cat">Projects</span></div>
+    <h3>Auditing a knowledge base before you trust it</h3>
+    <div class="bad"><span class="lbl">Instead of</span><p>"Here are my files, let's start"</p></div>
+    <div class="good"><div class="ghead"><span class="lbl">Try this</span><button class="copy" type="button">Copy</button></div>
+    <p class="prompt">I've uploaded <b class="fill">[n]</b> documents about <b class="fill">[topic]</b>. Before we do anything: tell me what's actually in here, what's missing that you'd expect to see, where any two documents contradict each other, and which one I should treat as the source of truth when they conflict.</p></div>
+    <p class="why"><b>Why</b> Finding the contradictions on day one is much cheaper than finding them in a deliverable.</p>
+  </article>
+
+  <article class="card" data-cat="projects">
+    <div class="chead"><span class="num">38</span><span class="cat">Projects</span></div>
+    <h3>Automating a routine with instructions</h3>
+    <div class="bad"><span class="lbl">Instead of</span><p>"Summarize these meeting notes" (every single time)</p></div>
+    <div class="good"><div class="ghead"><span class="lbl">Try this</span><button class="copy" type="button">Copy</button></div>
+    <p class="prompt">Add this to the project instructions: whenever I paste a meeting transcript, produce a summary in exactly this format — Decisions / Owners and dates / Open questions / One-line status for the weekly update. Never ask me to confirm the format again, just produce it.</p></div>
+    <p class="why"><b>Why</b> Anything you've asked for three times should stop being a request and become a rule.</p>
+  </article>
+
+  <article class="card" data-cat="projects">
+    <div class="chead"><span class="num">39</span><span class="cat">Projects</span></div>
+    <h3>Naming files so they can be found</h3>
+    <div class="bad"><span class="lbl">Instead of</span><p>"Organize my files"</p></div>
+    <div class="good"><div class="ghead"><span class="lbl">Try this</span><button class="copy" type="button">Copy</button></div>
+    <p class="prompt">Look at these filenames. Propose a naming convention that makes them searchable — date format, project prefix, how to handle versions — and explain the reasoning in two lines. Then rename everything to match and show me a before/after list so I can veto any of them.</p></div>
+    <p class="why"><b>Why</b> Propose, then apply, then let me veto. That sequence works for almost any bulk change.</p>
+  </article>
+
+  <article class="card" data-cat="projects">
+    <div class="chead"><span class="num">40</span><span class="cat">Projects</span></div>
+    <h3>Keeping a workspace from going stale</h3>
+    <div class="bad"><span class="lbl">Instead of</span><p>"Update the project"</p></div>
+    <div class="good"><div class="ghead"><span class="lbl">Try this</span><button class="copy" type="button">Copy</button></div>
+    <p class="prompt">Review this project's knowledge base against <b class="fill">[the current quarter]</b>. Tell me which documents are stale, which have been superseded by newer ones in here, and what's missing that I'd need for <b class="fill">[upcoming work]</b>. Don't delete or change anything — just give me the list and your reasoning.</p></div>
+    <p class="why"><b>Why</b> Audit first, act second. Outdated documents quietly produce outdated answers.</p>
+  </article>
+</section>
+
+<!-- ══════════════ SKILLS ══════════════ -->
+<section class="grp" data-grp="skills">
+  <h2>Skills &amp; repeatable work</h2><span class="gsub">41–45 · teaching Claude how you do things</span>
+
+  <article class="card" data-cat="skills">
+    <div class="chead"><span class="num">41</span><span class="cat">Skills</span></div>
+    <h3>Creating a skill by being interviewed</h3>
+    <div class="bad"><span class="lbl">Instead of</span><p>"Create a skill for writing reports"</p></div>
+    <div class="good"><div class="ghead"><span class="lbl">Try this</span><button class="copy" type="button">Copy</button></div>
+    <p class="prompt">I want to build a skill for <b class="fill">[writing quarterly business reviews]</b>. Interview me about how I do it now — one question at a time, don't batch them. When you think you understand it, tell me what you'd put in the skill and what's still ambiguous, and wait for me to confirm before you write anything.</p></div>
+    <p class="why"><b>Why</b> The checkpoint before generation is what stops you getting a confident skill built on a guess.</p>
+  </article>
+
+  <article class="card" data-cat="skills">
+    <div class="chead"><span class="num">42</span><span class="cat">Skills</span></div>
+    <h3>Capturing how you write</h3>
+    <div class="bad"><span class="lbl">Instead of</span><p>"Write this in my style"</p></div>
+    <div class="good"><div class="ghead"><span class="lbl">Try this</span><button class="copy" type="button">Copy</button></div>
+    <p class="prompt">Here are <b class="fill">[five things I've written]</b>. Analyse my style in detail: sentence length, rhythm, vocabulary choices, how I open and close paragraphs, what I avoid, and any patterns that make it recognisably mine. Then write <b class="fill">[new piece]</b> matching it exactly. Do not fall back on your own default patterns.</p></div>
+    <p class="why"><b>Why</b> Analysis first, then writing. Asking for "my style" without examples asks it to guess.</p>
+  </article>
+
+  <article class="card" data-cat="skills">
+    <div class="chead"><span class="num">43</span><span class="cat">Skills</span></div>
+    <h3>Turning a process into a checklist</h3>
+    <div class="bad"><span class="lbl">Instead of</span><p>"Make a checklist for this"</p></div>
+    <div class="good"><div class="ghead"><span class="lbl">Try this</span><button class="copy" type="button">Copy</button></div>
+    <p class="prompt">Turn our <b class="fill">[contract review]</b> process into a repeatable checklist. Here's how we do it: <b class="fill">[steps]</b>. Make every item a yes/no question rather than a topic, and include the steps people quietly skip when they're rushed. Put the irreversible ones first.</p></div>
+    <p class="why"><b>Why</b> Yes/no items are the difference between a checklist and a list of things to think about.</p>
+  </article>
+
+  <article class="card" data-cat="skills">
+    <div class="chead"><span class="num">44</span><span class="cat">Skills</span></div>
+    <h3>Fixing a skill that's misbehaving</h3>
+    <div class="bad"><span class="lbl">Instead of</span><p>"Fix my skill, it's not working"</p></div>
+    <div class="good"><div class="ghead"><span class="lbl">Try this</span><button class="copy" type="button">Copy</button></div>
+    <p class="prompt">Here's my <b class="fill">[brand guidelines]</b> skill. It's producing <b class="fill">[describe the problem]</b>. Diagnose why first — is the instruction ambiguous, missing, or being overridden by something else? Then propose the smallest change that fixes it, and show me the before/after of just that section.</p></div>
+    <p class="why"><b>Why</b> "Smallest change" stops it quietly rewriting the parts that were working fine.</p>
+  </article>
+
+  <article class="card" data-cat="skills">
+    <div class="chead"><span class="num">45</span><span class="cat">Skills</span></div>
+    <h3>Standardising what your team produces</h3>
+    <div class="bad"><span class="lbl">Instead of</span><p>"Make our reports more consistent"</p></div>
+    <div class="good"><div class="ghead"><span class="lbl">Try this</span><button class="copy" type="button">Copy</button></div>
+    <p class="prompt">Here are <b class="fill">[six status reports]</b> written by different people on my team. Work out what the good ones do that the weak ones don't. Turn that into a standard, written as instructions someone could follow without me explaining it. Include one worked example. Don't invent best practice — derive it from these.</p></div>
+    <p class="why"><b>Why</b> Deriving the standard from your own good work beats importing someone else's.</p>
+  </article>
+</section>
+
+<!-- ══════════════ PERSONAL ══════════════ -->
+<section class="grp" data-grp="personal">
+  <h2>Career &amp; hard conversations</h2><span class="gsub">46–50 · the ones that matter most and get prompted worst</span>
+
+  <article class="card" data-cat="personal">
+    <div class="chead"><span class="num">46</span><span class="cat">Career</span></div>
+    <h3>Raising something difficult</h3>
+    <div class="bad"><span class="lbl">Instead of</span><p>"Help me talk to my boss about this"</p></div>
+    <div class="good"><div class="ghead"><span class="lbl">Try this</span><button class="copy" type="button">Copy</button></div>
+    <p class="prompt">I need to raise <b class="fill">[issue]</b> with <b class="fill">[person]</b>. Our relationship is <b class="fill">[describe it]</b>. Their most likely objection is <b class="fill">[X]</b>. Help me plan: how to open so they don't get defensive, the one sentence that states my ask plainly, and what to say if they respond with <b class="fill">[likely bad reaction]</b>.</p></div>
+    <p class="why"><b>Why</b> Rehearsing the failure mode is the whole value. Everything else you could improvise.</p>
+  </article>
+
+  <article class="card" data-cat="personal">
+    <div class="chead"><span class="num">47</span><span class="cat">Career</span></div>
+    <h3>Feedback you've been putting off</h3>
+    <p style="font-size:.78rem;font-family:var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft);margin:-.5rem 0 .8rem;">Short version — <a href="power-prompts.html">the full version is in Vol 2</a></p>
+    <div class="bad"><span class="lbl">Instead of</span><p>"How do I give constructive feedback?"</p></div>
+    <div class="good"><div class="ghead"><span class="lbl">Try this</span><button class="copy" type="button">Copy</button></div>
+    <p class="prompt">I need to tell <b class="fill">[a direct report]</b> that <b class="fill">[specific behaviour]</b> is a problem. Context: they're <b class="fill">[new / sensitive / more senior than me]</b>. Draft what I'd actually say out loud: name the behaviour with a concrete example, the impact it had, and what good looks like instead. No compliment sandwich.</p></div>
+    <p class="why"><b>Why</b> Banning the sandwich forces the message to survive on its own clarity.</p>
+  </article>
+
+  <article class="card" data-cat="personal">
+    <div class="chead"><span class="num">48</span><span class="cat">Career</span></div>
+    <h3>A CV aimed at one job</h3>
+    <div class="bad"><span class="lbl">Instead of</span><p>"Improve my resume"</p></div>
+    <div class="good"><div class="ghead"><span class="lbl">Try this</span><button class="copy" type="button">Copy</button></div>
+    <p class="prompt">Here's my CV and the job description I'm targeting. Before rewriting anything, tell me: which of my experiences genuinely map to their requirements and which don't, what I've buried that should be near the top, and what's missing that they will notice. Then rewrite the top third only.</p></div>
+    <p class="why"><b>Why</b> Diagnosis before surgery — and scoping the rewrite keeps the rest recognisably yours.</p>
+  </article>
+
+  <article class="card" data-cat="personal">
+    <div class="chead"><span class="num">49</span><span class="cat">Career</span></div>
+    <h3>Interview practice that actually helps</h3>
+    <div class="bad"><span class="lbl">Instead of</span><p>"What questions will they ask me?"</p></div>
+    <div class="good"><div class="ghead"><span class="lbl">Try this</span><button class="copy" type="button">Copy</button></div>
+    <p class="prompt">I'm interviewing for <b class="fill">[role]</b> at <b class="fill">[company]</b>. Here's my background: <b class="fill">[paste]</b>. Ask me the five hardest questions they're likely to ask — one at a time, wait for my answer. After each, tell me what was strong, what was vague, and what a sharper version would sound like.</p></div>
+    <p class="why"><b>Why</b> A list of questions teaches you nothing. Answering badly and being told why teaches you a lot.</p>
+  </article>
+
+  <article class="card" data-cat="personal">
+    <div class="chead"><span class="num">50</span><span class="cat">Career</span></div>
+    <h3>Walking into a professional meeting as an equal</h3>
+    <p style="font-size:.78rem;font-family:var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft);margin:-.5rem 0 .8rem;">Short version — <a href="power-prompts.html">the full role-and-rules version is in Vol 2</a></p>
+    <div class="bad"><span class="lbl">Instead of</span><p>"What should I ask my doctor / lawyer / advisor?"</p></div>
+    <div class="good"><div class="ghead"><span class="lbl">Try this</span><button class="copy" type="button">Copy</button></div>
+    <p class="prompt">I'm meeting <b class="fill">[a specialist]</b> about <b class="fill">[situation]</b>. Here's what I've been told so far: <b class="fill">[what you know]</b>. Prepare me to walk in as an equal: the questions an informed person would ask, the red flags that should make me push back, what they might gloss over, and what I need to walk out knowing.</p></div>
+    <p class="why"><b>Why</b> It shifts you from passive recipient to participant — the single highest-leverage prompt on this page.</p>
+  </article>
+</section>
+
+<div class="empty" id="empty"><b>Nothing matches that.</b> Try a broader word, or hit "All 50".</div>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>The Prompt Library · 50 pairs · copy, paste, replace the highlighted bits · <a href="index.html">Back to the course</a></p>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var cards = Array.prototype.slice.call(document.querySelectorAll('.card'));
+  var groups = Array.prototype.slice.call(document.querySelectorAll('.grp'));
+  var q = document.getElementById('q');
+  var count = document.getElementById('count');
+  var empty = document.getElementById('empty');
+  var btns = Array.prototype.slice.call(document.querySelectorAll('.cats button'));
+  var cat = 'all';
+
+  function apply(){
+    var term = q.value.trim().toLowerCase();
+    var n = 0;
+    cards.forEach(function(c){
+      var okCat  = (cat === 'all') || (c.getAttribute('data-cat') === cat);
+      var okTerm = !term || c.textContent.toLowerCase().indexOf(term) !== -1;
+      var show = okCat && okTerm;
+      c.hidden = !show;
+      if (show) n++;
+    });
+    groups.forEach(function(g){
+      var any = Array.prototype.slice.call(g.querySelectorAll('.card')).some(function(c){ return !c.hidden; });
+      g.hidden = !any;
+    });
+    count.textContent = n;
+    empty.className = n === 0 ? 'empty on' : 'empty';
+  }
+
+  btns.forEach(function(b){
+    b.addEventListener('click', function(){
+      cat = b.getAttribute('data-cat');
+      btns.forEach(function(x){ x.setAttribute('aria-pressed', String(x === b)); });
+      apply();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  });
+  q.addEventListener('input', apply);
+
+  function fallbackCopy(text){
+    var ta = document.createElement('textarea');
+    ta.value = text;
+    ta.setAttribute('readonly','');
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    var ok = false;
+    try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+    document.body.removeChild(ta);
+    return ok;
+  }
+
+  document.addEventListener('click', function(e){
+    var b = e.target.closest ? e.target.closest('.copy') : null;
+    if (!b) return;
+    var p = b.closest('.good').querySelector('.prompt');
+    var text = (p.innerText || p.textContent).replace(/\s+/g, ' ').trim();
+
+    function done(ok){
+      b.textContent = ok ? 'Copied ✓' : 'Select & copy';
+      b.className = 'copy done';
+      setTimeout(function(){ b.textContent = 'Copy'; b.className = 'copy'; }, 1500);
+    }
+
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(text).then(function(){ done(true); }, function(){ done(fallbackCopy(text)); });
+    } else {
+      done(fallbackCopy(text));
+    }
+  });
+
+  apply();
+})();
+</script>
+
+
+<style>
+.pathnav{position:sticky;bottom:0;z-index:60;background:#16203C;border-top:2px solid #FFD84A;}
+.pathnav .inner{max-width:1160px;margin:0 auto;padding:.55rem 1.5rem;display:flex;align-items:center;gap:.8rem;flex-wrap:wrap;}
+.pathnav a{font-family:"Space Mono",monospace;font-size:.6rem;font-weight:700;text-transform:uppercase;
+letter-spacing:.1em;text-decoration:none;color:#E9E6DB;border:1.5px solid #4A5470;padding:.32rem .55rem;transition:all .15s ease;}
+.pathnav a:hover{border-color:#FFD84A;color:#FFD84A;}
+.pathnav a.next{border-color:#FFD84A;color:#FFD84A;margin-left:auto;}
+.pathnav .step{font-family:"Space Mono",monospace;font-size:.58rem;font-weight:700;letter-spacing:.12em;color:#8FA0C4;text-transform:uppercase;}
+@media print{.pathnav{display:none;}}
+</style>
+<div class="pathnav"><div class="inner"><a href="lesson-13-twelve-mistakes.html">← 13 The 12 mistakes</a>
+<a href="learning-path.html">↑ Learning path</a>
+<span class="step">Step 6 of 16</span>
+<a class="next" href="lesson-04-desktop-shapes.html">04 Desktop →</a></div></div>
+</body>
+</html>

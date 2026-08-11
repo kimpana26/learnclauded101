@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Enterprise Search — the lesson as a funnel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Public+Sans:ital,wght@0,400;0,600;1,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   LESSON 09 — ENTERPRISE SEARCH
+   One question goes in, many systems get read, one cited answer
+   comes out. So the page is a funnel. The setup is a relay —
+   an Owner does half, you do half — and the page splits it that
+   way, because half of it isn't your job. Single file. No JS.
+   ============================================================ */
+
+:root{
+  --paper:#E9E6DB; --paper-hi:#F4F2EA; --ink:#16203C; --ink-soft:#4A5470; --rule:#C9C4B4;
+
+  --org:#C9761A; --org-ink:#8A4A06;   /* enterprise search  */
+  --cnx:#1358A8; --cnx-ink:#0D4079;   /* connectors (L08)   */
+  --prj:#0E8A63; --prj-ink:#0A6047;   /* projects (L05)     */
+  --set:#7B4BB0; --set-ink:#573079;   /* setup              */
+  --warn:#DE4438; --warn-ink:#A22119;
+
+  --marker:#FFD84A;
+  --sp-1:.5rem; --sp-2:1rem; --sp-3:1.5rem; --sp-4:2.25rem; --sp-5:3.5rem;
+
+  --display:"Bricolage Grotesque","Trebuchet MS",system-ui,sans-serif;
+  --body:"Public Sans",-apple-system,"Segoe UI",Roboto,sans-serif;
+  --mono:"Space Mono",ui-monospace,"Courier New",monospace;
+}
+
+*,*::before,*::after{ box-sizing:border-box; }
+html{ scroll-behavior:smooth; }
+body{
+  margin:0; background:var(--paper); color:var(--ink);
+  font-family:var(--body); font-size:1rem; line-height:1.6; -webkit-font-smoothing:antialiased;
+}
+body::after{
+  content:""; position:fixed; inset:0; pointer-events:none; z-index:99;
+  background-image:radial-gradient(var(--ink) .5px, transparent .5px);
+  background-size:4px 4px; opacity:.055;
+}
+.wrap{ max-width:1160px; margin:0 auto; padding:0 var(--sp-3); }
+
+h1,h2,h3{ font-family:var(--display); font-weight:800; line-height:1.04; margin:0; letter-spacing:-.02em; }
+h1{ font-size:clamp(2.4rem,8vw,5.2rem); text-transform:uppercase; }
+h2{ font-size:clamp(1.45rem,3.8vw,2.3rem); }
+h3{ font-size:1.04rem; font-weight:600; letter-spacing:0; }
+p{ margin:0 0 var(--sp-2); } p:last-child{ margin-bottom:0; }
+
+.tag{ font-family:var(--mono); font-size:.68rem; font-weight:700; text-transform:uppercase; letter-spacing:.16em; }
+.marked{ background:linear-gradient(transparent 58%, var(--marker) 58%, var(--marker) 94%, transparent 94%); padding:0 .12em; }
+a{ color:inherit; }
+a:focus-visible{ outline:3px solid var(--cnx); outline-offset:3px; border-radius:2px; }
+
+/* ===================== sticky bar ===================== */
+.routebar{ position:sticky; top:0; z-index:50; background:var(--paper); border-bottom:2px solid var(--ink); }
+.routebar .wrap{ display:flex; align-items:center; gap:var(--sp-2); flex-wrap:wrap; padding-top:.6rem; padding-bottom:.6rem; }
+.routebar .brand{ font-family:var(--display); font-weight:800; text-transform:uppercase; margin-right:auto; letter-spacing:-.01em; }
+.routebar .brand small{ font-family:var(--mono); font-weight:700; font-size:.6rem; letter-spacing:.16em; color:var(--ink-soft); display:block; text-transform:uppercase; }
+.routebar nav{ display:flex; gap:.35rem; flex-wrap:wrap; }
+.pill{
+  font-family:var(--mono); font-size:.63rem; font-weight:700; text-transform:uppercase;
+  letter-spacing:.1em; text-decoration:none; color:#fff;
+  padding:.32rem .58rem; border-radius:999px; transition:transform .18s ease, filter .18s ease;
+}
+.pill:hover{ transform:translateY(-2px); filter:brightness(1.12); }
+.pill.p1{ background:var(--org-ink); } .pill.p2{ background:var(--cnx-ink); }
+.pill.p3{ background:var(--prj-ink); } .pill.p4{ background:var(--set-ink); }
+.pill.p5{ background:var(--ink); }
+
+/* ======================== hero ======================== */
+.hero{ padding:var(--sp-5) 0 var(--sp-3); }
+.hero .eyebrow{ color:var(--ink-soft); display:block; margin-bottom:var(--sp-2); }
+.hero h1{ margin-bottom:var(--sp-3); }
+.hero .deck{ font-size:clamp(1.05rem,2.2vw,1.28rem); max-width:56ch; color:var(--ink-soft); }
+.hero .deck strong{ color:var(--ink); font-weight:600; }
+
+.gate{ border:2px solid var(--org); background:var(--paper-hi); padding:var(--sp-3); margin-top:var(--sp-3); max-width:62ch; }
+.gate .gt{ font-family:var(--mono); font-size:.62rem; font-weight:700; text-transform:uppercase; letter-spacing:.12em; color:var(--org-ink); display:block; margin-bottom:.45rem; }
+.gate p{ font-size:.94rem; }
+.gate strong{ font-weight:600; }
+
+/* ====================== sections ====================== */
+.sect{ padding:var(--sp-5) 0 var(--sp-2); border-top:1px solid var(--rule); scroll-margin-top:4.4rem; }
+.shead{ display:flex; align-items:baseline; gap:var(--sp-2); flex-wrap:wrap; margin-bottom:.5rem; }
+.snum{ font-family:var(--mono); font-weight:700; font-size:.72rem; text-transform:uppercase; letter-spacing:.14em; color:#fff; padding:.28rem .55rem; border-radius:3px; }
+.slede{ color:var(--ink-soft); max-width:62ch; margin-bottom:var(--sp-4); font-size:1.02rem; }
+.slede strong{ color:var(--ink); font-weight:600; }
+#what  .snum{ background:var(--org-ink); } #what  h2{ color:var(--org-ink); }
+#diff  .snum{ background:var(--cnx-ink); } #diff  h2{ color:var(--cnx-ink); }
+#ask   .snum{ background:var(--prj-ink); } #ask   h2{ color:var(--prj-ink); }
+#setup .snum{ background:var(--set-ink); } #setup h2{ color:var(--set-ink); }
+#safe  .snum{ background:var(--ink); }
+
+/* the funnel */
+.funnelfig{ display:none; margin-bottom:var(--sp-3); }
+.funnelfig svg{ width:100%; height:auto; display:block; }
+.funnelstack{ display:grid; gap:.5rem; margin-bottom:var(--sp-3); }
+.fs{ border:2px solid var(--ink); background:var(--paper-hi); padding:.7rem .85rem; }
+.fs b{ display:block; font-family:var(--display); font-weight:800; text-transform:uppercase; font-size:.95rem; }
+.fs span{ font-family:var(--mono); font-size:.58rem; text-transform:uppercase; letter-spacing:.1em; color:var(--ink-soft); }
+.fs.q{ background:var(--ink); } .fs.q b{ color:var(--paper); } .fs.q span{ color:var(--marker); }
+.fs.mid{ border-color:var(--org); } .fs.mid b{ color:var(--org-ink); }
+.fs.ans{ border-color:var(--org); background:var(--paper); } .fs.ans b{ color:var(--org-ink); }
+.fsar{ text-align:center; font-family:var(--mono); font-size:.66rem; color:var(--ink-soft); letter-spacing:.1em; }
+.srcrow{ display:flex; gap:.35rem; flex-wrap:wrap; }
+.srcrow span{ font-family:var(--mono); font-size:.6rem; font-weight:700; border:1px solid var(--org); color:var(--org-ink); padding:.25rem .45rem; }
+
+.prebuilt{ background:var(--ink); color:#C6CDDE; padding:var(--sp-3); border-left:6px solid var(--marker); }
+.prebuilt .pt{ font-family:var(--mono); font-size:.62rem; font-weight:700; text-transform:uppercase; letter-spacing:.12em; color:#8FA0C4; display:block; margin-bottom:.5rem; }
+.prebuilt .big{ font-family:var(--display); font-weight:800; letter-spacing:-.02em; font-size:clamp(1.2rem,3vw,1.8rem); line-height:1.12; margin:0 0 .6rem; color:var(--paper); }
+.prebuilt .big em{ font-style:normal; color:var(--marker); }
+.prebuilt p{ font-size:.94rem; }
+
+/* three-way comparison */
+.tri{ display:grid; grid-template-columns:1fr; gap:var(--sp-2); }
+.tw{ background:var(--paper-hi); border:1px solid var(--rule); border-top:6px solid; padding:var(--sp-3); }
+.tw .lb{ font-family:var(--mono); font-size:.58rem; font-weight:700; text-transform:uppercase; letter-spacing:.12em; display:block; margin-bottom:.3rem; }
+.tw h3{ font-family:var(--display); font-weight:800; text-transform:uppercase; font-size:1.12rem; margin-bottom:.5rem; letter-spacing:-.01em; }
+.tw p{ font-size:.92rem; color:var(--ink-soft); }
+.tw dl{ margin:.6rem 0 0; }
+.tw dt{ font-family:var(--mono); font-size:.54rem; font-weight:700; text-transform:uppercase; letter-spacing:.12em; color:var(--ink-soft); margin-top:.5rem; }
+.tw dd{ margin:.1rem 0 0; font-size:.9rem; }
+.tw.c1{ border-top-color:var(--cnx); } .tw.c1 .lb,.tw.c1 h3{ color:var(--cnx-ink); }
+.tw.c2{ border-top-color:var(--prj); } .tw.c2 .lb,.tw.c2 h3{ color:var(--prj-ink); }
+.tw.c3{ border-top-color:var(--org); } .tw.c3 .lb,.tw.c3 h3{ color:var(--org-ink); }
+
+.fuse{ border:2px dashed var(--rule); background:var(--paper); padding:var(--sp-3); margin-top:var(--sp-2); }
+.fuse .ft{ font-family:var(--mono); font-size:.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.12em; color:var(--ink-soft); display:block; margin-bottom:.45rem; }
+.fuse p{ font-size:.97rem; }
+.fuse strong{ font-weight:600; }
+
+/* question families */
+.fams{ display:grid; grid-template-columns:1fr; gap:var(--sp-2); }
+.fam{ background:var(--paper-hi); border:1px solid var(--rule); border-left:6px solid var(--prj); padding:var(--sp-3); }
+.fam h3{ color:var(--prj-ink); margin-bottom:.55rem; }
+.fam ul{ margin:0; padding:0; list-style:none; }
+.fam li{ font-size:.93rem; font-style:italic; border-top:1px dashed var(--rule); padding:.5rem 0; }
+.fam li:first-child{ border-top:none; padding-top:0; }
+.fam li:last-child{ padding-bottom:0; }
+
+/* the relay */
+.relay{ display:grid; grid-template-columns:1fr; gap:var(--sp-2); }
+.half{ background:var(--paper-hi); border:1px solid var(--rule); border-top:6px solid var(--set); padding:var(--sp-3); }
+.half .who{
+  display:inline-block; font-family:var(--mono); font-size:.6rem; font-weight:700;
+  text-transform:uppercase; letter-spacing:.1em; color:#fff; background:var(--set-ink);
+  padding:.24rem .5rem; margin-bottom:.6rem;
+}
+.half h3{ font-family:var(--display); font-weight:800; text-transform:uppercase; font-size:1.15rem; margin-bottom:.6rem; letter-spacing:-.01em; color:var(--set-ink); }
+.half ol{ margin:0; padding-left:1.15rem; }
+.half li{ font-size:.92rem; color:var(--ink-soft); margin-bottom:.45rem; }
+.half li strong{ color:var(--ink); font-weight:600; }
+.half.mine{ border-top-color:var(--org); }
+.half.mine .who{ background:var(--org-ink); } .half.mine h3{ color:var(--org-ink); }
+
+.baton{ display:grid; place-items:center; font-family:var(--mono); font-size:.62rem; font-weight:700; text-transform:uppercase; letter-spacing:.12em; color:var(--ink-soft); padding:var(--sp-2) 0; }
+
+.correction{ border:2px solid var(--warn); background:var(--paper-hi); padding:var(--sp-3); margin-top:var(--sp-3); }
+.correction .ct{ font-family:var(--mono); font-size:.62rem; font-weight:700; text-transform:uppercase; letter-spacing:.12em; color:var(--warn-ink); display:block; margin-bottom:.5rem; }
+.correction h3{ margin-bottom:.6rem; font-size:1.1rem; }
+.correction p{ font-size:.94rem; }
+.correction ul{ margin:.6rem 0 0; padding-left:1.1rem; }
+.correction li{ font-size:.93rem; color:var(--ink-soft); margin-bottom:.4rem; }
+.correction li strong{ color:var(--ink); font-weight:600; }
+.correction .src{ margin-top:.8rem; font-size:.82rem; color:var(--ink-soft); }
+
+.trouble{ border:1px solid var(--rule); background:var(--paper); padding:var(--sp-3); margin-top:var(--sp-3); }
+.trouble .tt{ font-family:var(--mono); font-size:.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.12em; color:var(--ink-soft); display:block; margin-bottom:.7rem; }
+.trouble ol{ margin:0; padding-left:1.15rem; }
+.trouble li{ font-size:.92rem; color:var(--ink-soft); margin-bottom:.4rem; }
+.trouble li strong{ color:var(--ink); font-weight:600; }
+
+/* safety */
+.safes{ display:grid; grid-template-columns:1fr; gap:var(--sp-2); }
+.safe{ background:var(--ink); color:#C6CDDE; padding:var(--sp-3); border-top:6px solid var(--marker); }
+.safe .sn{ font-family:var(--mono); font-size:.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.12em; color:var(--marker); }
+.safe h3{ color:var(--paper); font-family:var(--display); font-weight:800; text-transform:uppercase; font-size:1.1rem; margin:.3rem 0 .5rem; letter-spacing:-.01em; }
+.safe p{ font-size:.93rem; }
+.safe strong{ color:var(--paper); font-weight:600; }
+
+.keep{ background:var(--ink); color:#C6CDDE; padding:.9rem var(--sp-2); font-size:.95rem; font-style:italic; margin-top:var(--sp-2); }
+.keep b{ font-style:normal; color:var(--marker); font-weight:600; }
+
+.tip{ border-left:4px solid var(--marker); background:var(--paper-hi); padding:.85rem var(--sp-2); margin-top:var(--sp-2); font-size:.94rem; }
+.tip b{ font-weight:600; }
+
+footer{ border-top:1px solid var(--rule); padding:var(--sp-3) 0 var(--sp-5); margin-top:var(--sp-5); }
+footer p{ font-family:var(--mono); font-size:.66rem; text-transform:uppercase; letter-spacing:.1em; color:var(--ink-soft); }
+footer a{ color:var(--cnx-ink); }
+
+/* ===================== breakpoints ===================== */
+@media (min-width:700px){
+  .tri{ grid-template-columns:repeat(3,1fr); }
+  .fams{ grid-template-columns:1fr 1fr; }
+  .relay{ grid-template-columns:1fr auto 1fr; align-items:start; }
+  .baton{ padding:var(--sp-4) .4rem; }
+  .safes{ grid-template-columns:repeat(3,1fr); }
+  .funnelstack{ grid-template-columns:1fr; }
+}
+@media (min-width:960px){
+  .funnelfig{ display:block; }
+  .funnelstack{ display:none; }
+}
+
+@media (prefers-reduced-motion:reduce){ html{ scroll-behavior:auto; } *{ transition:none !important; } }
+@media print{
+  .routebar,.funnelfig{ display:none; }
+  body::after{ display:none; }
+  .tw,.fam,.half,.safe,.correction{ break-inside:avoid; }
+}
+</style>
+</head>
+<body>
+
+<div class="routebar">
+  <div class="wrap">
+    <span class="brand">Enterprise Search<small>Lesson 09</small></span>
+    <nav aria-label="Sections">
+      <a class="pill" style="background:#16203C" href="index.html">Home</a>
+      <a class="pill" style="background:#0A6047" href="prompt-library.html">50 prompts</a>
+      <a class="pill" style="background:#573079" href="power-prompts.html">40 power</a>
+      <a class="pill p1" href="#what">01 What it is</a>
+      <a class="pill p2" href="#diff">02 How it differs</a>
+      <a class="pill p3" href="#ask">03 What to ask</a>
+      <a class="pill p4" href="#setup">04 Setting up</a>
+      <a class="pill p5" href="#safe">05 Is it safe</a>
+    </nav>
+  </div>
+</div>
+
+<header class="hero">
+  <div class="wrap">
+    <span class="tag eyebrow">Lesson 09 · Enterprise Search · read in ~5 minutes</span>
+    <h1>Ask the<br>whole org</h1>
+    <p class="deck">One question, asked once, answered from everywhere your company keeps things. <strong>Instead of checking Slack, then Drive, then email, then SharePoint separately</strong> — you ask, and one answer comes back with its sources attached.</p>
+
+    <div class="gate">
+      <span class="gt">Before you read on</span>
+      <p>Enterprise Search is <strong>Team and Enterprise plans only</strong>, and an Owner has to switch it on for the organisation first. On Free, Pro or Max it isn't available — you can skip this lesson without missing anything the others depend on.</p>
+    </div>
+  </div>
+</header>
+
+<main>
+
+<!-- ==================== 01 WHAT IT IS ==================== -->
+<section class="sect" id="what">
+  <div class="wrap">
+    <div class="shead"><span class="snum">Part 01</span><h2>One question in, one cited answer out</h2></div>
+    <p class="slede">Enterprise Search adds an <strong>"Ask [Your Org]"</strong> entry to your sidebar. Ask it something and Claude reads across every connected system at once, then writes a single answer — <strong>always with its sources shown</strong>, so you can go and check.</p>
+
+    <figure class="funnelfig">
+      <svg viewBox="0 0 900 300" role="img" aria-label="A question fans out to SharePoint, Slack, Gmail, Google Drive and more, then converges into one cited answer.">
+        <rect x="270" y="8" width="360" height="42" rx="6" fill="#16203C"/>
+        <text x="450" y="35" text-anchor="middle" fill="#E9E6DB" font-family="Public Sans, sans-serif" font-size="14.5">"What happened while I was out?"</text>
+
+        <g stroke="#C9761A" stroke-width="2.5" fill="none" opacity="0.85">
+          <path d="M450 52 C450 76 95 70 95 94"/>
+          <path d="M450 52 C450 76 265 70 265 94"/>
+          <path d="M450 52 V94"/>
+          <path d="M450 52 C450 76 605 70 605 94"/>
+          <path d="M450 52 C450 76 775 70 775 94"/>
+        </g>
+
+        <g fill="#F4F2EA" stroke="#C9761A" stroke-width="2.5">
+          <rect x="20"  y="96" width="150" height="50" rx="5"/>
+          <rect x="190" y="96" width="150" height="50" rx="5"/>
+          <rect x="360" y="96" width="150" height="50" rx="5"/>
+          <rect x="530" y="96" width="150" height="50" rx="5"/>
+        </g>
+        <rect x="700" y="96" width="150" height="50" rx="5" fill="#F4F2EA" stroke="#C9761A" stroke-width="2.5" stroke-dasharray="6 5"/>
+        <g text-anchor="middle" font-family="Bricolage Grotesque, sans-serif" font-size="12.5" font-weight="800" fill="#16203C">
+          <text x="95" y="120">SHAREPOINT</text><text x="265" y="120">SLACK</text>
+          <text x="435" y="120">GMAIL</text><text x="605" y="120">GOOGLE DRIVE</text><text x="775" y="120">+ MORE</text>
+        </g>
+        <g text-anchor="middle" font-family="Space Mono, monospace" font-size="8.5" fill="#4A5470" letter-spacing="0.6">
+          <text x="95" y="136">DOCUMENTS</text><text x="265" y="136">CONVERSATIONS</text>
+          <text x="435" y="136">THREADS</text><text x="605" y="136">FILES</text><text x="775" y="136">WHAT YOU CONNECT</text>
+        </g>
+
+        <g stroke="#C9761A" stroke-width="2.5" fill="none" opacity="0.85">
+          <path d="M95 148 C95 170 450 162 450 184"/>
+          <path d="M265 148 C265 170 450 162 450 184"/>
+          <path d="M435 148 V184"/>
+          <path d="M605 148 C605 170 450 162 450 184"/>
+          <path d="M775 148 C775 170 450 162 450 184"/>
+        </g>
+
+        <rect x="270" y="186" width="360" height="50" rx="6" fill="#F4F2EA" stroke="#C9761A" stroke-width="3.5"/>
+        <text x="450" y="209" text-anchor="middle" fill="#8A4A06" font-family="Bricolage Grotesque, sans-serif" font-size="18" font-weight="800">ONE ANSWER</text>
+        <text x="450" y="226" text-anchor="middle" fill="#4A5470" font-family="Space Mono, monospace" font-size="9" letter-spacing="1">SYNTHESISED ACROSS ALL OF THEM</text>
+
+        <g fill="#16203C">
+          <rect x="326" y="250" width="76" height="22" rx="3"/>
+          <rect x="412" y="250" width="76" height="22" rx="3"/>
+          <rect x="498" y="250" width="76" height="22" rx="3"/>
+        </g>
+        <g text-anchor="middle" font-family="Space Mono, monospace" font-size="8.5" font-weight="700" fill="#FFD84A" letter-spacing="0.8">
+          <text x="364" y="265">SLACK</text><text x="450" y="265">DRIVE</text><text x="536" y="265">GMAIL</text>
+        </g>
+        <text x="450" y="292" text-anchor="middle" fill="#8A4A06" font-family="Space Mono, monospace" font-size="10" font-weight="700" letter-spacing="1.2">IT ALWAYS CITES ITS SOURCES</text>
+      </svg>
+    </figure>
+
+    <div class="funnelstack" aria-hidden="true">
+      <div class="fs q"><b>Your question</b><span>"What happened while I was out?"</span></div>
+      <div class="fsar">↓ searched at once ↓</div>
+      <div class="fs mid"><b>Every connected system</b>
+        <div class="srcrow" style="margin-top:.4rem;"><span>SHAREPOINT</span><span>SLACK</span><span>GMAIL</span><span>DRIVE</span><span>+ MORE</span></div>
+      </div>
+      <div class="fsar">↓ synthesised ↓</div>
+      <div class="fs ans"><b>One answer</b><span>with every source cited</span></div>
+    </div>
+
+    <div class="prebuilt">
+      <span class="pt">The clearest way to think about it</span>
+      <p class="big">It's a <em>pre-built project</em> for your entire organisation.</p>
+      <p>Your company's knowledge is already loaded, the connectors are already wired, and the instructions were written by Anthropic and tuned for one job: finding and synthesising. You don't set any of it up. You just start asking.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 02 HOW IT DIFFERS ==================== -->
+<section class="sect" id="diff">
+  <div class="wrap">
+    <div class="shead"><span class="snum">Part 02</span><h2>How it differs from what you already know</h2></div>
+    <p class="slede">You've met both halves of this already. Lesson 05 gave you projects, Lesson 08 gave you connectors. Here's where each one sits.</p>
+
+    <div class="tri">
+      <div class="tw c1">
+        <span class="lb">Lesson 08</span>
+        <h3>Chat + connectors</h3>
+        <p>General purpose. You point at a source in your request and Claude reaches for it.</p>
+        <dl>
+          <dt>Built by</dt><dd>You, per conversation</dd>
+          <dt>Tuned for</dt><dd>Anything</dd>
+          <dt>Scope</dt><dd>Whatever you personally connected</dd>
+        </dl>
+      </div>
+      <div class="tw c2">
+        <span class="lb">Lesson 05</span>
+        <h3>A project you built</h3>
+        <p>Your files, your instructions, your chats — scoped to one work stream you care about.</p>
+        <dl>
+          <dt>Built by</dt><dd>You, once</dd>
+          <dt>Tuned for</dt><dd>Whatever you wrote in the instructions</dd>
+          <dt>Scope</dt><dd>One project</dd>
+        </dl>
+      </div>
+      <div class="tw c3">
+        <span class="lb">This lesson</span>
+        <h3>Ask your org</h3>
+        <p>A project you didn't build, wired to the company's systems, with instructions written by Anthropic for one job.</p>
+        <dl>
+          <dt>Built by</dt><dd>An Owner, once, for everyone</dd>
+          <dt>Tuned for</dt><dd>Finding and synthesising, only</dd>
+          <dt>Scope</dt><dd>The whole organisation</dd>
+        </dl>
+      </div>
+    </div>
+
+    <div class="fuse">
+      <span class="ft">The one-line version</span>
+      <p>Enterprise Search is <strong>Lesson 05 and Lesson 08 fused and handed to you pre-assembled.</strong> That narrowness is the feature — it isn't a general assistant with your tools bolted on, it's a research desk that does one thing properly.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 03 WHAT TO ASK ==================== -->
+<section class="sect" id="ask">
+  <div class="wrap">
+    <div class="shead"><span class="snum">Part 03</span><h2>What to ask it</h2></div>
+    <p class="slede">It earns its keep on questions that <strong>span several sources</strong> — the ones where the answer isn't in any single place, and finding it by hand would mean opening four tabs.</p>
+
+    <div class="fams">
+      <div class="fam">
+        <h3>Getting up to speed</h3>
+        <ul>
+          <li>"What happened yesterday while I was out?"</li>
+          <li>"Summarise key updates across the business from the last week."</li>
+          <li>"What are the current blockers on the Platform project?"</li>
+        </ul>
+      </div>
+      <div class="fam">
+        <h3>Policy and process</h3>
+        <ul>
+          <li>"What is our company's remote work policy?"</li>
+          <li>"How do I submit an expense report?"</li>
+          <li>"What's the process for requesting time off?"</li>
+        </ul>
+      </div>
+      <div class="fam">
+        <h3>Research and analysis</h3>
+        <ul>
+          <li>"What are the main reasons customers cite for choosing competitors?"</li>
+          <li>"Summarise discussions about the Q4 product roadmap."</li>
+          <li>"Find information about our customer onboarding process."</li>
+        </ul>
+      </div>
+      <div class="fam">
+        <h3>Onboarding new people</h3>
+        <ul>
+          <li>"How does our authentication system work?"</li>
+          <li>"Who should I talk to about learning the billing system?"</li>
+          <li>"What tools does the engineering team use for deployment?"</li>
+        </ul>
+      </div>
+      <div class="fam">
+        <h3>Project tracking</h3>
+        <ul>
+          <li>"Find discussions and documents related to the marketing campaign."</li>
+          <li>"What were the key decisions from last week's leadership meetings?"</li>
+          <li>"Summarise team contributions to the Infrastructure initiative."</li>
+        </ul>
+      </div>
+      <div class="fam">
+        <h3>The technique worth knowing</h3>
+        <ul>
+          <li>For genuinely thorough research, don't ask it to boil the ocean in one go — <strong>ask it to search one source at a time, then synthesise the findings.</strong></li>
+          <li>This is Anthropic's own guidance, and it's the same incremental habit from Lesson 03: one step per turn, so you can see what each one found.</li>
+        </ul>
+      </div>
+    </div>
+
+    <p class="keep"><b>The tell:</b> if answering the question yourself would mean opening more than two tools, this is the thing to ask.</p>
+  </div>
+</section>
+
+<!-- ==================== 04 SETTING UP ==================== -->
+<section class="sect" id="setup">
+  <div class="wrap">
+    <div class="shead"><span class="snum">Part 04</span><h2>The two-part setup</h2></div>
+    <p class="slede">Setup is a relay, not a checklist: <strong>one person does the first half for everyone, then each person does the second half for themselves.</strong> Work out which half is yours before you start following steps.</p>
+
+    <div class="relay">
+      <div class="half">
+        <span class="who">Half one · an Owner</span>
+        <h3>Done once, for everyone</h3>
+        <ol>
+          <li>Click <strong>"Ask Your Org"</strong> in the left sidebar.</li>
+          <li>Click <strong>"Set up for your org"</strong> — or "Disable" to turn the feature off entirely.</li>
+          <li>Connect the organisation's tools. <strong>Two are required:</strong> a <strong>Documents</strong> connector (Google Drive, SharePoint) and a <strong>Chat</strong> connector (Slack, Microsoft Teams). Email is recommended but optional.</li>
+          <li>Use <strong>"+ Add more"</strong> for any other tools the team needs.</li>
+          <li>Name the project — whatever you type becomes <strong>"Ask [Name]"</strong> in everyone's sidebar.</li>
+          <li>Add a description and click <strong>"Finish set up."</strong></li>
+        </ol>
+      </div>
+
+      <div class="baton">→ then →</div>
+
+      <div class="half mine">
+        <span class="who">Half two · everyone else</span>
+        <h3>Done once, by you</h3>
+        <ol>
+          <li>Click the project in your sidebar — it'll be <strong>starred</strong> once an Owner has finished.</li>
+          <li>Follow the guided onboarding to connect the recommended services.</li>
+          <li><strong>Authenticate with each service</strong> you want searched — Slack, Google, Microsoft 365 and so on. This is with <em>your</em> account, which is what keeps the results scoped to you.</li>
+          <li>Start asking.</li>
+        </ol>
+        <p class="tip"><b>More connectors, better answers.</b> You can add more later from <strong>"Connect"</strong> in the project's Instructions section — you don't have to decide everything on day one.</p>
+      </div>
+    </div>
+
+    <div class="correction">
+      <span class="ct">The word that costs people a week</span>
+      <h3>It has to be an Owner — not an admin</h3>
+      <p>Course material usually says "admins (Owners)" as if the two are interchangeable. They aren't, and getting this wrong is the most common reason a rollout stalls.</p>
+      <ul>
+        <li><strong>Only an Owner or Primary Owner</strong> can complete the initial setup. An Admin cannot. A member cannot.</li>
+        <li><strong>Nothing in the interface says so.</strong> The project is enabled by default and appears in everyone's sidebar — so members can see it, click it, and get nothing useful, with no explanation why.</li>
+        <li><strong>Not sure if you're one?</strong> Open Settings → Organization. If you can see the admin panel, you're an Owner. If you can't, find whoever manages your Claude plan — that's the person who has to act.</li>
+      </ul>
+      <p class="src">Source: Anthropic Help Centre, "Use enterprise search", checked August 2026.</p>
+    </div>
+
+    <div class="trouble">
+      <span class="tt">When it's there but doesn't work</span>
+      <ol>
+        <li><strong>Check the plan.</strong> Team or Enterprise — nothing below.</li>
+        <li><strong>Ask an Owner to confirm</strong> the feature is enabled for the organisation.</li>
+        <li><strong>Refresh, or sign out and back in.</strong> Genuinely fixes a surprising share of cases.</li>
+        <li><strong>Check the specific connector</strong> is enabled at the organisation level, not just the feature.</li>
+        <li><strong>Confirm you have an active account</strong> with the service you're trying to search.</li>
+        <li><strong>Check your organisation's policies</strong> don't block third-party integrations.</li>
+        <li><strong>Make sure you finished the authentication flow</strong> — half-completed auth looks identical to no auth.</li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 05 IS IT SAFE ==================== -->
+<section class="sect" id="safe">
+  <div class="wrap">
+    <div class="shead"><span class="snum">Part 05</span><h2>That's a lot of data. Is it safe?</h2></div>
+    <p class="slede">Short answer: yes — and the reason is worth understanding rather than taking on trust, because it's the same principle that governed connectors in Lesson 08.</p>
+
+    <div class="safes">
+      <div class="safe">
+        <span class="sn">Guarantee 01</span>
+        <h3>Your permissions, unchanged</h3>
+        <p>It only surfaces what you <strong>already have permission to see</strong> in the original tool. Locked out of a Slack channel? Nothing from it will appear. Searching doesn't grant access — it inherits it.</p>
+      </div>
+      <div class="safe">
+        <span class="sn">Guarantee 02</span>
+        <h3>Your conversations stay private</h3>
+        <p>What you ask it is <strong>yours</strong>. The org-wide part is the connected knowledge, not your queries.</p>
+      </div>
+      <div class="safe">
+        <span class="sn">Guarantee 03</span>
+        <h3>Nothing is copied elsewhere</h3>
+        <p>Your connected data <strong>isn't indexed or stored separately.</strong> Questions go to the source systems and the answer comes back — there's no second copy of your company sitting somewhere new.</p>
+      </div>
+    </div>
+
+    <p class="keep"><b>Worth saying to a nervous colleague:</b> Enterprise Search doesn't widen anyone's access by a single document. It only makes the access they already had searchable in one place.</p>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>Lesson 09 · Enterprise Search · The funnel ·
+      <a href="lesson-08-connectors.html">← Lesson 08</a> ·
+      <a href="lesson-10-research.html">Lesson 10 →</a></p>
+  </div>
+</footer>
+
+
+
+<style>
+.pathnav{position:sticky;bottom:0;z-index:60;background:#16203C;border-top:2px solid #FFD84A;}
+.pathnav .inner{max-width:1160px;margin:0 auto;padding:.55rem 1.5rem;display:flex;align-items:center;gap:.8rem;flex-wrap:wrap;}
+.pathnav a{font-family:"Space Mono",monospace;font-size:.6rem;font-weight:700;text-transform:uppercase;
+letter-spacing:.1em;text-decoration:none;color:#E9E6DB;border:1.5px solid #4A5470;padding:.32rem .55rem;transition:all .15s ease;}
+.pathnav a:hover{border-color:#FFD84A;color:#FFD84A;}
+.pathnav a.next{border-color:#FFD84A;color:#FFD84A;margin-left:auto;}
+.pathnav .step{font-family:"Space Mono",monospace;font-size:.58rem;font-weight:700;letter-spacing:.12em;color:#8FA0C4;text-transform:uppercase;}
+@media print{.pathnav{display:none;}}
+</style>
+<div class="pathnav"><div class="inner"><a href="lesson-08-connectors.html">← 08 Connectors</a>
+<a href="learning-path.html">↑ Learning path</a>
+<span class="step">Step 12 of 16</span>
+<a class="next" href="lesson-10-research.html">10 Research →</a></div></div>
+</body>
+</html>

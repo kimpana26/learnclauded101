@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 00 — Set yourself up once</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Public+Sans:ital,wght@0,400;0,600;1,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#E9E6DB; --paper-hi:#F4F2EA; --ink:#16203C; --ink-soft:#4A5470; --rule:#C9C4B4;
+  --go:#0E8A63; --go-ink:#0A6047; --acc:#1358A8; --acc-ink:#0D4079; --warn:#DE4438; --warn-ink:#A22119;
+  --marker:#FFD84A;
+  --display:"Bricolage Grotesque","Trebuchet MS",system-ui,sans-serif;
+  --body:"Public Sans",-apple-system,"Segoe UI",Roboto,sans-serif;
+  --mono:"Space Mono",ui-monospace,"Courier New",monospace;
+}
+*,*::before,*::after{ box-sizing:border-box; }
+html{ scroll-behavior:smooth; }
+body{ margin:0; background:var(--paper); color:var(--ink); font-family:var(--body); line-height:1.6; -webkit-font-smoothing:antialiased; }
+body::after{ content:""; position:fixed; inset:0; pointer-events:none; z-index:99;
+  background-image:radial-gradient(var(--ink) .5px,transparent .5px); background-size:4px 4px; opacity:.05; }
+.wrap{ max-width:900px; margin:0 auto; padding:0 1.5rem; }
+h1,h2,h3{ font-family:var(--display); font-weight:800; line-height:1.04; margin:0; letter-spacing:-.02em; }
+h1{ font-size:clamp(2.3rem,7.5vw,4.6rem); text-transform:uppercase; }
+h2{ font-size:clamp(1.4rem,3.6vw,2.1rem); }
+p{ margin:0 0 1rem; } p:last-child{ margin-bottom:0; }
+a{ color:inherit; } :focus-visible{ outline:3px solid var(--acc); outline-offset:3px; }
+.tag{ font-family:var(--mono); font-size:.66rem; font-weight:700; text-transform:uppercase; letter-spacing:.16em; }
+
+.routebar{ position:sticky; top:0; z-index:50; background:var(--paper); border-bottom:2px solid var(--ink); }
+.routebar .wrap{ display:flex; align-items:center; gap:1rem; flex-wrap:wrap; padding:.6rem 1.5rem; }
+.routebar .brand{ font-family:var(--display); font-weight:800; text-transform:uppercase; margin-right:auto; }
+.routebar .brand small{ font-family:var(--mono); font-weight:700; font-size:.6rem; letter-spacing:.16em; color:var(--ink-soft); display:block; }
+.pill{ font-family:var(--mono); font-size:.63rem; font-weight:700; text-transform:uppercase; letter-spacing:.1em;
+  text-decoration:none; color:#fff; padding:.32rem .58rem; border-radius:999px; background:var(--ink); }
+.pill.g{ background:var(--go-ink); } .pill.b{ background:var(--acc-ink); }
+
+.hero{ padding:3.5rem 0 1.5rem; }
+.hero .eyebrow{ color:var(--ink-soft); display:block; margin-bottom:1rem; }
+.hero h1{ margin-bottom:1.2rem; }
+.hero .deck{ font-size:1.1rem; color:var(--ink-soft); max-width:54ch; }
+.hero .deck strong{ color:var(--ink); font-weight:600; }
+
+.why{ background:var(--ink); color:#C6CDDE; padding:1.5rem; margin-top:1.8rem; border-left:6px solid var(--marker); }
+.why .t{ font-family:var(--mono); font-size:.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.14em; color:#8FA0C4; display:block; margin-bottom:.6rem; }
+.why .big{ font-family:var(--display); font-weight:800; font-size:clamp(1.15rem,3vw,1.7rem); line-height:1.12; margin:0 0 .6rem; color:var(--paper); letter-spacing:-.02em; }
+.why .big em{ font-style:normal; color:var(--marker); }
+.why p{ font-size:.95rem; }
+
+.step{ border-top:1px solid var(--rule); padding:2.6rem 0 .5rem; scroll-margin-top:4.2rem; }
+.snum{ font-family:var(--mono); font-size:.66rem; font-weight:700; text-transform:uppercase; letter-spacing:.14em; color:#fff; background:var(--go-ink); padding:.28rem .55rem; display:inline-block; margin-bottom:.7rem; }
+.step h2{ color:var(--go-ink); margin-bottom:.6rem; }
+.step .lede{ color:var(--ink-soft); max-width:58ch; margin-bottom:1.2rem; }
+.step .lede strong{ color:var(--ink); font-weight:600; }
+.time{ font-family:var(--mono); font-size:.58rem; font-weight:700; text-transform:uppercase; letter-spacing:.1em; background:var(--marker); color:var(--ink); padding:.18rem .42rem; margin-left:.5rem; }
+
+.tmpl{ border:1.5px solid var(--go); background:var(--paper-hi); margin-bottom:1rem; }
+.thead{ display:flex; align-items:center; gap:.6rem; background:var(--go-ink); padding:.45rem .75rem; }
+.thead .lbl{ font-family:var(--mono); font-size:.58rem; font-weight:700; text-transform:uppercase; letter-spacing:.12em; color:#fff; }
+.copy{ margin-left:auto; font-family:var(--mono); font-size:.58rem; font-weight:700; text-transform:uppercase; letter-spacing:.1em;
+  cursor:pointer; background:var(--marker); color:var(--ink); border:none; padding:.3rem .6rem; }
+.copy:hover{ background:#fff; } .copy.done{ background:#fff; color:var(--go-ink); }
+.prompt{ margin:0; padding:1rem; font-size:.93rem; line-height:1.66; white-space:pre-wrap; font-family:var(--body); }
+.fill{ background:var(--marker); font-weight:600; padding:0 .15em; border-radius:2px; }
+
+.note{ border-left:4px solid var(--marker); background:var(--paper-hi); padding:.85rem 1rem; font-size:.93rem; margin-top:1rem; }
+.note b{ font-weight:600; }
+.ba{ display:grid; gap:.6rem; margin-top:1rem; }
+.ba > div{ border:1px solid var(--rule); background:var(--paper); padding:.8rem; }
+.ba .bl{ font-family:var(--mono); font-size:.55rem; font-weight:700; text-transform:uppercase; letter-spacing:.12em; display:block; margin-bottom:.3rem; }
+.ba .no{ border-left:4px solid var(--ink-soft); } .ba .no .bl{ color:var(--ink-soft); }
+.ba .yes{ border-left:4px solid var(--go); } .ba .yes .bl{ color:var(--go-ink); }
+.ba q{ quotes:none; font-size:.91rem; font-style:italic; }
+
+.freebies{ display:grid; gap:.6rem; margin-top:1rem; }
+.fb{ display:grid; grid-template-columns:auto 1fr; gap:.9rem; border-top:1px solid var(--rule); padding:.85rem 0; }
+.fb .n{ font-family:var(--mono); font-size:.62rem; font-weight:700; color:#fff; background:var(--acc-ink); padding:.15rem .4rem; height:fit-content; }
+.fb b{ display:block; font-size:.97rem; } .fb span{ font-size:.91rem; color:var(--ink-soft); }
+
+.close{ background:var(--ink); color:var(--paper); padding:2.4rem 1.5rem; margin-top:3rem; }
+.close .big{ font-family:var(--display); font-weight:800; font-size:clamp(1.3rem,3.6vw,2.1rem); line-height:1.1; margin:0 0 .8rem; letter-spacing:-.02em; }
+.close .big em{ font-style:normal; color:var(--marker); }
+.close p{ color:#C6CDDE; font-size:.97rem; max-width:60ch; }
+.close a{ color:var(--marker); }
+
+footer{ border-top:1px solid var(--rule); margin-top:2.5rem; padding:1.4rem 0 3.5rem; }
+footer p{ font-family:var(--mono); font-size:.64rem; text-transform:uppercase; letter-spacing:.1em; color:var(--ink-soft); }
+@media (min-width:640px){ .ba{ grid-template-columns:1fr 1.4fr; } }
+@media (prefers-reduced-motion:reduce){ html{ scroll-behavior:auto; } *{ transition:none !important; } }
+</style>
+</head>
+<body>
+
+<div class="routebar"><div class="wrap">
+  <span class="brand">Set yourself up<small>Lesson 00 · do this first</small></span>
+  <a class="pill" href="index.html">Home</a>
+  <a class="pill g" href="prompt-library.html">50 prompts</a>
+  <a class="pill b" href="power-prompts.html">64 power prompts</a>
+</div></div>
+
+<header class="hero">
+  <div class="wrap">
+    <span class="tag eyebrow">Lesson 00 · fifteen minutes, once, forever</span>
+    <h1>Set yourself<br>up once</h1>
+    <p class="deck">Everything in Lessons 01 to 12 works better after this. <strong>Five things you do a single time</strong> — and then never think about again, because they apply automatically to every conversation you have from then on.</p>
+
+    <div class="why">
+      <span class="t">Why this comes first</span>
+      <p class="big">Every new chat starts with <em>zero memory of you.</em></p>
+      <p>So you either re-explain yourself at the top of every conversation, or you don't — and you get an answer written for the average person instead of for you. Fifteen minutes here removes that tax permanently. Most people never do it, then conclude Claude is "a bit generic."</p>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+<section class="step" id="s1">
+  <span class="snum">Step 01</span><span class="time">2 minutes</span>
+  <h2>Make a Project, not a chat</h2>
+  <p class="lede">A Project is a room that keeps its contents between visits. Instructions and uploaded files carry into every conversation you start inside it — so the setup below only has to happen once. <strong>Do this before anything else, or the next four steps evaporate when you close the tab.</strong></p>
+  <div class="note"><b>How:</b> open Claude → <b>Projects</b> in the sidebar → <b>+ New Project</b>. Name it for a work stream, not for everything — "Marketing 2026" beats "Work". You can have several.</div>
+</section>
+
+<section class="step" id="s2">
+  <span class="snum">Step 02</span><span class="time">5 minutes</span>
+  <h2>Tell it who you are</h2>
+  <p class="lede">This is the single highest-leverage paste in the whole course. Fill in every line honestly — <strong>vague answers here produce vague answers forever.</strong> Put the finished version in your Project's knowledge base.</p>
+
+  <div class="tmpl">
+    <div class="thead"><span class="lbl">Template · fill in and paste into your project</span><button class="copy" type="button">Copy</button></div>
+    <p class="prompt">My name is <b class="fill">[your name]</b>.
+
+I work as <b class="fill">[your role]</b>. Day to day I'm mainly responsible for <b class="fill">[two or three things you actually do]</b>.
+
+Right now my biggest goals are <b class="fill">[one to three specific goals]</b>.
+
+I'll mostly use you for <b class="fill">[writing / research / analysis / learning / coding / planning]</b>.
+
+My background: I know <b class="fill">[what you're strong at]</b> well, I'm currently learning <b class="fill">[what you're working on]</b>, and I'm completely new to <b class="fill">[what you don't know]</b>.
+
+How I like information: <b class="fill">[direct and short / detailed with examples / step by step / prose not bullets]</b>.
+
+Things I don't want: <b class="fill">[e.g. no disclaimers, no corporate language, don't repeat my question back to me, don't open with "Great question"]</b>.
+
+Areas I care about: <b class="fill">[your industry, interests, niche]</b>.</p>
+  </div>
+  <div class="note"><b>The line people leave blank and shouldn't:</b> "things I don't want." It's the one that changes the texture of every future answer, and it's the only place you get to fire the habits that annoy you.</div>
+</section>
+
+<section class="step" id="s3">
+  <span class="snum">Step 03</span><span class="time">3 minutes</span>
+  <h2>Turn that into standing instructions</h2>
+  <p class="lede">Background tells Claude who you are. <strong>Instructions tell it how to behave.</strong> Rather than writing them yourself, have Claude write them from what you just pasted — it knows what a well-formed instruction set looks like.</p>
+
+  <div class="tmpl">
+    <div class="thead"><span class="lbl">Paste this right after the template above</span><button class="copy" type="button">Copy</button></div>
+    <p class="prompt">Based on everything I've just told you about myself, write a set of project instructions for this workspace.
+
+They should cover:
+- who I am and what I do
+- my default communication style and format
+- what you should never do when working with me
+- the tone I want in every response
+- any default behaviour I'd want in every session
+
+Write them in second person, as rules you are reading about how to help me. Be specific to me — no generic advice that would apply to anyone. Under 400 words.
+
+Then tell me which parts you had to guess at, so I can correct them.</p>
+  </div>
+  <div class="note"><b>Then:</b> paste the output into your Project's <b>Instructions</b> panel and save. That's now Claude's permanent operating mode inside this project. The last line matters — it surfaces the guesses instead of baking them in silently.</div>
+</section>
+
+<section class="step" id="s4">
+  <span class="snum">Step 04</span><span class="time">1 minute</span>
+  <h2>Fire the preamble</h2>
+  <p class="lede">By default a response often opens with a restatement of your question, an affirmation, or a closing summary of what it just said. You didn't ask for any of it, and it's between you and the answer. <strong>Add these lines to your instructions and it stops permanently.</strong></p>
+
+  <div class="tmpl">
+    <div class="thead"><span class="lbl">Append to your project instructions</span><button class="copy" type="button">Copy</button></div>
+    <p class="prompt">Never open with preamble, affirmations, or a restatement of my question. Go straight to the answer.
+
+Don't add a summary at the end unless I ask for one.
+
+No disclaimers unless the topic genuinely needs one.
+
+If I ask for something and you're not sure what I mean, ask me one clarifying question rather than guessing and producing something long.</p>
+  </div>
+
+  <p style="margin-top:1.2rem;color:var(--ink-soft);font-size:.95rem;">While you're there — <strong style="color:var(--ink)">say how long you want answers to be.</strong> Length is the one thing Claude has to guess at unless you say, and its guess is usually longer than you need.</p>
+  <div class="ba">
+    <div class="no"><span class="bl">Leaves it guessing</span><q>"Summarise this"</q></div>
+    <div class="yes"><span class="bl">Doesn't</span><q>"Three sentences maximum." · "Five bullets, no explanations." · "Under 150 words." · "Comprehensive — length isn't a concern here."</q></div>
+  </div>
+</section>
+
+<section class="step" id="s5">
+  <span class="snum">Step 05</span><span class="time">4 minutes</span>
+  <h2>Teach it your voice</h2>
+  <p class="lede">Ask Claude to write "in my style" without examples and it writes in its own — grammatically fine, tonally nothing like you. <strong>Three to five samples fixes it,</strong> and the analysis it produces is reusable forever.</p>
+
+  <div class="tmpl">
+    <div class="thead"><span class="lbl">Paste with 3–5 things you've written</span><button class="copy" type="button">Copy</button></div>
+    <p class="prompt">Here are <b class="fill">[3–5]</b> things I've written:
+
+<b class="fill">[paste sample 1]</b>
+
+<b class="fill">[paste sample 2]</b>
+
+<b class="fill">[paste sample 3]</b>
+
+Analyse my writing style in detail — not a description, an analysis. Look at: average sentence length and rhythm, vocabulary choices, how I open and close paragraphs, punctuation habits, what I consistently avoid, how formal I am, and any patterns that make it recognisably mine.
+
+Then save that analysis as a rule: from now on, when I ask you to write anything, match this style exactly and do not fall back on your own default patterns.
+
+Finally, write one short paragraph about <b class="fill">[any topic]</b> in my voice so I can check whether you've got it.</p>
+  </div>
+  <div class="note"><b>Why the last line matters:</b> it gives you a test before you rely on it. If the sample doesn't sound like you, say what's off and it will adjust — that's a two-minute fix versus discovering it three drafts into something real.</div>
+</section>
+
+
+
+
+<section class="step" id="s6b">
+  <span class="snum">Step 06</span><span class="time">1 minute</span>
+  <h2>Switch on memory and past-chat search</h2>
+  <p class="lede">Two settings that quietly remove the single biggest complaint people have about Claude — that it forgets everything. <strong>They're off by default for some accounts, and most people never look.</strong></p>
+
+  <div class="ba">
+    <div class="no"><span class="bl">Without them</span><q>"I explained all this last week. Why do I have to do it again?"</q></div>
+    <div class="fb"><span class="bl">With them</span><q>"Carry on from where we left off on the Q3 deck last Tuesday."</q></div>
+  </div>
+
+  <div class="note"><b>Where:</b> Settings → Capabilities. Turn on <b>memory</b>, so your role, preferences and working style follow you into new chats. Turn on <b>search past chats</b>, so you can point at an old conversation instead of reconstructing it. Both are yours to control — you can review, edit or delete anything remembered, any time, in Settings.</div>
+
+  <div class="note" style="margin-top:.8rem;"><b>Worth knowing:</b> each Project keeps its own separate memory. Work you do in a client project doesn't leak into a personal one — which is exactly why Step 01 had you make a Project rather than one giant chat.</div>
+</section>
+
+<section class="step" id="s6">
+  <span class="snum">Free</span>
+  <h2>Four habits that cost nothing</h2>
+  <p class="lede">No setup, no settings. Just four things to start doing from today.</p>
+
+  <div class="freebies">
+    <div class="fb"><span class="n">01</span><div><b>Make it ask you questions first</b><span>Add <em>"Before you start, ask me what you need to know to make this genuinely good rather than generic"</em> to any complex request. You'll answer three questions and skip four rounds of revision.</span></div></div>
+    <div class="fb"><span class="n">02</span><div><b>Let Claude write the prompt</b><span><em>"I need help with [task]. Write me the best possible prompt for this — include role, context, format and constraints."</em> Then run it. The most underused move there is.</span></div></div>
+    <div class="fb"><span class="n">03</span><div><b>Turn on extended thinking for hard things</b><span>For real decisions and analysis, let it reason before answering rather than pattern-matching straight to output. For "what's the capital of France", don't bother.</span></div></div>
+    <div class="fb"><span class="n">04</span><div><b>New topic, new chat</b><span>A long conversation carries everything before it. When you genuinely change subject, start fresh — you'll get a cleaner answer and stop paying for context you're not using.</span></div></div>
+  </div>
+</section>
+</main>
+
+<div class="close">
+  <div class="wrap">
+    <p class="big">Fifteen minutes. <em>Then never again.</em></p>
+    <p>Everything else in this course assumes you've done this. When Lesson 05 talks about project instructions, this is what it means. When the prompt library says "name your role", you've already named it. Go and start <a href="what-is-claude-map.html">Lesson 01</a>.</p>
+  </div>
+</div>
+
+<footer><div class="wrap"><p>Lesson 00 · Set yourself up · <a href="index.html">Course home</a> · <a href="prompt-library.html">50 before/after pairs</a> · <a href="power-prompts.html">64 power prompts</a></p></div></footer>
+
+<script>
+document.addEventListener('click',function(e){
+  var b = e.target.closest ? e.target.closest('.copy') : null; if(!b) return;
+  var p = b.closest('.tmpl').querySelector('.prompt');
+  var text = (p.innerText||p.textContent).trim();
+  function done(ok){ b.textContent = ok?'Copied ✓':'Select & copy'; b.className='copy done';
+    setTimeout(function(){ b.textContent='Copy'; b.className='copy'; },1500); }
+  function fb(t){ var ta=document.createElement('textarea'); ta.value=t; ta.style.position='fixed'; ta.style.opacity='0';
+    document.body.appendChild(ta); ta.select(); var ok=false; try{ok=document.execCommand('copy');}catch(err){} document.body.removeChild(ta); return ok; }
+  if(navigator.clipboard && window.isSecureContext){
+    navigator.clipboard.writeText(text).then(function(){done(true);},function(){done(fb(text));});
+  } else { done(fb(text)); }
+});
+</script>
+
+
+<style>
+.pathnav{position:sticky;bottom:0;z-index:60;background:#16203C;border-top:2px solid #FFD84A;}
+.pathnav .inner{max-width:1160px;margin:0 auto;padding:.55rem 1.5rem;display:flex;align-items:center;gap:.8rem;flex-wrap:wrap;}
+.pathnav a{font-family:"Space Mono",monospace;font-size:.6rem;font-weight:700;text-transform:uppercase;
+letter-spacing:.1em;text-decoration:none;color:#E9E6DB;border:1.5px solid #4A5470;padding:.32rem .55rem;transition:all .15s ease;}
+.pathnav a:hover{border-color:#FFD84A;color:#FFD84A;}
+.pathnav a.next{border-color:#FFD84A;color:#FFD84A;margin-left:auto;}
+.pathnav .step{font-family:"Space Mono",monospace;font-size:.58rem;font-weight:700;letter-spacing:.12em;color:#8FA0C4;text-transform:uppercase;}
+@media print{.pathnav{display:none;}}
+</style>
+<div class="pathnav"><div class="inner"><a href="learning-path.html">↑ Learning path</a>
+<span class="step">Step 1 of 16</span>
+<a class="next" href="what-is-claude-map.html">01 What is Claude →</a></div></div>
+</body>
+</html>

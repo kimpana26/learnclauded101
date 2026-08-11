@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The learning path — what to do, in order</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Public+Sans:ital,wght@0,400;0,600;1,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#E9E6DB; --paper-hi:#F4F2EA; --ink:#16203C; --ink-soft:#4A5470; --rule:#C9C4B4;
+  --s1:#DE4438; --s1i:#A22119;   /* stage 1 · set up  */
+  --s2:#1358A8; --s2i:#0D4079;   /* stage 2 · basics  */
+  --s3:#0E8A63; --s3i:#0A6047;   /* stage 3 · machinery */
+  --s4:#7B4BB0; --s4i:#573079;   /* stage 4 · apply   */
+  --marker:#FFD84A;
+  --display:"Bricolage Grotesque","Trebuchet MS",system-ui,sans-serif;
+  --body:"Public Sans",-apple-system,"Segoe UI",Roboto,sans-serif;
+  --mono:"Space Mono",ui-monospace,"Courier New",monospace;
+}
+*,*::before,*::after{ box-sizing:border-box; }
+html{ scroll-behavior:smooth; }
+body{ margin:0; background:var(--paper); color:var(--ink); font-family:var(--body); font-size:1rem; line-height:1.6; -webkit-font-smoothing:antialiased; }
+body::after{ content:""; position:fixed; inset:0; pointer-events:none; z-index:99;
+  background-image:radial-gradient(var(--ink) .5px,transparent .5px); background-size:4px 4px; opacity:.05; }
+.wrap{ max-width:1180px; margin:0 auto; padding:0 1.5rem; }
+h1,h2,h3{ font-family:var(--display); font-weight:800; line-height:1.04; margin:0; letter-spacing:-.02em; }
+h1{ font-size:clamp(2.3rem,7.5vw,4.6rem); text-transform:uppercase; }
+h2{ font-size:clamp(1.3rem,3.4vw,2rem); text-transform:uppercase; }
+p{ margin:0 0 1rem; } p:last-child{ margin-bottom:0; }
+a{ color:inherit; }
+:focus-visible{ outline:3px solid var(--s2); outline-offset:3px; border-radius:3px; }
+.tag{ font-family:var(--mono); font-size:.66rem; font-weight:700; text-transform:uppercase; letter-spacing:.16em; }
+
+.routebar{ position:sticky; top:0; z-index:50; background:var(--paper); border-bottom:2px solid var(--ink); }
+.routebar .wrap{ display:flex; align-items:center; gap:1rem; flex-wrap:wrap; padding:.6rem 1.5rem; }
+.routebar .brand{ font-family:var(--display); font-weight:800; text-transform:uppercase; margin-right:auto; }
+.routebar .brand small{ font-family:var(--mono); font-weight:700; font-size:.6rem; letter-spacing:.16em; color:var(--ink-soft); display:block; }
+.routebar nav{ display:flex; gap:.35rem; flex-wrap:wrap; }
+.pill{ font-family:var(--mono); font-size:.62rem; font-weight:700; text-transform:uppercase; letter-spacing:.1em;
+  text-decoration:none; color:#fff; padding:.32rem .58rem; border-radius:999px; transition:transform .18s ease; }
+.pill:hover{ transform:translateY(-2px); }
+
+.hero{ padding:3.5rem 0 1.5rem; }
+.hero .eyebrow{ color:var(--ink-soft); display:block; margin-bottom:1rem; }
+.hero h1{ margin-bottom:1.2rem; }
+.hero .deck{ font-size:1.08rem; color:var(--ink-soft); max-width:58ch; }
+.hero .deck strong{ color:var(--ink); font-weight:600; }
+
+/* stage strip */
+.stages{ display:grid; grid-template-columns:1fr; gap:.5rem; margin:2rem 0 1rem; }
+.stg{ border:2px solid; background:var(--paper-hi); padding:.7rem .85rem; }
+.stg b{ display:block; font-family:var(--display); font-weight:800; font-size:.95rem; text-transform:uppercase; }
+.stg span{ font-family:var(--mono); font-size:.55rem; text-transform:uppercase; letter-spacing:.08em; color:var(--ink-soft); }
+.stg.a{ border-color:var(--s1); } .stg.a b{ color:var(--s1i); }
+.stg.b{ border-color:var(--s2); } .stg.b b{ color:var(--s2i); }
+.stg.c{ border-color:var(--s3); } .stg.c b{ color:var(--s3i); }
+.stg.d{ border-color:var(--s4); } .stg.d b{ color:var(--s4i); }
+
+/* the table */
+.tblwrap{ overflow-x:auto; border:2px solid var(--ink); background:var(--paper-hi); margin-bottom:1rem; }
+table{ border-collapse:collapse; width:100%; min-width:860px; }
+thead th{ background:var(--ink); color:var(--paper); font-family:var(--mono); font-size:.58rem; font-weight:700;
+  text-transform:uppercase; letter-spacing:.12em; text-align:left; padding:.7rem .8rem; white-space:nowrap; }
+tbody td{ border-top:1px solid var(--rule); padding:.85rem .8rem; vertical-align:top; font-size:.9rem; }
+tbody tr:hover{ background:#fff; }
+tr.stagerow td{ background:var(--ink); color:var(--marker); font-family:var(--mono); font-size:.6rem; font-weight:700;
+  text-transform:uppercase; letter-spacing:.14em; padding:.5rem .8rem; border-top:2px solid var(--ink); }
+td.n{ font-family:var(--mono); font-size:.7rem; font-weight:700; color:#fff; white-space:nowrap; width:1%; }
+td.n span{ padding:.18rem .4rem; display:inline-block; }
+td.what a{ font-family:var(--display); font-weight:800; font-size:.98rem; letter-spacing:-.01em; text-decoration:none; display:block; margin-bottom:.15rem; }
+td.what a:hover{ text-decoration:underline; }
+td.what em{ font-style:normal; font-family:var(--mono); font-size:.54rem; text-transform:uppercase; letter-spacing:.1em; color:var(--ink-soft); }
+td.why{ color:var(--ink-soft); min-width:15rem; }
+td.do{ min-width:14rem; }
+td.do b{ font-family:var(--mono); font-size:.54rem; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:var(--s3i); display:block; margin-bottom:.2rem; }
+td.time{ font-family:var(--mono); font-size:.62rem; color:var(--ink-soft); white-space:nowrap; }
+.r1 td.n span{ background:var(--s1i); } .r1 td.what a{ color:var(--s1i); }
+.r2 td.n span{ background:var(--s2i); } .r2 td.what a{ color:var(--s2i); }
+.r3 td.n span{ background:var(--s3i); } .r3 td.what a{ color:var(--s3i); }
+.r4 td.n span{ background:var(--s4i); } .r4 td.what a{ color:var(--s4i); }
+
+.note{ font-family:var(--mono); font-size:.6rem; text-transform:uppercase; letter-spacing:.1em; color:var(--ink-soft); margin-bottom:2.5rem; }
+
+.sect{ padding:3rem 0 1rem; border-top:1px solid var(--rule); }
+.slede{ color:var(--ink-soft); max-width:62ch; margin-bottom:1.5rem; }
+
+.paths{ display:grid; grid-template-columns:1fr; gap:1rem; }
+.path{ background:var(--paper-hi); border:1px solid var(--rule); border-left:6px solid; padding:1.3rem; }
+.path h3{ font-size:1.05rem; margin-bottom:.4rem; }
+.path .who{ font-family:var(--mono); font-size:.55rem; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:var(--ink-soft); display:block; margin-bottom:.6rem; }
+.path ol{ margin:.5rem 0 0; padding-left:1.15rem; }
+.path li{ font-size:.9rem; color:var(--ink-soft); margin-bottom:.3rem; }
+.path.p1{ border-left-color:var(--s1); } .path.p1 h3{ color:var(--s1i); }
+.path.p2{ border-left-color:var(--s2); } .path.p2 h3{ color:var(--s2i); }
+.path.p3{ border-left-color:var(--s3); } .path.p3 h3{ color:var(--s3i); }
+
+.keep{ background:var(--ink); color:#C6CDDE; padding:1.4rem; font-size:.98rem; margin-top:1.5rem; border-left:6px solid var(--marker); }
+.keep b{ color:var(--marker); font-weight:600; }
+
+footer{ border-top:1px solid var(--rule); margin-top:3rem; padding:1.5rem 0 3.5rem; }
+footer p{ font-family:var(--mono); font-size:.64rem; text-transform:uppercase; letter-spacing:.1em; color:var(--ink-soft); }
+
+@media (min-width:640px){ .stages{ grid-template-columns:repeat(4,1fr); } .paths{ grid-template-columns:repeat(3,1fr); } }
+@media (prefers-reduced-motion:reduce){ html{ scroll-behavior:auto; } *{ transition:none !important; } }
+@media print{ .routebar{ display:none; } body::after{ display:none; } table{ min-width:0; } }
+</style>
+</head>
+<body>
+
+<div class="routebar">
+  <div class="wrap">
+    <span class="brand">The learning path<small>Start here</small></span>
+    <nav aria-label="Sections">
+      <a class="pill" style="background:#16203C" href="index.html">Home</a>
+      <a class="pill" style="background:#0A6047" href="prompt-library.html">Vol 1 · 50</a>
+      <a class="pill" style="background:#0A6047" href="power-prompts.html">Vol 2 · 64</a>
+      <a class="pill" style="background:#A22119" href="lesson-00-setup.html">Begin →</a>
+    </nav>
+  </div>
+</div>
+
+<header class="hero">
+  <div class="wrap">
+    <span class="tag eyebrow">The curriculum · 14 lessons · 114 prompts · ~2 hours total</span>
+    <h1>What to do,<br>in order</h1>
+    <p class="deck">Four stages. <strong>Set up, learn to talk to it, learn the machinery, then apply it.</strong> The prompt collections sit deliberately late — copy-paste before you understand the shape is how you end up with a library instead of a skill. Each row tells you what the lesson is, why it's at that position, and the one thing to actually do before moving on.</p>
+
+    <div class="stages">
+      <div class="stg a"><b>Stage 1 · Set up</b><span>30 min once · pays out forever</span></div>
+      <div class="stg b"><b>Stage 2 · Talk to it</b><span>the core skill · then practise</span></div>
+      <div class="stg c"><b>Stage 3 · The machinery</b><span>reference, as needed</span></div>
+      <div class="stg d"><b>Stage 4 · Apply it</b><span>do one real thing · then the toolkit</span></div>
+    </div>
+  </div>
+</header>
+
+<main>
+<div class="wrap">
+  <div class="tblwrap">
+    <table>
+      <thead>
+        <tr><th>#</th><th>Lesson</th><th>Why it's here</th><th>Do this before moving on</th><th>Time</th></tr>
+      </thead>
+      <tbody>
+
+        <tr class="stagerow"><td colspan="5">Stage 1 · Set up — do this once, and everything after is better</td></tr>
+        <tr class="r1">
+          <td class="n"><span>00</span></td>
+          <td class="what"><a href="lesson-00-setup.html">Set yourself up once</a><em>Setup checklist</em></td>
+          <td class="why">Nearly every complaint about Claude is a setup problem wearing a prompting costume. Do this first or you'll spend the course re-explaining yourself.</td>
+          <td class="do"><b>Action</b>Create one Project, paste the "who I am" profile into it, and switch off the preamble.</td>
+          <td class="time">20 min</td>
+        </tr>
+
+        <tr class="stagerow"><td colspan="5">Stage 2 · Talk to it — the part that decides your results, then practice</td></tr>
+        <tr class="r2">
+          <td class="n"><span>01</span></td>
+          <td class="what"><a href="what-is-claude-map.html">What is Claude?</a><em>Route map · clickable</em></td>
+          <td class="why">Teaches the single distinction everything else rests on: a search box takes a question, Claude takes a situation.</td>
+          <td class="do"><b>Action</b>Do the six-request sorting exercise. Guess before you open each answer.</td>
+          <td class="time">4 min</td>
+        </tr>
+        <tr class="r2">
+          <td class="n"><span>02</span></td>
+          <td class="what"><a href="lesson-02-first-conversation.html">Your first conversation</a><em>Branch map</em></td>
+          <td class="why">The three moves — stage, task, rules — that turn a request into a brief. Every prompt in both libraries is built from these.</td>
+          <td class="do"><b>Action</b>Take a prompt you wrote last week and cut it into the three jobs. Find the missing one.</td>
+          <td class="time">5 min</td>
+        </tr>
+        <tr class="r2">
+          <td class="n"><span>03</span></td>
+          <td class="what"><a href="lesson-03-better-results.html">Getting better results</a><em>Fault chart</em></td>
+          <td class="why">Five specific failures with named fixes, including the one that can actually cost you: confident-sounding wrong answers.</td>
+          <td class="do"><b>Action</b>Read fault 04 twice. It's the only one on the page that can embarrass you in public.</td>
+          <td class="time">6 min</td>
+        </tr>
+        <tr class="r2">
+          <td class="n"><span>13</span></td>
+          <td class="what"><a href="lesson-13-twelve-mistakes.html">The 12 mistakes</a><em>Leak chart</em></td>
+          <td class="why">Sits here, not at the end, because it's a prompting lesson. Twelve habits across four stages — where quality escapes between what you meant and what you got.</td>
+          <td class="do"><b>Action</b>Pick the one mistake you recognise most and fix it today. Not all twelve.</td>
+          <td class="time">7 min</td>
+        </tr>
+
+        <tr class="r2">
+          <td class="n"><span>V1</span></td>
+          <td class="what"><a href="prompt-library.html">Practice · 50 before-and-after pairs</a><em>Contrast set · copy buttons</em></td>
+          <td class="why">Here, not earlier. Now that you know stage / task / rules, the "why" line under each pair is legible — you're diagnosing your own habits, not collecting recipes.</td>
+          <td class="do"><b>Action</b>Find three pairs where the left column is something you actually type. Fix those three.</td>
+          <td class="time">15 min</td>
+        </tr>
+
+        <tr class="stagerow"><td colspan="5">Stage 3 · The machinery — read 04 and 05 now, the rest when you need them</td></tr>
+        <tr class="r3">
+          <td class="n"><span>04</span></td>
+          <td class="what"><a href="lesson-04-desktop-shapes.html">Working on your desktop</a><em>Work sorter</em></td>
+          <td class="why">Three shapes of work — turn-by-turn, handing off, building software — and how to notice which you're in.</td>
+          <td class="do"><b>Action</b>Learn the Chat-versus-Cowork line: one hands files back as downloads, one saves into your folder.</td>
+          <td class="time">7 min</td>
+        </tr>
+        <tr class="r3">
+          <td class="n"><span>05</span></td>
+          <td class="what"><a href="lesson-05-projects.html">Introduction to Projects</a><em>Anatomy</em></td>
+          <td class="why">The highest-value feature in the whole course, and the one Lesson 00 had you set up blind. Now you learn why.</td>
+          <td class="do"><b>Action</b>Write real instructions for the Project you made in Lesson 00.</td>
+          <td class="time">6 min</td>
+        </tr>
+        <tr class="r3">
+          <td class="n"><span>06</span></td>
+          <td class="what"><a href="lesson-06-artifacts.html">Creating with artifacts</a><em>Production line</em></td>
+          <td class="why">What the side window is, the six things it makes, and what "publish" genuinely exposes.</td>
+          <td class="do"><b>Action</b>Read the publishing panel before you ever share an artifact link.</td>
+          <td class="time">6 min</td>
+        </tr>
+        <tr class="r3">
+          <td class="n"><span>07</span></td>
+          <td class="what"><a href="lesson-07-skills.html">Working with Skills</a><em>The shelf</em></td>
+          <td class="why">You've used Skills for months without knowing. Now build one — by being interviewed, not by writing code.</td>
+          <td class="do"><b>Action</b>Build one skill for a task you repeat weekly. Bring an example you're proud of.</td>
+          <td class="time">6 min</td>
+        </tr>
+        <tr class="r3">
+          <td class="n"><span>08</span></td>
+          <td class="what"><a href="lesson-08-connectors.html">Connecting your tools</a><em>Port board · clickable</em></td>
+          <td class="why">Connectors don't make Claude smarter — they give your request somewhere to reach.</td>
+          <td class="do"><b>Action</b>Play the toggle demo, especially Cloud storage. It's the one that changes nothing.</td>
+          <td class="time">6 min</td>
+        </tr>
+        <tr class="r3">
+          <td class="n"><span>09</span></td>
+          <td class="what"><a href="lesson-09-enterprise-search.html">Enterprise Search</a><em>The funnel</em></td>
+          <td class="why">Team and Enterprise only. Skip entirely on Free, Pro or Max — nothing later depends on it.</td>
+          <td class="do"><b>Action</b>Check whether you're an Owner: Settings → Organization. If you see the admin panel, you are.</td>
+          <td class="time">5 min</td>
+        </tr>
+        <tr class="r3">
+          <td class="n"><span>10</span></td>
+          <td class="what"><a href="lesson-10-research.html">Research for deep dives</a><em>The tree · quiz</em></td>
+          <td class="why">When to send out an investigator instead of asking a question — and how to write a prompt worth a ten-minute run.</td>
+          <td class="do"><b>Action</b>Take the 7-question quiz. Get all five routes right and something fires.</td>
+          <td class="time">8 min</td>
+        </tr>
+        <tr class="r3">
+          <td class="n"><span>12</span></td>
+          <td class="what"><a href="lesson-12-other-surfaces.html">Other ways to work</a><em>Floor plan</em></td>
+          <td class="why">Eight more places Claude turns up. Reference material — read the room that matches where you already work.</td>
+          <td class="do"><b>Action</b>If you install Claude in Chrome, set the permission mode to "Manually approve" first.</td>
+          <td class="time">6 min</td>
+        </tr>
+
+        <tr class="stagerow"><td colspan="5">Stage 4 · Apply it — reading stops paying here; doing starts. The toolkit is last for a reason</td></tr>
+        <tr class="r4">
+          <td class="n"><span>11</span></td>
+          <td class="what"><a href="lesson-11-use-cases.html">Claude in action</a><em>Catalogue · 15 guides</em></td>
+          <td class="why">Fifteen real workflows sorted by the shape of the work, each tagged with the lessons that power it.</td>
+          <td class="do"><b>Action</b>Pick one guide matching this week's work and run it. Read its "required context" first.</td>
+          <td class="time">5 min + doing</td>
+        </tr>
+        
+        
+        <tr class="r4">
+          <td class="n"><span>V2</span></td>
+          <td class="what"><a href="power-prompts.html">Toolkit · 64 power prompts</a><em>Long · ready to run</em></td>
+          <td class="why">Last on purpose. Read cold these are magic spells; read after Lessons 02 and 13 they're worked examples — you can see the role, the context and the rules doing their jobs.</td>
+          <td class="do"><b>Action</b>Dissect one before you paste it. Name its three parts. Then write your own from the blank scaffold at the bottom.</td>
+          <td class="time">browse + build</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="note">Lessons 09 and 12 are reference — skip and come back. Everything else is worth reading in the order above.</p>
+</div>
+
+<section class="sect">
+  <div class="wrap">
+    <h2>Three shorter routes</h2>
+    <p class="slede">Not everyone needs all fourteen. Pick the route that matches how much time you actually have.</p>
+    <div class="paths">
+      <div class="path p1">
+        <h3>The 30-minute route</h3>
+        <span class="who">You just want to be better by lunchtime</span>
+        <ol>
+          <li><a href="lesson-02-first-conversation.html">Lesson 02</a> — stage, task, rules</li>
+          <li><a href="lesson-00-setup.html">Lesson 00</a> — make one Project</li>
+          <li><a href="prompt-library.html">Vol 1</a> — fix three habits you recognise</li>
+          <li>Use one on real work today</li>
+        </ol>
+      </div>
+      <div class="path p2">
+        <h3>The teaching route</h3>
+        <span class="who">You're showing this to friends</span>
+        <ol>
+          <li>Show <em>three</em> pairs from Vol 1 as a hook — not the whole library</li>
+          <li><a href="what-is-claude-map.html">Lesson 01</a> — make them guess out loud</li>
+          <li><a href="lesson-08-connectors.html">Lesson 08</a> — let them click the toggles</li>
+          <li><a href="lesson-10-research.html">Lesson 10</a> — the quiz, as a group</li>
+          <li><a href="lesson-00-setup.html">Lesson 00</a> — set it up together at the end</li>
+        </ol>
+      </div>
+      <div class="path p3">
+        <h3>The full route</h3>
+        <span class="who">You want the whole thing to stick</span>
+        <ol>
+          <li>The table above, top to bottom</li>
+          <li>One lesson per sitting, not twelve in a row</li>
+          <li>Do the "action" column every time</li>
+          <li>Finish on <a href="lesson-11-use-cases.html">Lesson 11</a> and actually run one guide</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="keep">
+      <p><b>The order matters in exactly one place.</b> Lesson 00 goes first. Everything else in this course gets better once Claude already knows who you are — and every hour you spend learning to prompt while re-explaining yourself each session is an hour spent solving the wrong problem.</p>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>The learning path · 14 lessons · 114 prompts · <a href="index.html">Home</a> · <a href="lesson-00-setup.html">Start with Lesson 00 →</a></p>
+  </div>
+</footer>
+
+</body>
+</html>
